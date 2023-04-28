@@ -56,9 +56,9 @@ namespace kstd {
             value_type _value;
             E _error;
 
-            constexpr ResultInner() noexcept {
-                std::memset(this, 0, sizeof(decltype(*this))); // NOLINT
-            }
+            constexpr ResultInner() noexcept :
+                    _value()
+            {}
 
             // @formatter:off
             constexpr ~ResultInner() noexcept {}
