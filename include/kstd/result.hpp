@@ -169,6 +169,10 @@ namespace kstd {
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
+
+            if(is_error()) {
+                throw std::runtime_error("Result is an error");
+            }
             #endif
 
             if constexpr (!_is_void) {
@@ -185,6 +189,10 @@ namespace kstd {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
+            }
+
+            if(is_error()) {
+                throw std::runtime_error("Result is an error");
             }
             #endif
 
@@ -208,6 +216,10 @@ namespace kstd {
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
+
+            if(!is_error()) {
+                throw std::runtime_error("Result is not an error");
+            }
             #endif
 
             return _inner._error;
@@ -218,6 +230,10 @@ namespace kstd {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
+            }
+
+            if(!is_error()) {
+                throw std::runtime_error("Result is not an error");
             }
             #endif
 
