@@ -56,9 +56,9 @@ namespace kstd {
             value_type _value;
             E _error;
 
-            constexpr ResultInner() noexcept :
-                    _value()
-            {}
+            constexpr ResultInner() noexcept:
+                    _value() {
+            }
 
             // @formatter:off
             constexpr ~ResultInner() noexcept {}
@@ -71,6 +71,7 @@ namespace kstd {
     struct Result final {
         using self_type = Result<T, E>;
         using value_type = std::conditional_t<std::is_void_v<T>, u8, T>;
+        using naked_value_type = std::remove_all_extents_t<std::remove_reference_t<value_type>>;
 
         private:
 
@@ -163,7 +164,7 @@ namespace kstd {
             return _type == ResultType::ERROR;
         }
 
-        [[nodiscard]] constexpr auto borrow_value() noexcept -> T {
+        [[nodiscard]] constexpr auto borrow_value() noexcept -> std::conditional_t<_is_pointer, T, naked_value_type&> {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
@@ -227,7 +228,7 @@ namespace kstd {
             return !is_empty();
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> std::remove_all_extents_t<std::remove_reference_t<value_type>>* {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> naked_value_type* {
             return &borrow_value();
         }
 
