@@ -3,6 +3,7 @@ project(kstd-types LANGUAGES C CXX)
 
 option(KSTD_TYPES_BUILD_TESTS "Build unit tests for kstd-types" ON)
 set(KSTD_TYPES_MODULE ON) # Let other modules know we are present!
+add_compile_definitions(KSTD_TYPES_MODULE)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;")
