@@ -21,10 +21,12 @@
 
 #include <type_traits>
 #include <string_view>
+#include <cstring>
 #include "types.hpp"
 
 namespace kstd {
-    template<typename E> requires std::is_standard_layout_v<E>
+    template<typename E> //
+    requires std::is_standard_layout_v<E>
     class Error final {
         E _error;
 
@@ -46,29 +48,16 @@ namespace kstd {
             EMPTY
         };
 
-        template<usize ALIGN>
-        struct alignas(ALIGN) DummyStruct final {
-            u8 value;
-        };
-
-        template<typename T, typename E> requires std::is_standard_layout_v<E> && std::is_move_assignable_v<E>
+        template<typename T, typename E> //
+        requires std::is_standard_layout_v<E> && std::is_move_assignable_v<E>
         union ResultInner {
             using value_type = std::conditional_t<std::is_void_v<T>, u8, std::conditional_t<std::is_reference_v<T>, std::remove_reference_t<T>*, T>>;
 
             value_type _value;
             E _error;
-            DummyStruct<std::max(sizeof(value_type), sizeof(E))> _dummy;
 
-            constexpr ResultInner() noexcept:
-                    _dummy({0}) {
-            }
-
-            constexpr ResultInner(value_type value) noexcept:
-                    _value(value) {
-            }
-
-            constexpr ResultInner(Error<E> error) noexcept:
-                    _error(std::move(error)) {
+            constexpr ResultInner() noexcept {
+                std::memset(this, 0, sizeof(decltype(*this))); // NOLINT
             }
 
             // @formatter:off
@@ -77,9 +66,10 @@ namespace kstd {
         };
     }
 
-    template<typename T, typename E = std::string_view> requires std::is_standard_layout_v<E> && std::is_move_assignable_v<E>
+    template<typename T, typename E = std::string_view> //
+    requires std::is_standard_layout_v<E> && std::is_move_assignable_v<E>
     struct Result final {
-        // If the ok-type of the result is a void, we substitute an unsigned byte
+        using self_type = Result<T, E>;
         using value_type = std::conditional_t<std::is_void_v<T>, u8, T>;
 
         private:
@@ -93,10 +83,13 @@ namespace kstd {
 
         public:
 
-        using inner_value_type = typename decltype(_inner)::value_type;
+        constexpr Result() noexcept:
+                _inner(),
+                _type(ResultType::EMPTY) {
+        }
 
         constexpr Result(value_type value) noexcept: // NOLINT
-                _inner(inner_value_type()),
+                _inner(),
                 _type(ResultType::OK) {
             if constexpr ((_is_pointer || _is_reference) || !std::is_trivial_v<T>) {
                 if constexpr (_is_reference) {
@@ -107,19 +100,50 @@ namespace kstd {
                 }
             }
             else {
-                new(&_inner._value) T(); // Initialize union field before copying
-                _inner._value = std::move(value);
+                if constexpr (std::is_move_assignable_v<T>) {
+                    _inner._value = std::move(value);
+                }
+                else {
+                    _inner._value = value;
+                }
             }
         }
 
         constexpr Result(Error<E> error) noexcept: // NOLINT
-                _inner(std::move(error.get_error())),
+                _inner(),
                 _type(ResultType::ERROR) {
+            _inner._error = std::move(error.get_error());
         }
 
-        constexpr Result() noexcept:
-                _inner(ResultInner<T, E>()),
-                _type(ResultType::EMPTY) {
+        constexpr auto operator =(const self_type& other) noexcept -> self_type& {
+            _type = other._type;
+
+            if (other._type == ResultType::OK) {
+                _inner._value = other._inner._value;
+            }
+            else if (other._type == ResultType::ERROR) {
+                _inner._error = other._inner._error;
+            }
+
+            return *this;
+        }
+
+        constexpr auto operator =(self_type&& other) noexcept -> self_type& {
+            _type = other._type;
+
+            if (other._type == ResultType::OK) {
+                if constexpr (_is_pointer || _is_reference) {
+                    _inner._value = other._inner._value;
+                }
+                else {
+                    _inner._value = std::move(other._inner._value);
+                }
+            }
+            else if (other._type == ResultType::ERROR) {
+                _inner._error = std::move(other._inner._error);
+            }
+
+            return *this;
         }
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
@@ -139,7 +163,13 @@ namespace kstd {
             return _type == ResultType::ERROR;
         }
 
-        [[nodiscard]] constexpr auto borrow_value() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto borrow_value() noexcept -> T {
+            #ifdef BUILD_DEBUG
+            if (is_empty()) {
+                throw std::runtime_error("Result has no value");
+            }
+            #endif
+
             if constexpr (!_is_void) {
                 if constexpr (_is_reference) {
                     return *_inner._value;
@@ -150,10 +180,16 @@ namespace kstd {
             }
         }
 
-        [[nodiscard]] constexpr auto get_value() noexcept -> decltype(auto) {
-            if constexpr (!_is_void) {
-                _type = ResultType::EMPTY;
+        [[nodiscard]] constexpr auto get_value() noexcept -> T {
+            #ifdef BUILD_DEBUG
+            if (is_empty()) {
+                throw std::runtime_error("Result has no value");
+            }
+            #endif
 
+            _type = ResultType::EMPTY;
+
+            if constexpr (!_is_void) {
                 if constexpr (_is_reference) {
                     return *_inner._value;
                 }
@@ -166,13 +202,37 @@ namespace kstd {
             }
         }
 
-        [[nodiscard]] constexpr auto borrow_error() noexcept -> E& {
+        [[nodiscard]] constexpr auto get_error() noexcept -> E {
+            #ifdef BUILD_DEBUG
+            if (is_empty()) {
+                throw std::runtime_error("Result has no value");
+            }
+            #endif
+
             return _inner._error;
         }
 
-        [[nodiscard]] constexpr auto get_error() noexcept -> E {
-            _type = ResultType::EMPTY;
-            return std::move(_inner._error);
+        template<typename TT>
+        [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
+            #ifdef BUILD_DEBUG
+            if (is_empty()) {
+                throw std::runtime_error("Result has no value");
+            }
+            #endif
+
+            return Result<TT, E>(Error<E>(std::move(_inner._error)));
+        }
+
+        [[nodiscard]] constexpr operator bool() const noexcept { // NOLINT
+            return !is_empty();
+        }
+
+        [[nodiscard]] constexpr auto operator ->() noexcept -> std::remove_all_extents_t<std::remove_reference_t<value_type>>* {
+            return &borrow_value();
+        }
+
+        [[nodiscard]] constexpr auto operator *() noexcept -> T {
+            return get_value();
         }
     };
 }

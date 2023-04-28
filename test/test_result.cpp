@@ -24,47 +24,77 @@
 using namespace kstd;
 
 TEST(kstd_Result, TestValue) {
+    using namespace std::string_view_literals;
+
     std::string value("Hello World!");
     Result<std::string> result(value);
 
-    ASSERT_TRUE(result.is_ok());
+    ASSERT_TRUE(result);
     ASSERT_EQ(value, result.borrow_value());
 
-    auto other_value = result.get_value();
+    auto other_value = *result;
     ASSERT_TRUE(result.is_empty());
     ASSERT_EQ(other_value, value);
+
+    result = Error("This is an error now!"sv);
+    ASSERT_TRUE(result.is_error());
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
 TEST(kstd_Result, TestReference) {
+    using namespace std::string_view_literals;
+
     std::string value("Hello World!");
     Result<std::string&> result(value);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, result.borrow_value());
 
-    auto other_value = result.get_value();
+    auto other_value = *result;
     ASSERT_TRUE(result.is_empty());
     ASSERT_EQ(other_value, value);
+
+    result = Error("This is an error now!"sv);
+    ASSERT_TRUE(result.is_error());
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
 TEST(kstd_Result, TestPointer) {
+    using namespace std::string_view_literals;
+
     std::string value("Hello World!");
     Result<std::string*> result(&value);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result.borrow_value());
 
-    auto other_value = result.get_value();
+    auto other_value = *result;
     ASSERT_TRUE(result.is_empty());
     ASSERT_EQ(*other_value, value);
+
+    result = Error("This is an error now!"sv);
+    ASSERT_TRUE(result.is_error());
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
 TEST(kstd_Result, TestVoid) {
+    using namespace std::string_view_literals;
+
     auto result = Result<void>();
     ASSERT_TRUE(result.is_ok());
+
+    result = Error("This is an error now!"sv);
+    ASSERT_TRUE(result.is_error());
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
 TEST(kstd_Result, TestEmpty) {
+    using namespace std::string_view_literals;
+
     auto result = Result<std::string>();
     ASSERT_TRUE(result.is_empty());
+
+    result = Error("This is an error now!"sv);
+    ASSERT_TRUE(result.is_error());
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
