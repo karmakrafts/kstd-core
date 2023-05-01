@@ -170,7 +170,7 @@ namespace kstd {
                 throw std::runtime_error("Result has no value");
             }
 
-            if(is_error()) {
+            if (is_error()) {
                 throw std::runtime_error("Result is an error");
             }
             #endif
@@ -191,7 +191,7 @@ namespace kstd {
                 throw std::runtime_error("Result has no value");
             }
 
-            if(is_error()) {
+            if (is_error()) {
                 throw std::runtime_error("Result is an error");
             }
             #endif
@@ -217,7 +217,7 @@ namespace kstd {
                 throw std::runtime_error("Result has no value");
             }
 
-            if(!is_error()) {
+            if (!is_error()) {
                 throw std::runtime_error("Result is not an error");
             }
             #endif
@@ -232,7 +232,7 @@ namespace kstd {
                 throw std::runtime_error("Result has no value");
             }
 
-            if(!is_error()) {
+            if (!is_error()) {
                 throw std::runtime_error("Result is not an error");
             }
             #endif
