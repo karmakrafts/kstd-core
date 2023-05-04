@@ -19,11 +19,9 @@
 
 #pragma once
 
-#include <memory>
 #include <exception>
 #include <concepts>
 #include <type_traits>
-#include <cstring>
 
 namespace kstd {
     /*
