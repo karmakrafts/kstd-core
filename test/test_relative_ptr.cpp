@@ -23,30 +23,51 @@
 
 using namespace kstd;
 
+template<typename T>
 struct TestStruct final {
-    RelativePtr<i32> foo;
-    RelativePtr<f32> bar;
+    RelativePtr<i32, T> foo;
+    RelativePtr<f32, T> bar;
 };
 
-TEST(kstd_RelativePtr, TestIntegrity) {
-    /*
-     * Since a relative pointer imposes linear allocation
-     * on the data that it points to, we need to create a
-     * test harness which mimics the behaviour of a linear
-     * allocator as found in real-time graphics applications.
-     */
+/*
+ * Since a relative pointer imposes linear allocation
+ * on the data that it points to, we need to create a
+ * test harness which mimics the behaviour of a linear
+ * allocator as found in real-time graphics applications.
+ */
 
-    auto* memory = reinterpret_cast<u8*>(::malloc(sizeof(TestStruct) + sizeof(i32) + sizeof(f32)));
-    std::memset(memory, 0, sizeof(TestStruct));
+TEST(kstd_RelativePtr, TestUnsignedOffset) {
+    auto *memory = reinterpret_cast<u8 *>(::malloc(sizeof(TestStruct<u8>) + sizeof(i32) + sizeof(f32)));
+    std::memset(memory, 0, sizeof(TestStruct<u8>));
 
     // Initialize test values
-    *reinterpret_cast<i32*>(memory + sizeof(TestStruct)) = 1337;
-    *reinterpret_cast<f32*>(memory + sizeof(TestStruct) + sizeof(i32)) = 3.141F;
+    *reinterpret_cast<i32 *>(memory + sizeof(TestStruct<u8>)) = 1337;
+    *reinterpret_cast<f32 *>(memory + sizeof(TestStruct<u8>) + sizeof(i32)) = 3.141F;
 
     // Initialize relative pointers
-    auto* s = reinterpret_cast<TestStruct*>(memory);
-    s->foo = reinterpret_cast<i32*>(memory + sizeof(TestStruct));
-    s->bar = reinterpret_cast<f32*>(memory + sizeof(TestStruct) + sizeof(i32));
+    auto *s = reinterpret_cast<TestStruct<u8> *>(memory);
+    s->foo = reinterpret_cast<i32 *>(memory + sizeof(TestStruct<u8>));
+    s->bar = reinterpret_cast<f32 *>(memory + sizeof(TestStruct<u8>) + sizeof(i32));
+
+    // Validate data integrity
+    ASSERT_EQ(*(s->foo), 1337);
+    ASSERT_EQ(*(s->bar), 3.141F);
+
+    ::free(memory);
+}
+
+TEST(kstd_RelativePtr, TestSignedOffset) {
+    auto *memory = reinterpret_cast<u8 *>(::malloc(sizeof(TestStruct<i8>) + sizeof(i32) + sizeof(f32)));
+    std::memset(memory, 0, sizeof(TestStruct<i8>));
+
+    // Initialize test values
+    *reinterpret_cast<i32 *>(memory + sizeof(TestStruct<i8>)) = 1337;
+    *reinterpret_cast<f32 *>(memory + sizeof(TestStruct<i8>) + sizeof(i32)) = 3.141F;
+
+    // Initialize relative pointers
+    auto *s = reinterpret_cast<TestStruct<i8> *>(memory);
+    s->foo = reinterpret_cast<i32 *>(memory + sizeof(TestStruct<i8>));
+    s->bar = reinterpret_cast<f32 *>(memory + sizeof(TestStruct<i8>) + sizeof(i32));
 
     // Validate data integrity
     ASSERT_EQ(*(s->foo), 1337);

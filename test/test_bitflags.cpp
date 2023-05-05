@@ -14,27 +14,28 @@
 
 /**
  * @author Alexander Hinze
- * @since 02/05/2023
+ * @since 05/05/2023
  */
 
 #include <gtest/gtest.h>
-#include <kstd/out_ptr.hpp>
+#include <kstd/bitflags.hpp>
 #include <kstd/types.hpp>
-#include <iostream>
 
 using namespace kstd;
 
-auto the_c_function(i32 **data_to_set) {
-    *data_to_set = reinterpret_cast<i32 *>(::malloc(sizeof(i32)));
-    *(*data_to_set) = 420;
-}
+BITFLAGS(u8, SomeFlags,
+         FOO = 0b0000'0001,
+         BAR = 0b0000'0010,
+         BAZ = 0b0000'0100)
 
-TEST(kstd_OutPtr, TestOutPtr) {
-    auto the_data = std::unique_ptr<i32, decltype([](i32 *ptr) {
-        ::free(ptr);
-        std::cout << "HELLO WORLD!" << std::endl;
-    })>(nullptr);
+TEST(kstd, TestBitflags) {
+    SomeFlags flags = SomeFlags::NONE;
+    flags |= SomeFlags::FOO;
 
-    the_c_function(OutPtr(the_data));
-    ASSERT_EQ(*the_data, 420);
+    ASSERT_EQ(flags, SomeFlags::FOO);
+
+    flags |= SomeFlags::BAZ;
+    flags &= ~SomeFlags::FOO;
+
+    ASSERT_EQ(flags, SomeFlags::BAZ);
 }

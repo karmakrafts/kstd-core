@@ -39,39 +39,39 @@ namespace kstd {
         using self_type = OutPtr<P>;
         using element_type = typename P::element_type;
         using smart_pointer = P;
-        using pointer = element_type*;
+        using pointer = element_type *;
 
-        private:
+    private:
 
-        smart_pointer& _owner;
+        smart_pointer &_owner;
         pointer _new_value;
 
-        public:
+    public:
 
-        explicit constexpr OutPtr(smart_pointer& owner) noexcept:
+        explicit constexpr OutPtr(smart_pointer &owner) noexcept:
                 _owner(owner),
                 _new_value(pointer()) {
         }
 
         constexpr ~OutPtr() noexcept {
-            #ifdef BUILD_DEBUG
+#ifdef BUILD_DEBUG
             if (_new_value == nullptr) {
                 throw std::runtime_error("Invalid value");
             }
-            #endif
+#endif
 
             _owner.reset(_new_value);
         }
 
-        constexpr OutPtr(const self_type& other) noexcept = delete;
+        constexpr OutPtr(const self_type &other) noexcept = delete;
 
-        constexpr OutPtr(self_type&& other) noexcept = delete;
+        constexpr OutPtr(self_type &&other) noexcept = delete;
 
-        constexpr auto operator =(const self_type& other) noexcept = delete;
+        constexpr auto operator=(const self_type &other) noexcept = delete;
 
-        constexpr auto operator =(self_type&& other) noexcept = delete;
+        constexpr auto operator=(self_type &&other) noexcept = delete;
 
-        [[nodiscard]] constexpr operator pointer*() noexcept { // NOLINT
+        [[nodiscard]] constexpr operator pointer *() noexcept { // NOLINT
             return &_new_value;
         }
     };

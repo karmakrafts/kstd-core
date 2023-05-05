@@ -27,7 +27,7 @@ TEST(kstd, TestSignedTypes) {
     ASSERT_TRUE(sizeof(i16) == 2);
     ASSERT_TRUE(sizeof(i32) == 4);
     ASSERT_TRUE(sizeof(i64) == 8);
-    ASSERT_TRUE(sizeof(isize) == sizeof(void*));
+    ASSERT_TRUE(sizeof(isize) == sizeof(void *));
 }
 
 TEST(kstd, TestUnsignedTypes) {
@@ -35,7 +35,7 @@ TEST(kstd, TestUnsignedTypes) {
     ASSERT_TRUE(sizeof(u16) == 2);
     ASSERT_TRUE(sizeof(u32) == 4);
     ASSERT_TRUE(sizeof(u64) == 8);
-    ASSERT_TRUE(sizeof(usize) == sizeof(void*));
+    ASSERT_TRUE(sizeof(usize) == sizeof(void *));
 }
 
 TEST(kstd, TestFloatTypes) {

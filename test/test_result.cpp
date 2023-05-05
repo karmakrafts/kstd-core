@@ -45,7 +45,7 @@ TEST(kstd_Result, TestReference) {
     using namespace std::string_view_literals;
 
     std::string value("Hello World!");
-    Result<std::string&> result(value);
+    Result<std::string &> result(value);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, result.borrow_value());
@@ -63,7 +63,7 @@ TEST(kstd_Result, TestPointer) {
     using namespace std::string_view_literals;
 
     std::string value("Hello World!");
-    Result<std::string*> result(&value);
+    Result<std::string *> result(&value);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result.borrow_value());
