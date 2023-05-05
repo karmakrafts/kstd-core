@@ -64,11 +64,9 @@ namespace kstd {
         }
 
         ~OutPtr() noexcept {
-            #ifdef BUILD_DEBUG
             if (_new_value == nullptr) {
-                throw std::runtime_error("Invalid value");
+                return;
             }
-            #endif
 
             _owner.reset(_new_value);
         }
