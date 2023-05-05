@@ -31,7 +31,7 @@ namespace kstd {
         template<typename P> //
         concept SmartPointer = requires(P value, typename P::pointer ptr) {
             typename P::pointer;
-            requires std::is_pointer_v<typename P::pointer>;
+            requires std::is_pointer<typename P::pointer>::value;
             value.reset(ptr);
             requires std::same_as<decltype(value.reset(ptr)), void>;
         };
@@ -49,16 +49,16 @@ namespace kstd {
         using self_type = OutPtr<P>;
         using element_type = typename P::element_type;
         using smart_pointer = P;
-        using pointer = element_type *;
+        using pointer = element_type*;
 
     private:
 
-        smart_pointer &_owner;
+        smart_pointer& _owner;
         pointer _new_value;
 
     public:
 
-        explicit OutPtr(smart_pointer &owner) noexcept:
+        explicit OutPtr(smart_pointer& owner) noexcept :
                 _owner(owner),
                 _new_value(pointer()) {
         }
@@ -71,22 +71,21 @@ namespace kstd {
             _owner.reset(_new_value);
         }
 
-        constexpr OutPtr(const self_type &other) noexcept = delete;
+        constexpr OutPtr(const self_type& other) noexcept = delete;
 
-        constexpr OutPtr(self_type &&other) noexcept :
+        constexpr OutPtr(self_type&& other) noexcept :
                 _owner(other._owner),
-                _new_value(other._new_value)
-        {}
+                _new_value(other._new_value) {}
 
-        constexpr auto operator=(const self_type &other) noexcept -> self_type& = delete;
+        constexpr auto operator =(const self_type& other) noexcept -> self_type& = delete;
 
-        constexpr auto operator=(self_type &&other) noexcept -> self_type& {
+        constexpr auto operator =(self_type&& other) noexcept -> self_type& {
             _owner = other._owner;
             _new_value = other._new_value;
             return *this;
         }
 
-        [[nodiscard]] constexpr operator pointer *() noexcept { // NOLINT
+        [[nodiscard]] constexpr operator pointer*() noexcept { // NOLINT
             return &_new_value;
         }
     };
@@ -97,7 +96,7 @@ namespace kstd {
      */
     template<typename T> //
     struct FreeDeleter final {
-        inline auto operator()(T *ptr) const noexcept -> void {
+        inline auto operator ()(T* ptr) const noexcept -> void {
             ::free(ptr);
         }
     };

@@ -37,17 +37,17 @@ struct TestStruct final {
  */
 
 TEST(kstd_RelativePtr, TestUnsignedOffset) {
-    auto *memory = reinterpret_cast<u8 *>(::malloc(sizeof(TestStruct<u8>) + sizeof(i32) + sizeof(f32)));
+    auto* memory = reinterpret_cast<u8*>(::malloc(sizeof(TestStruct<u8>) + sizeof(i32) + sizeof(f32)));
     std::memset(memory, 0, sizeof(TestStruct<u8>));
 
     // Initialize test values
-    *reinterpret_cast<i32 *>(memory + sizeof(TestStruct<u8>)) = 1337;
-    *reinterpret_cast<f32 *>(memory + sizeof(TestStruct<u8>) + sizeof(i32)) = 3.141F;
+    *reinterpret_cast<i32*>(memory + sizeof(TestStruct<u8>)) = 1337;
+    *reinterpret_cast<f32*>(memory + sizeof(TestStruct<u8>) + sizeof(i32)) = 3.141F;
 
     // Initialize relative pointers
-    auto *s = reinterpret_cast<TestStruct<u8> *>(memory);
-    s->foo = reinterpret_cast<i32 *>(memory + sizeof(TestStruct<u8>));
-    s->bar = reinterpret_cast<f32 *>(memory + sizeof(TestStruct<u8>) + sizeof(i32));
+    auto* s = reinterpret_cast<TestStruct<u8>*>(memory);
+    s->foo = reinterpret_cast<i32*>(memory + sizeof(TestStruct<u8>));
+    s->bar = reinterpret_cast<f32*>(memory + sizeof(TestStruct<u8>) + sizeof(i32));
 
     // Validate data integrity
     ASSERT_EQ(*(s->foo), 1337);
@@ -57,17 +57,17 @@ TEST(kstd_RelativePtr, TestUnsignedOffset) {
 }
 
 TEST(kstd_RelativePtr, TestSignedOffset) {
-    auto *memory = reinterpret_cast<u8 *>(::malloc(sizeof(TestStruct<i8>) + sizeof(i32) + sizeof(f32)));
+    auto* memory = reinterpret_cast<u8*>(::malloc(sizeof(TestStruct<i8>) + sizeof(i32) + sizeof(f32)));
     std::memset(memory, 0, sizeof(TestStruct<i8>));
 
     // Initialize test values
-    *reinterpret_cast<i32 *>(memory + sizeof(TestStruct<i8>)) = 1337;
-    *reinterpret_cast<f32 *>(memory + sizeof(TestStruct<i8>) + sizeof(i32)) = 3.141F;
+    *reinterpret_cast<i32*>(memory + sizeof(TestStruct<i8>)) = 1337;
+    *reinterpret_cast<f32*>(memory + sizeof(TestStruct<i8>) + sizeof(i32)) = 3.141F;
 
     // Initialize relative pointers
-    auto *s = reinterpret_cast<TestStruct<i8> *>(memory);
-    s->foo = reinterpret_cast<i32 *>(memory + sizeof(TestStruct<i8>));
-    s->bar = reinterpret_cast<f32 *>(memory + sizeof(TestStruct<i8>) + sizeof(i32));
+    auto* s = reinterpret_cast<TestStruct<i8>*>(memory);
+    s->foo = reinterpret_cast<i32*>(memory + sizeof(TestStruct<i8>));
+    s->bar = reinterpret_cast<f32*>(memory + sizeof(TestStruct<i8>) + sizeof(i32));
 
     // Validate data integrity
     ASSERT_EQ(*(s->foo), 1337);

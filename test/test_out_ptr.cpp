@@ -23,8 +23,8 @@
 
 using namespace kstd;
 
-auto the_c_function(i32 **data_to_set) {
-    *data_to_set = reinterpret_cast<i32 *>(::malloc(sizeof(i32)));
+auto the_c_function(i32** data_to_set) {
+    *data_to_set = reinterpret_cast<i32*>(::malloc(sizeof(i32)));
     *(*data_to_set) = 420;
 }
 
