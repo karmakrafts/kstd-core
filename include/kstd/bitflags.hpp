@@ -19,8 +19,7 @@
 
 #pragma once
 
-#ifdef KSTD_EXPLICIT_BITFLAGS
-#define KSTD_BITFLAGS(t, n, ...) enum class n : t {                       \
+#define KSTD_BITFLAGS(t, n, ...) enum class n : t {                  \
     NONE = 0,                                                        \
     __VA_ARGS__                                                      \
 };                                                                   \
@@ -48,33 +47,3 @@ constexpr auto operator ^=(n& a, n b) noexcept -> n& {               \
     a = a ^ b;                                                       \
     return a;                                                        \
 }
-#else
-#define BITFLAGS(t, n, ...) enum class n : t {                       \
-    NONE = 0,                                                        \
-    __VA_ARGS__                                                      \
-};                                                                   \
-[[nodiscard]] constexpr auto operator |(n a, n b) noexcept -> n {    \
-    return static_cast<n>(static_cast<t>(a) | static_cast<t>(b));    \
-}                                                                    \
-[[nodiscard]] constexpr auto operator &(n a, n b) noexcept -> n {    \
-    return static_cast<n>(static_cast<t>(a) & static_cast<t>(b));    \
-}                                                                    \
-[[nodiscard]] constexpr auto operator ^(n a, n b) noexcept -> n {    \
-    return static_cast<n>(static_cast<t>(a) ^ static_cast<t>(b));    \
-}                                                                    \
-[[nodiscard]] constexpr auto operator ~(n x) noexcept -> n {         \
-    return static_cast<n>(~static_cast<t>(x));                       \
-}                                                                    \
-constexpr auto operator |=(n& a, n b) noexcept -> n& {               \
-    a = a | b;                                                       \
-    return a;                                                        \
-}                                                                    \
-constexpr auto operator &=(n& a, n b) noexcept -> n& {               \
-    a = a & b;                                                       \
-    return a;                                                        \
-}                                                                    \
-constexpr auto operator ^=(n& a, n b) noexcept -> n& {               \
-    a = a ^ b;                                                       \
-    return a;                                                        \
-}
-#endif

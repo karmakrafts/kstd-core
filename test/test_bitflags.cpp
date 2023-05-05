@@ -23,10 +23,10 @@
 
 using namespace kstd;
 
-BITFLAGS(u8, SomeFlags,
-         FOO = 0b0000'0001,
-         BAR = 0b0000'0010,
-         BAZ = 0b0000'0100)
+KSTD_BITFLAGS(u8, SomeFlags,
+              FOO = 0b0000'0001,
+              BAR = 0b0000'0010,
+              BAZ = 0b0000'0100)
 
 TEST(kstd, TestBitflags) {
     SomeFlags flags = SomeFlags::NONE;

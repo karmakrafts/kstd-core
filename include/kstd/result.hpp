@@ -158,7 +158,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto borrow_value() noexcept -> std::conditional_t<_is_pointer, T, naked_value_type &> {
-#ifdef BUILD_DEBUG
+            #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
@@ -166,7 +166,7 @@ namespace kstd {
             if (is_error()) {
                 throw std::runtime_error("Result is an error");
             }
-#endif
+            #endif
 
             if constexpr (!_is_void) {
                 if constexpr (_is_reference) {
@@ -178,7 +178,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto get_value() noexcept -> T {
-#ifdef BUILD_DEBUG
+            #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
@@ -186,7 +186,7 @@ namespace kstd {
             if (is_error()) {
                 throw std::runtime_error("Result is an error");
             }
-#endif
+            #endif
 
             _type = ResultType::EMPTY;
 
@@ -202,7 +202,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E {
-#ifdef BUILD_DEBUG
+            #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
@@ -210,14 +210,14 @@ namespace kstd {
             if (!is_error()) {
                 throw std::runtime_error("Result is not an error");
             }
-#endif
+            #endif
 
             return _inner._error;
         }
 
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
-#ifdef BUILD_DEBUG
+            #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
@@ -225,7 +225,7 @@ namespace kstd {
             if (!is_error()) {
                 throw std::runtime_error("Result is not an error");
             }
-#endif
+            #endif
 
             return Result<TT, E>(Error<E>(std::move(_inner._error)));
         }

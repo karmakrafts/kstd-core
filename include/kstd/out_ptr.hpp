@@ -22,6 +22,7 @@
 #include <exception>
 #include <concepts>
 #include <type_traits>
+#include "kstd/concepts.hpp"
 
 namespace kstd {
     /*
@@ -29,12 +30,12 @@ namespace kstd {
      * of a mechanism identical to std::out_ptr as described here:
      * https://en.cppreference.com/w/cpp/memory/out_ptr_t/out_ptr
      */
-    template<typename P> requires requires(P value, typename P::pointer ptr) {
-        typename P::pointer;
-        requires std::is_pointer_v<typename P::pointer>;
-        value.reset(ptr);
-        requires std::same_as<decltype(value.reset(ptr)), void>;
-    }
+    template<typename P> KSTD_REQUIRES((requires(P value, typename P::pointer ptr) {
+                                               typename P::pointer;
+                                               requires std::is_pointer_v<typename P::pointer>;
+                                               value.reset(ptr);
+                                               requires std::same_as<decltype(value.reset(ptr)), void>;
+                                       }))
     struct OutPtr final {
         using self_type = OutPtr<P>;
         using element_type = typename P::element_type;
@@ -54,11 +55,11 @@ namespace kstd {
         }
 
         constexpr ~OutPtr() noexcept {
-#ifdef BUILD_DEBUG
+            #ifdef BUILD_DEBUG
             if (_new_value == nullptr) {
                 throw std::runtime_error("Invalid value");
             }
-#endif
+            #endif
 
             _owner.reset(_new_value);
         }

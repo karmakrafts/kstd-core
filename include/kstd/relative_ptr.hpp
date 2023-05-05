@@ -20,9 +20,10 @@
 #pragma once
 
 #include "types.hpp"
+#include "kstd/concepts.hpp"
 
 namespace kstd {
-    template<typename T, typename OFFSET = u32>
+    template<typename T, typename OFFSET = u32> KSTD_REQUIRES(!std::is_void_v<T> && std::integral<OFFSET>)
     struct RelativePtr final {
         using self_type = RelativePtr<T, OFFSET>;
         using element_type = T;
