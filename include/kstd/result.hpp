@@ -23,10 +23,11 @@
 #include <string_view>
 #include <cstring>
 #include "types.hpp"
+#include "kstd/concepts.hpp"
 
 namespace kstd {
     template<typename E> //
-    requires std::is_standard_layout_v<E>
+    KSTD_REQUIRES(std::is_standard_layout_v<E>)
     class Error final {
         E _error;
 
@@ -49,7 +50,7 @@ namespace kstd {
         };
 
         template<typename T, typename E> //
-        requires std::is_standard_layout_v<E> && std::is_move_assignable_v<E>
+        KSTD_REQUIRES(std::is_standard_layout_v<E> && std::is_move_assignable_v<E>)
         union ResultInner {
             using value_type = std::conditional_t<std::is_void_v<T>, u8, std::conditional_t<std::is_reference_v<T>, std::remove_reference_t<T> *, T>>;
 
@@ -67,7 +68,7 @@ namespace kstd {
     }
 
     template<typename T, typename E = std::string_view> //
-    requires std::is_standard_layout_v<E> && std::is_move_assignable_v<E>
+    KSTD_REQUIRES(std::is_standard_layout_v<E> && std::is_move_assignable_v<E>)
     struct Result final {
         using self_type = Result<T, E>;
         using value_type = std::conditional_t<std::is_void_v<T>, u8, T>;
