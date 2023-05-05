@@ -73,9 +73,10 @@ namespace kstd {
 
         constexpr OutPtr(const self_type &other) noexcept = delete;
 
-        constexpr OutPtr(self_type &&other) noexcept {
-            *this = std::move(other);
-        }
+        constexpr OutPtr(self_type &&other) noexcept :
+                _owner(other._owner),
+                _new_value(other._new_value)
+        {}
 
         constexpr auto operator=(const self_type &other) noexcept -> self_type& = delete;
 
