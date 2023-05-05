@@ -20,7 +20,7 @@
 #pragma once
 
 #ifdef KSTD_EXPLICIT_BITFLAGS
-#define BITFLAGS(t, n, ...) enum class n : t {                       \
+#define KSTD_BITFLAGS(t, n, ...) enum class n : t {                       \
     NONE = 0,                                                        \
     __VA_ARGS__                                                      \
 };                                                                   \
