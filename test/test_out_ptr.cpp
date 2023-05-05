@@ -20,7 +20,6 @@
 #include <gtest/gtest.h>
 #include <kstd/out_ptr.hpp>
 #include <kstd/types.hpp>
-#include <iostream>
 
 using namespace kstd;
 
@@ -30,11 +29,7 @@ auto the_c_function(i32 **data_to_set) {
 }
 
 TEST(kstd_OutPtr, TestOutPtr) {
-    auto the_data = std::unique_ptr<i32, decltype([](i32 *ptr) {
-        ::free(ptr);
-        std::cout << "HELLO WORLD!" << std::endl;
-    })>(nullptr);
-
+    auto the_data = std::unique_ptr<i32, FreeDeleter<i32>>(nullptr);
     the_c_function(OutPtr(the_data));
     ASSERT_EQ(*the_data, 420);
 }

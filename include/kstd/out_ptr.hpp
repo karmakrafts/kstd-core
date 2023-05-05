@@ -22,6 +22,7 @@
 #include <exception>
 #include <concepts>
 #include <type_traits>
+#include <cstring>
 #include "kstd/concepts.hpp"
 
 namespace kstd {
@@ -75,6 +76,17 @@ namespace kstd {
 
         [[nodiscard]] constexpr operator pointer *() noexcept { // NOLINT
             return &_new_value;
+        }
+    };
+
+    /*
+     * A simple free-deleter for smart pointers with ownership of a
+     * C-style malloc'ed object.
+     */
+    template<typename T>
+    struct FreeDeleter final {
+        inline auto operator()(T *ptr) const noexcept -> void {
+            ::free(ptr);
         }
     };
 }
