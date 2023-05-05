@@ -22,10 +22,9 @@
 #include <string>
 
 using namespace kstd;
+using namespace kstd::string_literals;
 
 TEST(kstd_Result, TestValue) {
-    using namespace std::string_view_literals;
-
     std::string value("Hello World!");
     Result<std::string> result(value);
 
@@ -36,9 +35,9 @@ TEST(kstd_Result, TestValue) {
     ASSERT_TRUE(result.is_empty());
     ASSERT_EQ(other_value, value);
 
-    result = Error("This is an error now!"sv);
+    result = Error("This is an error now!"_str);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
+    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
 }
 
 TEST(kstd_Result, TestReference) {
@@ -54,9 +53,9 @@ TEST(kstd_Result, TestReference) {
     ASSERT_TRUE(result.is_empty());
     ASSERT_EQ(other_value, value);
 
-    result = Error("This is an error now!"sv);
+    result = Error("This is an error now!"_str);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
+    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
 }
 
 TEST(kstd_Result, TestPointer) {
@@ -72,9 +71,9 @@ TEST(kstd_Result, TestPointer) {
     ASSERT_TRUE(result.is_empty());
     ASSERT_EQ(*other_value, value);
 
-    result = Error("This is an error now!"sv);
+    result = Error("This is an error now!"_str);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
+    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
 }
 
 TEST(kstd_Result, TestVoid) {
@@ -83,9 +82,9 @@ TEST(kstd_Result, TestVoid) {
     auto result = Result<void>();
     ASSERT_TRUE(result.is_ok());
 
-    result = Error("This is an error now!"sv);
+    result = Error("This is an error now!"_str);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
+    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
 }
 
 TEST(kstd_Result, TestEmpty) {
@@ -94,7 +93,7 @@ TEST(kstd_Result, TestEmpty) {
     auto result = Result<std::string>();
     ASSERT_TRUE(result.is_empty());
 
-    result = Error("This is an error now!"sv);
+    result = Error("This is an error now!"_str);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
+    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
 }

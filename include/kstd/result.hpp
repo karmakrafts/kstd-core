@@ -20,10 +20,10 @@
 #pragma once
 
 #include <type_traits>
-#include <string_view>
 #include <cstring>
 #include "types.hpp"
 #include "kstd/concepts.hpp"
+#include "string.hpp"
 
 namespace kstd {
     template<typename E> //
@@ -67,7 +67,7 @@ namespace kstd {
         };
     }
 
-    template<typename T, typename E = std::string_view> //
+    template<typename T, typename E = StringSlice> //
     KSTD_REQUIRES(std::is_standard_layout<E>::value&& std::is_move_assignable<E>::value)
     struct Result final {
         using self_type = Result<T, E>;
