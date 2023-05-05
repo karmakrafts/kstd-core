@@ -90,7 +90,7 @@ namespace kstd {
      * A simple free-deleter for smart pointers with ownership of a
      * C-style malloc'ed object.
      */
-    template<typename T>
+    template<typename T> //
     struct FreeDeleter final {
         inline auto operator()(T *ptr) const noexcept -> void {
             ::free(ptr);
@@ -99,7 +99,7 @@ namespace kstd {
 
     template<typename P>
     KSTD_REQUIRES(SmartPointer<P>)
-    [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> OutPtr<P> {
+    [[nodiscard]] constexpr auto make_out(P &pointer) noexcept -> OutPtr<P> {
         return OutPtr<P>(pointer);
     }
 }

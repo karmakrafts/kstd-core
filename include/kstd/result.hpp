@@ -68,7 +68,7 @@ namespace kstd {
     }
 
     template<typename T, typename E = std::string_view> //
-    KSTD_REQUIRES(std::is_standard_layout_v<E> && std::is_move_assignable_v<E>)
+    KSTD_REQUIRES(std::is_standard_layout_v<E> &&std::is_move_assignable_v<E>)
     struct Result final {
         using self_type = Result<T, E>;
         using value_type = std::conditional_t<std::is_void_v<T>, u8, T>;
