@@ -24,6 +24,7 @@
 #include "types.hpp"
 #include "kstd/concepts.hpp"
 #include "string.hpp"
+#include "ct_utils.hpp"
 
 namespace kstd {
     template<typename E> //
@@ -93,16 +94,19 @@ namespace kstd {
         Result(value_type value) noexcept : // NOLINT
                 _inner(),
                 _type(ResultType::OK) {
-            if constexpr ((_is_pointer || _is_reference) || !std::is_trivial<T>::value) {
-                if constexpr (_is_reference) {
+            KSTD_CONST_IF((_is_pointer || _is_reference) || !std::is_trivial<T>::value) {
+                KSTD_CONST_IF(_is_reference) {
                     _inner._value = &value;
-                } else {
+                }
+                else {
                     _inner._value = value;
                 }
-            } else {
-                if constexpr (std::is_move_assignable<T>::value) {
+            }
+            else {
+                KSTD_CONST_IF(std::is_move_assignable<T>::value) {
                     _inner._value = std::move(value);
-                } else {
+                }
+                else {
                     _inner._value = value;
                 }
             }
@@ -119,7 +123,8 @@ namespace kstd {
 
             if (other._type == ResultType::OK) {
                 _inner._value = other._inner._value;
-            } else if (other._type == ResultType::ERROR) {
+            }
+            else if (other._type == ResultType::ERROR) {
                 _inner._error = other._inner._error;
             }
 
@@ -130,12 +135,14 @@ namespace kstd {
             _type = other._type;
 
             if (other._type == ResultType::OK) {
-                if constexpr (_is_pointer || _is_reference) {
+                KSTD_CONST_IF(_is_pointer || _is_reference) {
                     _inner._value = other._inner._value;
-                } else {
+                }
+                else {
                     _inner._value = std::move(other._inner._value);
                 }
-            } else if (other._type == ResultType::ERROR) {
+            }
+            else if (other._type == ResultType::ERROR) {
                 _inner._error = std::move(other._inner._error);
             }
 
@@ -147,9 +154,10 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto is_ok() const noexcept -> bool {
-            if constexpr (_is_void) {
+            KSTD_CONST_IF(_is_void) {
                 return _type == ResultType::EMPTY;
-            } else {
+            }
+            else {
                 return _type == ResultType::OK;
             }
         }
@@ -168,12 +176,13 @@ namespace kstd {
             if (is_error()) {
                 throw std::runtime_error("Result is an error");
             }
-            #endif
+                    #endif
 
-            if constexpr (!_is_void) {
-                if constexpr (_is_reference) {
+            KSTD_CONST_IF(!_is_void) {
+                KSTD_CONST_IF(_is_reference) {
                     return *_inner._value;
-                } else {
+                }
+                else {
                     return _inner._value;
                 }
             }
@@ -192,12 +201,14 @@ namespace kstd {
 
             _type = ResultType::EMPTY;
 
-            if constexpr (!_is_void) {
-                if constexpr (_is_reference) {
+            KSTD_CONST_IF(!_is_void) {
+                KSTD_CONST_IF(_is_reference) {
                     return *_inner._value;
-                } else if constexpr (_is_pointer) {
+                }
+                else KSTD_CONST_IF(_is_pointer) {
                     return _inner._value;
-                } else {
+                }
+                else {
                     return std::move(_inner._value);
                 }
             }

@@ -415,7 +415,9 @@ namespace kstd {
                 return false;
             }
 
-            for (size_type i = 0; i < _size; ++i) {
+            for (size_type i = 0;
+                 i < _size;
+                 ++i) {
                 if (_data[i] == other[i]) {
                     continue;
                 }
