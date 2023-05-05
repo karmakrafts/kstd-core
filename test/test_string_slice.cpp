@@ -18,8 +18,8 @@
  */
 
 #include <gtest/gtest.h>
-#include <kstd/string.hpp>
+#include <kstd/string_slice.hpp>
 
-TEST(kstd_String, TestCreate) {
+TEST(kstd_StringSlice, TestCreate) {
 
 }

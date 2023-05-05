@@ -19,13 +19,14 @@
 
 #include <gtest/gtest.h>
 #include <kstd/result.hpp>
-#include <string>
+#include <kstd/large_string.hpp>
+#include <kstd/string_slice.hpp>
 
 using namespace kstd::string_literals;
 
 TEST(kstd_Result, TestValue) {
     std::string value("Hello World!");
-    kstd::Result<std::string> result(value);
+    auto result = kstd::make_ok(value);
 
     ASSERT_TRUE(result);
     ASSERT_EQ(value, result.borrow_value());
@@ -41,7 +42,7 @@ TEST(kstd_Result, TestValue) {
 
 TEST(kstd_Result, TestReference) {
     std::string value("Hello World!");
-    kstd::Result<std::string&> result(value);
+    auto result = kstd::make_ok<std::string&>(value);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, result.borrow_value());
@@ -57,7 +58,7 @@ TEST(kstd_Result, TestReference) {
 
 TEST(kstd_Result, TestPointer) {
     std::string value("Hello World!");
-    kstd::Result<std::string*> result(&value);
+    auto result = kstd::make_ok(&value);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result.borrow_value());

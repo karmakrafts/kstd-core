@@ -17,9 +17,15 @@
  * @since 05/05/2023
  */
 
-#include <gtest/gtest.h>
-#include <kstd/string.hpp>
+#pragma once
 
-TEST(kstd_String, TestCreate) {
+#include "kstd/concepts.hpp"
 
+namespace kstd::concepts {
+    #ifdef KSTD_CONCEPTS_AVAILABLE
+    template<typename T> concept Char8 = std::integral<T> && sizeof(T) == 1;
+    template<typename T> concept Char16 = std::integral<T> && sizeof(T) == 2;
+    template<typename T> concept Char32 = std::integral<T> && sizeof(T) == 4;
+    template<typename T> concept Char = Char8<T> || Char16<T> || Char32<T>;
+    #endif // KSTD_CONCEPTS_AVAILABLE
 }

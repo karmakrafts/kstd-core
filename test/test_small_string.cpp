@@ -20,6 +20,6 @@
 #include <gtest/gtest.h>
 #include <kstd/string.hpp>
 
-TEST(kstd_String, TestCreate) {
+TEST(kstd_SmallString, TestCreate) {
 
 }

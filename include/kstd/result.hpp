@@ -23,7 +23,7 @@
 #include <cstring>
 #include "types.hpp"
 #include "kstd/concepts.hpp"
-#include "string.hpp"
+#include "large_string.hpp"
 
 namespace kstd {
     template<typename E> //
