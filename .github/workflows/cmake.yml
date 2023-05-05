@@ -29,6 +29,30 @@ jobs:
         working-directory: ${{github.workspace}}/build-linux
         run: ctest -C ${{env.BUILD_TYPE}}
 
+      # C++17
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build-linux -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=17
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build-linux --config ${{env.BUILD_TYPE}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build-linux
+        run: ctest -C ${{env.BUILD_TYPE}}
+
+      # C++11
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build-linux -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=11
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build-linux --config ${{env.BUILD_TYPE}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build-linux
+        run: ctest -C ${{env.BUILD_TYPE}}
+
   build-macos:
     runs-on: macos-latest
 
@@ -48,6 +72,30 @@ jobs:
         working-directory: ${{github.workspace}}/build-macos
         run: ctest -C ${{env.BUILD_TYPE}}
 
+      # C++17
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build-macos -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=17
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build-macos --config ${{env.BUILD_TYPE}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build-macos
+        run: ctest -C ${{env.BUILD_TYPE}}
+
+      # C++11
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build-macos -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=11
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build-macos --config ${{env.BUILD_TYPE}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build-macos
+        run: ctest -C ${{env.BUILD_TYPE}}
+
   build-windows:
     runs-on: windows-latest
 
@@ -59,6 +107,30 @@ jobs:
 
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build-windows -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build-windows --config ${{env.BUILD_TYPE}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build-windows
+        run: ctest -C ${{env.BUILD_TYPE}}
+
+      # C++17
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build-windows -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=17
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build-windows --config ${{env.BUILD_TYPE}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build-windows
+        run: ctest -C ${{env.BUILD_TYPE}}
+
+      # C++11
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build-windows -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=11
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build-windows --config ${{env.BUILD_TYPE}}

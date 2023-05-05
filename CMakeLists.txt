@@ -6,7 +6,10 @@ option(KSTD_TYPES_EMBEDDED "Look up CMake infra in parent directory instead of t
 set(KSTD_TYPES_MODULE ON) # Let other modules know we are present!
 add_compile_definitions(KSTD_TYPES_MODULE)
 
-set(CMAKE_CXX_STANDARD 20)
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+    message(STATUS "No C++ version specified, defaulting to C++20")
+    set(CMAKE_CXX_STANDARD 20)
+endif()
 
 if(${KSTD_TYPES_EMBEDDED})
     set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake;")
