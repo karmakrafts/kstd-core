@@ -73,6 +73,7 @@ namespace kstd {
     struct Result final {
         using self_type = Result<T, E>;
         using value_type = typename std::conditional<std::is_void<T>::value, u8, T>::type;
+        using error_type = E;
         using naked_value_type = typename std::remove_all_extents<typename std::remove_reference<value_type>::type>::type;
 
     private:
@@ -255,4 +256,19 @@ namespace kstd {
             return get_value();
         }
     };
+
+    template<typename T, typename E = StringSlice>
+    [[nodiscard]] constexpr auto make_ok(T value) noexcept -> Result<T, E> {
+        KSTD_CONST_IF(std::is_reference<T>::value || std::is_pointer<T>::value) {
+            return Result<T, E>(value);
+        }
+        else {
+            return Result<T, E>(std::move(value));
+        }
+    }
+
+    template<typename T, typename E>
+    [[nodiscard]] constexpr auto make_error(E error) noexcept -> Result<T, E> {
+        return Result<T, E>(Error<E>(std::move(error)));
+    }
 }
