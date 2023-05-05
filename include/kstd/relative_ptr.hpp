@@ -23,7 +23,8 @@
 #include "kstd/concepts.hpp"
 
 namespace kstd {
-    template<typename T, typename OFFSET = u32> KSTD_REQUIRES(!std::is_void_v<T> && std::integral<OFFSET>)
+    template<typename T, typename OFFSET = u32> //
+    KSTD_REQUIRES(!std::is_void_v<T> && std::integral<OFFSET>)
     struct RelativePtr final {
         using self_type = RelativePtr<T, OFFSET>;
         using element_type = T;
@@ -40,13 +41,15 @@ namespace kstd {
 
     public:
 
-        constexpr RelativePtr() noexcept:
+        RelativePtr() noexcept:
                 _offset(0) {
         }
 
-        constexpr RelativePtr(const self_type &other) noexcept = delete;
+        ~RelativePtr() noexcept = default;
 
-        constexpr RelativePtr(self_type &&other) noexcept = delete;
+        RelativePtr(const self_type &other) noexcept = delete;
+
+        RelativePtr(self_type &&other) noexcept = delete;
 
         constexpr auto operator=(const self_type &other) noexcept -> self_type & = delete;
 

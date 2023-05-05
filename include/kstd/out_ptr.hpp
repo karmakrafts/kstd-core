@@ -30,12 +30,13 @@ namespace kstd {
      * of a mechanism identical to std::out_ptr as described here:
      * https://en.cppreference.com/w/cpp/memory/out_ptr_t/out_ptr
      */
-    template<typename P> KSTD_REQUIRES((requires(P value, typename P::pointer ptr) {
-                                               typename P::pointer;
-                                               requires std::is_pointer_v<typename P::pointer>;
-                                               value.reset(ptr);
-                                               requires std::same_as<decltype(value.reset(ptr)), void>;
-                                       }))
+    template<typename P> // @formatter:off
+    KSTD_REQUIRES((requires(P value, typename P::pointer ptr) {
+        typename P::pointer;
+        requires std::is_pointer_v<typename P::pointer>;
+        value.reset(ptr);
+        requires std::same_as<decltype(value.reset(ptr)), void>;
+    })) // @formatter:on
     struct OutPtr final {
         using self_type = OutPtr<P>;
         using element_type = typename P::element_type;
@@ -49,12 +50,12 @@ namespace kstd {
 
     public:
 
-        explicit constexpr OutPtr(smart_pointer &owner) noexcept:
+        explicit OutPtr(smart_pointer &owner) noexcept:
                 _owner(owner),
                 _new_value(pointer()) {
         }
 
-        constexpr ~OutPtr() noexcept {
+        ~OutPtr() noexcept {
             #ifdef BUILD_DEBUG
             if (_new_value == nullptr) {
                 throw std::runtime_error("Invalid value");

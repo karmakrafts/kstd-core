@@ -32,7 +32,7 @@ namespace kstd {
 
     public:
 
-        explicit constexpr Error(E error) noexcept:
+        explicit Error(E error) noexcept:
                 _error(std::move(error)) {
         }
 
@@ -56,12 +56,12 @@ namespace kstd {
             value_type _value;
             E _error;
 
-            constexpr ResultInner() noexcept:
+            ResultInner() noexcept:
                     _value() {
             }
 
             // @formatter:off
-            constexpr ~ResultInner() noexcept {}
+            ~ResultInner() noexcept {}
             // @formatter:on
         };
     }
@@ -84,12 +84,12 @@ namespace kstd {
 
     public:
 
-        constexpr Result() noexcept:
+        Result() noexcept:
                 _inner(),
                 _type(ResultType::EMPTY) {
         }
 
-        constexpr Result(value_type value) noexcept: // NOLINT
+        Result(value_type value) noexcept: // NOLINT
                 _inner(),
                 _type(ResultType::OK) {
             if constexpr ((_is_pointer || _is_reference) || !std::is_trivial_v<T>) {
@@ -107,7 +107,7 @@ namespace kstd {
             }
         }
 
-        constexpr Result(Error<E> error) noexcept: // NOLINT
+        Result(Error<E> error) noexcept: // NOLINT
                 _inner(),
                 _type(ResultType::ERROR) {
             _inner._error = std::move(error.get_error());
