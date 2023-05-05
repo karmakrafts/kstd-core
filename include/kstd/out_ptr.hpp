@@ -26,18 +26,25 @@
 #include "kstd/concepts.hpp"
 
 namespace kstd {
+    namespace {
+        #ifdef KSTD_CONCEPTS_AVAILABLE
+        template<typename P> //
+        concept SmartPointer = requires(P value, typename P::pointer ptr) {
+            typename P::pointer;
+            requires std::is_pointer_v<typename P::pointer>;
+            value.reset(ptr);
+            requires std::same_as<decltype(value.reset(ptr)), void>;
+        };
+        #endif // KSTD_CONCEPTS_AVAILABLE
+    }
+
     /*
      * This is a freestanding implementation
      * of a mechanism identical to std::out_ptr as described here:
      * https://en.cppreference.com/w/cpp/memory/out_ptr_t/out_ptr
      */
     template<typename P> // @formatter:off
-    KSTD_REQUIRES((requires(P value, typename P::pointer ptr) {
-        typename P::pointer;
-        requires std::is_pointer_v<typename P::pointer>;
-        value.reset(ptr);
-        requires std::same_as<decltype(value.reset(ptr)), void>;
-    })) // @formatter:on
+    KSTD_REQUIRES(SmartPointer<P>) // @formatter:on
     struct OutPtr final {
         using self_type = OutPtr<P>;
         using element_type = typename P::element_type;
@@ -89,4 +96,10 @@ namespace kstd {
             ::free(ptr);
         }
     };
+
+    template<typename P>
+    KSTD_REQUIRES(SmartPointer<P>)
+    [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> OutPtr<P> {
+        return OutPtr<P>(pointer);
+    }
 }
