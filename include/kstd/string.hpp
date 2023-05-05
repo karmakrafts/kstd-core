@@ -27,6 +27,10 @@
 #include "kstd/concepts.hpp"
 #include "types.hpp"
 
+#if __cplusplus >= 202002L
+#define KSTD_SIZED_CHAR_TYPES // Check support for sized char types
+#endif
+
 namespace kstd {
     namespace {
         #ifdef KSTD_CONCEPTS_AVAILABLE
@@ -316,9 +320,12 @@ namespace kstd {
 
     using String = BasicString<char>;
     using WString = BasicString<wchar_t>;
+
+    #ifdef KSTD_SIZED_CHAR_TYPES
     using String8 = BasicString<char8_t>;
     using String16 = BasicString<char16_t>;
     using String32 = BasicString<char32_t>;
+    #endif // KSTD_SIZED_CHAR_TYPES
 
     template<typename CHAR> //
     KSTD_REQUIRES(Char<CHAR>)
@@ -426,9 +433,12 @@ namespace kstd {
 
     using StringSlice = BasicStringSlice<char>;
     using WStringSlice = BasicStringSlice<wchar_t>;
+
+    #ifdef KSTD_SIZED_CHAR_TYPES
     using String8Slice = BasicStringSlice<char8_t>;
     using String16Slice = BasicStringSlice<char16_t>;
     using String32Slice = BasicStringSlice<char32_t>;
+    #endif // KSTD_SIZED_CHAR_TYPES
 
     namespace string_literals {
         [[nodiscard]] constexpr auto operator ""_str(const char* data, usize size) noexcept -> StringSlice {
@@ -438,6 +448,8 @@ namespace kstd {
         [[nodiscard]] constexpr auto operator ""_str(const wchar_t* data, usize size) noexcept -> WStringSlice {
             return WStringSlice(data, size);
         }
+
+        #ifdef KSTD_SIZED_CHAR_TYPES
 
         [[nodiscard]] constexpr auto operator ""_str(const char8_t* data, usize size) noexcept -> String8Slice {
             return String8Slice(data, size);
@@ -450,5 +462,7 @@ namespace kstd {
         [[nodiscard]] constexpr auto operator ""_str(const char32_t* data, usize size) noexcept -> String32Slice {
             return String32Slice(data, size);
         }
+
+        #endif // KSTD_SIZED_CHAR_TYPES
     }
 }
