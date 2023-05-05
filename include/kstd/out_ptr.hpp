@@ -75,11 +75,17 @@ namespace kstd {
 
         constexpr OutPtr(const self_type &other) noexcept = delete;
 
-        constexpr OutPtr(self_type &&other) noexcept = delete;
+        constexpr OutPtr(self_type &&other) noexcept {
+            *this = std::move(other);
+        }
 
-        constexpr auto operator=(const self_type &other) noexcept = delete;
+        constexpr auto operator=(const self_type &other) noexcept -> self_type& = delete;
 
-        constexpr auto operator=(self_type &&other) noexcept = delete;
+        constexpr auto operator=(self_type &&other) noexcept -> self_type& {
+            _owner = other._owner;
+            _new_value = other._new_value;
+            return *this;
+        }
 
         [[nodiscard]] constexpr operator pointer *() noexcept { // NOLINT
             return &_new_value;
@@ -99,7 +105,7 @@ namespace kstd {
 
     template<typename P>
     KSTD_REQUIRES(SmartPointer<P>)
-    [[nodiscard]] constexpr auto make_out(P &pointer) noexcept -> OutPtr<P> {
+    [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> OutPtr<P> {
         return OutPtr<P>(pointer);
     }
 }
