@@ -21,7 +21,6 @@
 
 #include <cstdint>
 #include <type_traits>
-#include <concepts>
 #include <cstring>
 #include <memory>
 #include <array>
@@ -170,8 +169,8 @@ namespace kstd {
     KSTD_REQUIRES(Char<CHAR>)
     struct BasicStringSlice;
 
-    template<typename CHAR, concepts::Allocator ALLOCATOR = std::allocator<CHAR>> //
-    KSTD_REQUIRES(Char<CHAR>)
+    template<typename CHAR, typename ALLOCATOR = std::allocator<CHAR>> //
+    KSTD_REQUIRES(Char<CHAR> && concepts::Allocator<ALLOCATOR>)
     union BasicString final {
         using value_type = CHAR;
         using self_type = BasicString<value_type, ALLOCATOR>;
@@ -355,7 +354,8 @@ namespace kstd {
 
         constexpr auto operator =(self_type&& other) noexcept -> self_type& = default;
 
-        template<concepts::Allocator ALLOCATOR = std::allocator<CHAR>>
+        template<typename ALLOCATOR = std::allocator<CHAR>>
+        KSTD_REQUIRES(concepts::Allocator<ALLOCATOR>)
         [[nodiscard]] constexpr auto to_owning() const noexcept -> BasicString<CHAR, ALLOCATOR> {
             BasicString<CHAR, ALLOCATOR> result;
             result.reserve(_size + 1);
