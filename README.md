@@ -1,2 +1,2 @@
 # kstd-types
-Shared type definitions for most kstd modules.
+Shared type definitions for C++17/20.

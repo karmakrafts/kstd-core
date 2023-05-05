@@ -41,30 +41,6 @@ jobs:
         working-directory: ${{github.workspace}}/build-linux
         run: ctest -C ${{env.BUILD_TYPE}}
 
-      # C++14
-
-      - name: Configure CMake (C++14)
-        run: cmake -B ${{github.workspace}}/build-linux -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=14
-
-      - name: Build (C++14)
-        run: cmake --build ${{github.workspace}}/build-linux --config ${{env.BUILD_TYPE}}
-
-      - name: Test (C++14)
-        working-directory: ${{github.workspace}}/build-linux
-        run: ctest -C ${{env.BUILD_TYPE}}
-
-      # C++11
-
-      - name: Configure CMake (C++11)
-        run: cmake -B ${{github.workspace}}/build-linux -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=11
-
-      - name: Build (C++11)
-        run: cmake --build ${{github.workspace}}/build-linux --config ${{env.BUILD_TYPE}}
-
-      - name: Test (C++11)
-        working-directory: ${{github.workspace}}/build-linux
-        run: ctest -C ${{env.BUILD_TYPE}}
-
   build-macos:
     runs-on: macos-latest
 
@@ -96,30 +72,6 @@ jobs:
         working-directory: ${{github.workspace}}/build-macos
         run: ctest -C ${{env.BUILD_TYPE}}
 
-      # C++14
-
-      - name: Configure CMake (C++14)
-        run: cmake -B ${{github.workspace}}/build-macos -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=14
-
-      - name: Build (C++14)
-        run: cmake --build ${{github.workspace}}/build-macos --config ${{env.BUILD_TYPE}}
-
-      - name: Test (C++14)
-        working-directory: ${{github.workspace}}/build-macos
-        run: ctest -C ${{env.BUILD_TYPE}}
-
-      # C++11
-
-      - name: Configure CMake (C++11)
-        run: cmake -B ${{github.workspace}}/build-macos -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=11
-
-      - name: Build (C++11)
-        run: cmake --build ${{github.workspace}}/build-macos --config ${{env.BUILD_TYPE}}
-
-      - name: Test (C++11)
-        working-directory: ${{github.workspace}}/build-macos
-        run: ctest -C ${{env.BUILD_TYPE}}
-
   build-windows:
     runs-on: windows-latest
 
@@ -148,29 +100,5 @@ jobs:
         run: cmake --build ${{github.workspace}}/build-windows --config ${{env.BUILD_TYPE}}
 
       - name: Test (C++17)
-        working-directory: ${{github.workspace}}/build-windows
-        run: ctest -C ${{env.BUILD_TYPE}}
-
-      # C++14
-
-      - name: Configure CMake (C++14)
-        run: cmake -B ${{github.workspace}}/build-windows -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=14
-
-      - name: Build (C++14)
-        run: cmake --build ${{github.workspace}}/build-windows --config ${{env.BUILD_TYPE}}
-
-      - name: Test (C++14)
-        working-directory: ${{github.workspace}}/build-windows
-        run: ctest -C ${{env.BUILD_TYPE}}
-
-      # C++11
-
-      - name: Configure CMake (C++11)
-        run: cmake -B ${{github.workspace}}/build-windows -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=11
-
-      - name: Build (C++11)
-        run: cmake --build ${{github.workspace}}/build-windows --config ${{env.BUILD_TYPE}}
-
-      - name: Test (C++11)
         working-directory: ${{github.workspace}}/build-windows
         run: ctest -C ${{env.BUILD_TYPE}}
