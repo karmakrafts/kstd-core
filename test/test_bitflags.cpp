@@ -21,9 +21,7 @@
 #include <kstd/bitflags.hpp>
 #include <kstd/types.hpp>
 
-using namespace kstd;
-
-KSTD_BITFLAGS(u8, SomeFlags,
+KSTD_BITFLAGS(kstd::u8, SomeFlags,
               FOO = 0b0000'0001,
               BAR = 0b0000'0010,
               BAZ = 0b0000'0100)

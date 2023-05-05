@@ -21,15 +21,13 @@
 #include <kstd/out_ptr.hpp>
 #include <kstd/types.hpp>
 
-using namespace kstd;
-
-auto the_c_function(i32** data_to_set) {
-    *data_to_set = reinterpret_cast<i32*>(::malloc(sizeof(i32)));
+auto the_c_function(kstd::i32** data_to_set) {
+    *data_to_set = reinterpret_cast<kstd::i32*>(::malloc(sizeof(kstd::i32)));
     *(*data_to_set) = 420;
 }
 
 TEST(kstd_OutPtr, TestOutPtr) {
-    auto the_data = std::unique_ptr<i32, FreeDeleter<i32>>(nullptr);
+    auto the_data = std::unique_ptr<kstd::i32, kstd::FreeDeleter<kstd::i32>>(nullptr);
     the_c_function(make_out(the_data));
     ASSERT_EQ(*the_data, 420);
 }

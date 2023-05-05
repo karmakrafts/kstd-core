@@ -21,12 +21,10 @@
 #include <kstd/relative_ptr.hpp>
 #include <cstring>
 
-using namespace kstd;
-
 template<typename T>
 struct TestStruct final {
-    RelativePtr<i32, T> foo;
-    RelativePtr<f32, T> bar;
+    kstd::RelativePtr<kstd::i32, T> foo;
+    kstd::RelativePtr<kstd::f32, T> bar;
 };
 
 /*
@@ -37,17 +35,18 @@ struct TestStruct final {
  */
 
 TEST(kstd_RelativePtr, TestUnsignedOffset) {
-    auto* memory = reinterpret_cast<u8*>(::malloc(sizeof(TestStruct<u8>) + sizeof(i32) + sizeof(f32)));
-    std::memset(memory, 0, sizeof(TestStruct<u8>));
+    auto* memory = reinterpret_cast<kstd::u8*>(::malloc(
+            sizeof(TestStruct<kstd::u8>) + sizeof(kstd::i32) + sizeof(kstd::f32)));
+    std::memset(memory, 0, sizeof(TestStruct<kstd::u8>));
 
     // Initialize test values
-    *reinterpret_cast<i32*>(memory + sizeof(TestStruct<u8>)) = 1337;
-    *reinterpret_cast<f32*>(memory + sizeof(TestStruct<u8>) + sizeof(i32)) = 3.141F;
+    *reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::u8>)) = 1337;
+    *reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::u8>) + sizeof(kstd::i32)) = 3.141F;
 
     // Initialize relative pointers
-    auto* s = reinterpret_cast<TestStruct<u8>*>(memory);
-    s->foo = reinterpret_cast<i32*>(memory + sizeof(TestStruct<u8>));
-    s->bar = reinterpret_cast<f32*>(memory + sizeof(TestStruct<u8>) + sizeof(i32));
+    auto* s = reinterpret_cast<TestStruct<kstd::u8>*>(memory);
+    s->foo = reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::u8>));
+    s->bar = reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::u8>) + sizeof(kstd::i32));
 
     // Validate data integrity
     ASSERT_EQ(*(s->foo), 1337);
@@ -57,17 +56,18 @@ TEST(kstd_RelativePtr, TestUnsignedOffset) {
 }
 
 TEST(kstd_RelativePtr, TestSignedOffset) {
-    auto* memory = reinterpret_cast<u8*>(::malloc(sizeof(TestStruct<i8>) + sizeof(i32) + sizeof(f32)));
-    std::memset(memory, 0, sizeof(TestStruct<i8>));
+    auto* memory = reinterpret_cast<kstd::u8*>(::malloc(
+            sizeof(TestStruct<kstd::i8>) + sizeof(kstd::i32) + sizeof(kstd::f32)));
+    std::memset(memory, 0, sizeof(TestStruct<kstd::i8>));
 
     // Initialize test values
-    *reinterpret_cast<i32*>(memory + sizeof(TestStruct<i8>)) = 1337;
-    *reinterpret_cast<f32*>(memory + sizeof(TestStruct<i8>) + sizeof(i32)) = 3.141F;
+    *reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::i8>)) = 1337;
+    *reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::i8>) + sizeof(kstd::i32)) = 3.141F;
 
     // Initialize relative pointers
-    auto* s = reinterpret_cast<TestStruct<i8>*>(memory);
-    s->foo = reinterpret_cast<i32*>(memory + sizeof(TestStruct<i8>));
-    s->bar = reinterpret_cast<f32*>(memory + sizeof(TestStruct<i8>) + sizeof(i32));
+    auto* s = reinterpret_cast<TestStruct<kstd::i8>*>(memory);
+    s->foo = reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::i8>));
+    s->bar = reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::i8>) + sizeof(kstd::i32));
 
     // Validate data integrity
     ASSERT_EQ(*(s->foo), 1337);
