@@ -30,6 +30,6 @@ auto the_c_function(i32 **data_to_set) {
 
 TEST(kstd_OutPtr, TestOutPtr) {
     auto the_data = std::unique_ptr<i32, FreeDeleter<i32>>(nullptr);
-    the_c_function(OutPtr(the_data));
+    the_c_function(OutPtr<decltype(the_data)>(the_data));
     ASSERT_EQ(*the_data, 420);
 }
