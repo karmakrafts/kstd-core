@@ -23,16 +23,13 @@ jobs:
         run: cmake -B ${{github.workspace}}/build-linux -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build (C++20)
-        run: cmake --build ${{github.workspace}}/build-linux --config ${{env.BUILD_TYPE}}
+        run: cmake --build ${{github.workspace}}/build-linux --config ${{env.BUILD_TYPE}} --clean-first
 
       - name: Test (C++20)
         working-directory: ${{github.workspace}}/build-linux
         run: ctest -C ${{env.BUILD_TYPE}}
 
       # C++17
-
-      - name: Clean
-        run: cmake -B ${{github.workspace}}/build-linux clean
 
       - name: Configure CMake (C++17)
         run: cmake -B ${{github.workspace}}/build-linux -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=17
@@ -65,14 +62,11 @@ jobs:
 
       # C++17
 
-      - name: Clean
-        run: cmake -B ${{github.workspace}}/build-linux clean
-
       - name: Configure CMake (C++17)
         run: cmake -B ${{github.workspace}}/build-macos -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=17
 
       - name: Build (C++17)
-        run: cmake --build ${{github.workspace}}/build-macos --config ${{env.BUILD_TYPE}}
+        run: cmake --build ${{github.workspace}}/build-macos --config ${{env.BUILD_TYPE}} --clean-first
 
       - name: Test (C++17)
         working-directory: ${{github.workspace}}/build-macos
@@ -99,14 +93,11 @@ jobs:
 
       # C++17
 
-      - name: Clean
-        run: cmake -B ${{github.workspace}}/build-linux clean
-
       - name: Configure CMake (C++17)
         run: cmake -B ${{github.workspace}}/build-windows -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=17
 
       - name: Build (C++17)
-        run: cmake --build ${{github.workspace}}/build-windows --config ${{env.BUILD_TYPE}}
+        run: cmake --build ${{github.workspace}}/build-windows --config ${{env.BUILD_TYPE}} --clean-first
 
       - name: Test (C++17)
         working-directory: ${{github.workspace}}/build-windows
