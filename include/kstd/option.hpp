@@ -99,12 +99,66 @@ namespace kstd {
             }
         }
 
+        Option(const self_type& other) noexcept :
+                _inner() {
+            if (other) {
+                release();
+                _inner._value = other._inner._value;
+            }
+        }
+
+        Option(self_type&& other) noexcept :
+                _inner() {
+            if (other) {
+                release();
+
+                if constexpr (_is_pointer || _is_reference) {
+                    _inner._value = other._inner._value;
+                }
+                else {
+                    _inner._value = std::move(other._inner._value);
+                }
+            }
+        }
+
         ~Option() noexcept {
-            if (is_value()) {
-                if constexpr (!_is_pointer && !_is_reference) {
+            release();
+        }
+
+        constexpr auto release() noexcept -> void {
+            if constexpr (!_is_pointer && !_is_reference) {
+                if (is_value()) {
                     _inner._value.~inner_value_type();
                 }
             }
+        }
+
+        constexpr auto operator =(const self_type& other) noexcept -> self_type& {
+            if (this == &other) {
+                return *this;
+            }
+
+            if (other) {
+                release();
+                _inner._value = other._inner._value;
+            }
+
+            return *this;
+        }
+
+        constexpr auto operator =(self_type&& other) noexcept -> self_type& {
+            if (other) {
+                release();
+
+                if constexpr (_is_pointer || _is_reference) {
+                    _inner._value = other._inner._value;
+                }
+                else {
+                    _inner._value = std::move(other._inner._value);
+                }
+            }
+
+            return *this;
         }
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {

@@ -128,26 +128,55 @@ namespace kstd {
             _inner._error = std::move(error.get_error());
         }
 
-        Result(const self_type& other) noexcept = default;
+        Result(const self_type& other) noexcept :
+                _inner(),
+                _type(other._type) {
+            if (other.is_ok()) {
+                _inner._value = other._inner._value;
+            }
+            else if (other.is_error()) {
+                _inner._error = other._inner._error;
+            }
+        }
 
-        Result(self_type&& other) noexcept = default;
+        Result(self_type&& other) noexcept :
+                _inner(),
+                _type(other._type) {
+            if (other.is_ok()) {
+                if constexpr (_is_pointer || _is_reference) {
+                    _inner._value = other._inner._value;
+                }
+                else {
+                    _inner._value = std::move(other._inner._value);
+                }
+            }
+            else if (other.is_error()) {
+                _inner._error = std::move(other._inner._error);
+            }
+        }
 
         ~Result() noexcept {
             release();
         }
 
         constexpr auto release() noexcept -> void {
-            if (is_ok()) {
-                if constexpr (!_is_pointer && !_is_reference) {
+            if constexpr (!_is_pointer && !_is_reference) {
+                if (is_ok()) {
                     _inner._value.~inner_value_type(); // Free currently held value
+                    return;
                 }
             }
-            else if (is_error()) {
+
+            if (is_error()) {
                 _inner._error.~error_type();
             }
         }
 
         constexpr auto operator =(const self_type& other) noexcept -> self_type& {
+            if (this == &other) {
+                return *this;
+            }
+
             if (other.is_ok()) {
                 release();
                 _inner._value = other._inner._value;
