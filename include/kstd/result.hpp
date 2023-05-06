@@ -166,7 +166,7 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto borrow_value() noexcept -> typename std::conditional<_is_pointer, T, naked_value_type&>::type {
             #ifdef BUILD_DEBUG
-            if (is_empty()) {
+            if (!_is_void && is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
 
@@ -187,7 +187,7 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get_value() noexcept -> T {
             #ifdef BUILD_DEBUG
-            if (is_empty()) {
+            if (!_is_void && is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
 
@@ -213,7 +213,7 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E {
             #ifdef BUILD_DEBUG
-            if (is_empty()) {
+            if (!_is_void && is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
 
@@ -228,7 +228,7 @@ namespace kstd {
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
             #ifdef BUILD_DEBUG
-            if (is_empty()) {
+            if (!_is_void && is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
 
