@@ -42,6 +42,10 @@ namespace kstd {
         }
     };
 
+    template<typename T, typename E = StringSlice> //
+    KSTD_REQUIRES(std::is_standard_layout<E>::value&& std::is_move_assignable<E>::value)
+    struct Result;
+
     namespace {
         enum class ResultType : u8 {
             OK, ERROR, EMPTY
@@ -52,6 +56,10 @@ namespace kstd {
         union ResultInner {
             using value_type = typename std::conditional<std::is_void<T>::value, u8, typename std::conditional<std::is_reference<T>::value, typename std::remove_reference<T>::type*, T>::type>::type;
 
+            private:
+
+            friend class Result<T, E>;
+
             value_type _value;
             E _error;
 
@@ -60,18 +68,20 @@ namespace kstd {
             }
 
             // @formatter:off
-            ~ResultInner() noexcept {}
+            ~ResultInner() noexcept {} // This is handled in Result itself
             // @formatter:on
         };
     }
 
-    template<typename T, typename E = StringSlice> //
+    template<typename T, typename E> //
     KSTD_REQUIRES(std::is_standard_layout<E>::value&& std::is_move_assignable<E>::value)
     struct Result final {
         using self_type = Result<T, E>;
         using value_type = typename std::conditional<std::is_void<T>::value, u8, T>::type;
         using error_type = E;
         using naked_value_type = typename std::remove_all_extents<typename std::remove_reference<value_type>::type>::type;
+        using inner_type = ResultInner<T, E>;
+        using inner_value_type [[maybe_unused]] = typename inner_type::value_type;
 
         private:
 
@@ -79,10 +89,12 @@ namespace kstd {
         static constexpr bool _is_reference = std::is_reference<T>::value;
         static constexpr bool _is_void = std::is_void<T>::value;
 
-        ResultInner<T, E> _inner;
+        inner_type _inner;
         ResultType _type;
 
         public:
+
+        using borrowed_value_type = typename std::conditional<_is_pointer, T, naked_value_type&>::type;
 
         Result() noexcept :
                 _inner(),
@@ -116,23 +128,43 @@ namespace kstd {
             _inner._error = std::move(error.get_error());
         }
 
-        constexpr auto operator =(const self_type& other) noexcept -> self_type& {
-            _type = other._type;
+        Result(const self_type& other) noexcept = default;
 
-            if (other._type == ResultType::OK) {
+        Result(self_type&& other) noexcept = default;
+
+        ~Result() noexcept {
+            release();
+        }
+
+        constexpr auto release() noexcept -> void {
+            if (is_ok()) {
+                if constexpr (!_is_pointer && !_is_reference) {
+                    _inner._value.~inner_value_type(); // Free currently held value
+                }
+            }
+            else if (is_error()) {
+                _inner._error.~error_type();
+            }
+        }
+
+        constexpr auto operator =(const self_type& other) noexcept -> self_type& {
+            if (other.is_ok()) {
+                release();
                 _inner._value = other._inner._value;
             }
-            else if (other._type == ResultType::ERROR) {
+            else if (other.is_error()) {
+                release();
                 _inner._error = other._inner._error;
             }
 
+            _type = other._type;
             return *this;
         }
 
         constexpr auto operator =(self_type&& other) noexcept -> self_type& {
-            _type = other._type;
+            if (other.is_ok()) {
+                release();
 
-            if (other._type == ResultType::OK) {
                 if constexpr (_is_pointer || _is_reference) {
                     _inner._value = other._inner._value;
                 }
@@ -140,10 +172,12 @@ namespace kstd {
                     _inner._value = std::move(other._inner._value);
                 }
             }
-            else if (other._type == ResultType::ERROR) {
+            else if (other.is_error()) {
+                release();
                 _inner._error = std::move(other._inner._error);
             }
 
+            _type = other._type;
             return *this;
         }
 
@@ -153,7 +187,7 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto is_ok() const noexcept -> bool {
             if constexpr (_is_void) {
-                return _type == ResultType::EMPTY;
+                return is_empty();
             }
             else {
                 return _type == ResultType::OK;
@@ -164,7 +198,7 @@ namespace kstd {
             return _type == ResultType::ERROR;
         }
 
-        [[nodiscard]] constexpr auto borrow_value() noexcept -> typename std::conditional<_is_pointer, T, naked_value_type&>::type {
+        [[nodiscard]] constexpr auto borrow_value() noexcept -> borrowed_value_type {
             #ifdef BUILD_DEBUG
             if (!_is_void && is_empty()) {
                 throw std::runtime_error("Result has no value");
@@ -248,13 +282,13 @@ namespace kstd {
             return &borrow_value();
         }
 
-        [[nodiscard]] constexpr auto operator *() noexcept -> T {
+        [[nodiscard]] constexpr auto operator *() noexcept -> decltype(auto) {
             return get_value();
         }
     };
 
     template<typename T, typename E = StringSlice>
-    [[nodiscard]] constexpr auto make_ok(T value) noexcept -> Result<T, E> {
+    [[nodiscard]] constexpr auto make_ok(T value) noexcept -> decltype(auto) {
         if constexpr (std::is_reference<T>::value || std::is_pointer<T>::value) {
             return Result<T, E>(value);
         }
@@ -264,7 +298,7 @@ namespace kstd {
     }
 
     template<typename T, typename E>
-    [[nodiscard]] constexpr auto make_error(E error) noexcept -> Result<T, E> {
+    [[nodiscard]] constexpr auto make_error(E error) noexcept -> decltype(auto) {
         return Result<T, E>(Error<E>(std::move(error)));
     }
 }
