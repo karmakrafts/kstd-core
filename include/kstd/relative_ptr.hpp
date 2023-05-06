@@ -35,11 +35,11 @@ namespace kstd {
         using const_reference = const element_type&;
         using size_type = usize;
 
-    private:
+        private:
 
         offset_type _offset;
 
-    public:
+        public:
 
         RelativePtr() noexcept :
                 _offset(0) {

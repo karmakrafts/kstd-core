@@ -46,7 +46,7 @@ namespace kstd {
         using iterator = pointer;
         using const_iterator = const_pointer;
 
-    private:
+        private:
 
         CHAR _data[capacity];
 
@@ -56,7 +56,7 @@ namespace kstd {
             bool _is_large : 1; // We can't overlap with the large string bit
         };
 
-    public:
+        public:
 
         BasicSmallString() noexcept :
                 _is_large(false) { // Initialize the large bit to 0 for small-string, makes clang-tidy stfu

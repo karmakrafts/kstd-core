@@ -24,7 +24,7 @@
 #include "types.hpp"
 
 #if __cplusplus >= 202002L
-#define KSTD_SIZED_CHAR_TYPES // Check support for sized char types
+    #define KSTD_SIZED_CHAR_TYPES // Check support for sized char types
 #endif
 
 namespace kstd {

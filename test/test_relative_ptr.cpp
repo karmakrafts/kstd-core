@@ -35,8 +35,7 @@ struct TestStruct final {
  */
 
 TEST(kstd_RelativePtr, TestUnsignedOffset) {
-    auto* memory = reinterpret_cast<kstd::u8*>(::malloc(
-            sizeof(TestStruct<kstd::u8>) + sizeof(kstd::i32) + sizeof(kstd::f32)));
+    auto* memory = reinterpret_cast<kstd::u8*>(::malloc(sizeof(TestStruct<kstd::u8>) + sizeof(kstd::i32) + sizeof(kstd::f32)));
     std::memset(memory, 0, sizeof(TestStruct<kstd::u8>));
 
     // Initialize test values
@@ -56,8 +55,7 @@ TEST(kstd_RelativePtr, TestUnsignedOffset) {
 }
 
 TEST(kstd_RelativePtr, TestSignedOffset) {
-    auto* memory = reinterpret_cast<kstd::u8*>(::malloc(
-            sizeof(TestStruct<kstd::i8>) + sizeof(kstd::i32) + sizeof(kstd::f32)));
+    auto* memory = reinterpret_cast<kstd::u8*>(::malloc(sizeof(TestStruct<kstd::i8>) + sizeof(kstd::i32) + sizeof(kstd::f32)));
     std::memset(memory, 0, sizeof(TestStruct<kstd::i8>));
 
     // Initialize test values

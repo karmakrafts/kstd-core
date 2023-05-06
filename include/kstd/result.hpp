@@ -31,7 +31,7 @@ namespace kstd {
     class Error final {
         E _error;
 
-    public:
+        public:
 
         explicit Error(E error) noexcept :
                 _error(std::move(error)) {
@@ -44,9 +44,7 @@ namespace kstd {
 
     namespace {
         enum class ResultType : u8 {
-            OK,
-            ERROR,
-            EMPTY
+            OK, ERROR, EMPTY
         };
 
         template<typename T, typename E> //
@@ -75,7 +73,7 @@ namespace kstd {
         using error_type = E;
         using naked_value_type = typename std::remove_all_extents<typename std::remove_reference<value_type>::type>::type;
 
-    private:
+        private:
 
         static constexpr bool _is_pointer = std::is_pointer<T>::value;
         static constexpr bool _is_reference = std::is_reference<T>::value;
@@ -84,7 +82,7 @@ namespace kstd {
         ResultInner<T, E> _inner;
         ResultType _type;
 
-    public:
+        public:
 
         Result() noexcept :
                 _inner(),
@@ -166,8 +164,7 @@ namespace kstd {
             return _type == ResultType::ERROR;
         }
 
-        [[nodiscard]] constexpr auto
-        borrow_value() noexcept -> typename std::conditional<_is_pointer, T, naked_value_type&>::type {
+        [[nodiscard]] constexpr auto borrow_value() noexcept -> typename std::conditional<_is_pointer, T, naked_value_type&>::type {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");

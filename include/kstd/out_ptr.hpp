@@ -51,12 +51,12 @@ namespace kstd {
         using smart_pointer = P;
         using pointer = element_type*;
 
-    private:
+        private:
 
         smart_pointer& _owner;
         pointer _new_value;
 
-    public:
+        public:
 
         explicit OutPtr(smart_pointer& owner) noexcept :
                 _owner(owner),
@@ -75,7 +75,8 @@ namespace kstd {
 
         constexpr OutPtr(self_type&& other) noexcept :
                 _owner(other._owner),
-                _new_value(other._new_value) {}
+                _new_value(other._new_value) {
+        }
 
         constexpr auto operator =(const self_type& other) noexcept -> self_type& = delete;
 

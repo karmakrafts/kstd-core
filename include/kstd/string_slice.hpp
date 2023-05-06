@@ -19,9 +19,10 @@
 
 #pragma once
 
-#include <cstring>
 #include "string_fwd.hpp"
 #include "types.hpp"
+#include <cstring>
+#include <string_view>
 
 namespace kstd {
     template<typename CHAR> //
@@ -32,22 +33,28 @@ namespace kstd {
         using const_pointer = const value_type*;
         using size_type = usize;
         using const_iterator = const_pointer;
+        using view_type = std::basic_string_view<value_type>;
 
-    private:
+        private:
 
         const_pointer _data;
         size_type _size;
 
-    public:
+        public:
 
         constexpr BasicStringSlice() noexcept :
                 _data(nullptr),
                 _size(0) {
         }
 
-        explicit constexpr BasicStringSlice(const_pointer data, size_type size) noexcept :
+        constexpr BasicStringSlice(const_pointer data, size_type size) noexcept :
                 _data(data),
                 _size(size) {
+        }
+
+        constexpr BasicStringSlice(view_type view) noexcept : // NOLINT
+                _data(view.data()),
+                _size(view.size()) {
         }
 
         constexpr BasicStringSlice(const self_type& other) noexcept = default;
@@ -58,13 +65,21 @@ namespace kstd {
 
         constexpr auto operator =(self_type&& other) noexcept -> self_type& = default;
 
-        template<typename ALLOCATOR = std::allocator<CHAR>>
+        [[nodiscard]] constexpr auto to_view() const noexcept -> view_type {
+            return {_data, static_cast<typename view_type::size_type>(_size)};
+        }
+
+        [[nodiscard]] constexpr operator view_type() const noexcept { // NOLINT: allow implicit conversion to std::basic_string_view<>
+            return to_view();
+        }
+
+        template<typename ALLOCATOR = std::allocator<value_type>>
         KSTD_REQUIRES(concepts::Allocator<ALLOCATOR>)
-        [[nodiscard]] constexpr auto to_owning() const noexcept -> BasicString<CHAR, ALLOCATOR> {
-            BasicString<CHAR, ALLOCATOR> result;
+        [[nodiscard]] constexpr auto to_owning() const noexcept -> BasicString<value_type, ALLOCATOR> {
+            BasicString<value_type, ALLOCATOR> result;
             result.reserve(_size + 1);
             std::memcpy(result.get_data(), _data, _size);
-            result[_size] = static_cast<CHAR>(0); // Insert null-terminator
+            result[_size] = static_cast<value_type>(0); // Insert null-terminator
             return result;
         }
 
@@ -143,25 +158,25 @@ namespace kstd {
 
     namespace string_literals {
         [[nodiscard]] constexpr auto operator ""_str(const char* data, usize size) noexcept -> StringSlice {
-            return StringSlice(data, size);
+            return {data, size};
         }
 
         [[nodiscard]] constexpr auto operator ""_str(const wchar_t* data, usize size) noexcept -> WStringSlice {
-            return WStringSlice(data, size);
+            return {data, size};
         }
 
         #ifdef KSTD_SIZED_CHAR_TYPES
 
         [[nodiscard]] constexpr auto operator ""_str(const char8_t* data, usize size) noexcept -> String8Slice {
-            return String8Slice(data, size);
+            return {data, size};
         }
 
         [[nodiscard]] constexpr auto operator ""_str(const char16_t* data, usize size) noexcept -> String16Slice {
-            return String16Slice(data, size);
+            return {data, size};
         }
 
         [[nodiscard]] constexpr auto operator ""_str(const char32_t* data, usize size) noexcept -> String32Slice {
-            return String32Slice(data, size);
+            return {data, size};
         }
 
         #endif // KSTD_SIZED_CHAR_TYPES

@@ -54,7 +54,7 @@ namespace kstd {
 
         static_assert(sizeof(small_type) == sizeof(inner_type)); // Make sure size is calculated right
 
-    private:
+        private:
 
         inner_type _inner;
         small_type _small;
@@ -63,7 +63,7 @@ namespace kstd {
             return !_inner.is_large;
         }
 
-    public:
+        public:
 
         BasicString() noexcept :
                 _small() {
