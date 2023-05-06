@@ -158,17 +158,19 @@ namespace kstd {
         [[nodiscard]] constexpr auto operator *() noexcept -> decltype(auto) {
             return get_value();
         }
+
+        [[nodiscard]] constexpr auto operator ->() noexcept -> naked_value_type* {
+            return &borrow_value();
+        }
     };
 
     template<typename T>
-    //
     KSTD_REQUIRES(!std::is_void<T>::value)
     [[nodiscard]] constexpr auto make_empty() noexcept -> decltype(auto) {
         return Option<T>();
     }
 
     template<typename T>
-    //
     KSTD_REQUIRES(!std::is_void<T>::value)
     [[nodiscard]] constexpr auto make_value(T value) noexcept -> decltype(auto) {
         if constexpr (std::is_pointer<T>::value || std::is_reference<T>::value) {
