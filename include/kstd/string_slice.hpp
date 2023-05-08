@@ -24,10 +24,22 @@
 #include <cstring>
 
 // Forward declarations for optional support types
+#ifdef PLATFORM_APPLE
+namespace std { // Some type of aliasing -.-
+    namespace __1 {
+        template<typename CHAR, typename TRAITS>
+        class basic_string_view; // NOLINT
+    }
+
+    template<typename CHAR, typename TRAITS>
+    using basic_string_view = __1::basic_string_view<CHAR, TRAITS>; // NOLINT
+}
+#else
 namespace std {
     template<typename CHAR, typename TRAITS>
     class basic_string_view; // NOLINT
 }
+#endif
 
 namespace kstd {
     template<typename CHAR> //
