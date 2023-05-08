@@ -20,6 +20,8 @@
 #pragma once
 
 #include <cstring>
+#include <bit>
+#include <utility>
 #include "kstd/concepts.hpp"
 #include "kstd/types.hpp"
 
