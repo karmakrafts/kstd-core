@@ -20,7 +20,6 @@
 #pragma once
 
 #include <cstring>
-#include <bit>
 #include <utility>
 #include "kstd/concepts.hpp"
 #include "kstd/types.hpp"
@@ -72,7 +71,7 @@ namespace kstd {
 
             StatefulOptionInner() noexcept :
                     _inner(),
-                    _is_present(false) {
+                    _is_present() {
             }
 
             ~StatefulOptionInner() noexcept = default;
@@ -216,7 +215,7 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
             if constexpr (_is_reference) {
-                return std::bit_cast<const void*>(_inner._dummy) == nullptr;
+                return *reinterpret_cast<const void* const*>(_inner._dummy) == nullptr;
             }
             else {
                 return !_inner._is_present;
@@ -225,7 +224,7 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto is_value() const noexcept -> bool {
             if constexpr (_is_reference) {
-                return std::bit_cast<const void*>(_inner._dummy) != nullptr;
+                return *reinterpret_cast<const void* const*>(_inner._dummy) != nullptr;
             }
             else {
                 return _inner._is_present;
