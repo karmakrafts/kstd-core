@@ -260,7 +260,7 @@ namespace kstd {
                 return _inner._inner._value;
             }
             else {
-                return std::move(_inner._value);
+                return std::move(_inner._inner._value);
             }
         }
 
