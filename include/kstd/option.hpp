@@ -100,7 +100,13 @@ namespace kstd {
                 _inner._value = value; // Refs don't need a state flag
             }
             else {
-                _inner._inner._value = value;
+                if constexpr(_is_pointer) {
+                    _inner._inner._value = value;
+                }
+                else {
+                    _inner._inner._value = std::move(value);
+                }
+
                 _inner._is_present = true;
             }
         }
