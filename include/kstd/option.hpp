@@ -29,7 +29,7 @@ namespace kstd {
     struct Option;
 
     namespace {
-        template<typename T>
+        template<typename T> KSTD_REQUIRES(!std::is_void<T>::value)
         union OptionInner final {
             using value_type = typename std::conditional<std::is_reference<T>::value, typename std::remove_reference<T>::type*, T>::type;
 
@@ -53,27 +53,76 @@ namespace kstd {
             ~OptionInner() noexcept {}
             // @formatter:on
         };
+
+        template<typename T> KSTD_REQUIRES(!std::is_void<T>::value)
+        struct StatefulOptionInner final {
+            using inner_type = OptionInner<T>;
+            using value_type = typename inner_type::value_type;
+
+            private:
+
+            friend class Option<T>;
+
+            inner_type _inner;
+            bool _is_present;
+
+            public:
+
+            StatefulOptionInner() noexcept :
+                    _inner(),
+                    _is_present(false) {
+            }
+
+            ~StatefulOptionInner() noexcept = default;
+        };
     }
 
     template<typename T> //
     KSTD_REQUIRES(!std::is_void<T>::value)
     struct Option final {
-        using self_type = Option<T>;
-        using value_type = T;
-        using naked_value_type = typename std::remove_all_extents<typename std::remove_reference<value_type>::type>::type;
-        using inner_type = OptionInner<T>;
-        using inner_value_type = typename inner_type::value_type;
-
-        private:
-
         static constexpr bool _is_pointer = std::is_pointer<T>::value;
         static constexpr bool _is_reference = std::is_reference<T>::value;
 
+        using self_type = Option<T>;
+        using value_type = T;
+        using naked_value_type = typename std::remove_all_extents<typename std::remove_reference<value_type>::type>::type;
+        using inner_type = typename std::conditional<_is_reference, OptionInner<T>, StatefulOptionInner<T>>::type;
+        using inner_value_type [[maybe_unused]] = typename inner_type::value_type;
+        using borrowed_value_type = typename std::conditional<_is_pointer, T, naked_value_type&>::type;
+
+        private:
+
         inner_type _inner;
 
-        public:
+        constexpr auto _set_value(inner_value_type value) noexcept -> void {
+            if constexpr (_is_reference) {
+                _inner._value = value; // Refs don't need a state flag
+            }
+            else {
+                _inner._inner._value = value;
+                _inner._is_present = true;
+            }
+        }
 
-        using borrowed_value_type = typename std::conditional<_is_pointer, T, naked_value_type&>::type;
+        [[nodiscard]] constexpr auto _get_value() noexcept -> inner_value_type {
+            if constexpr (_is_reference) {
+                return _inner._value;
+            }
+            else {
+                return _inner._inner._value;
+            }
+        }
+
+        constexpr auto _set_empty() noexcept -> void {
+            if constexpr (_is_reference) {
+                std::memset(_inner._dummy, 0, sizeof(void*));
+            }
+            else {
+                _inner._is_present = false;
+            }
+        }
+
+        public:
 
         Option() noexcept :
                 _inner() {
@@ -83,18 +132,18 @@ namespace kstd {
                 _inner() {
             if constexpr ((_is_pointer || _is_reference) || !std::is_trivial<T>::value) {
                 if constexpr (_is_reference) {
-                    _inner._value = &value;
+                    _set_value(&value);
                 }
                 else {
-                    _inner._value = value;
+                    _set_value(value);
                 }
             }
             else {
                 if constexpr (std::is_move_assignable<T>::value) {
-                    _inner._value = std::move(value);
+                    _set_value(std::move(value));
                 }
                 else {
-                    _inner._value = value;
+                    _set_value(value);
                 }
             }
         }
@@ -103,7 +152,7 @@ namespace kstd {
                 _inner() {
             if (other) {
                 release();
-                _inner._value = other._inner._value;
+                _set_value(other._get_value()); // Copy value
             }
         }
 
@@ -113,10 +162,10 @@ namespace kstd {
                 release();
 
                 if constexpr (_is_pointer || _is_reference) {
-                    _inner._value = other._inner._value;
+                    _set_value(other._get_value()); // Copy value
                 }
                 else {
-                    _inner._value = std::move(other._inner._value);
+                    _set_value(std::move(other._get_value())); // Move value
                 }
             }
         }
@@ -128,9 +177,11 @@ namespace kstd {
         constexpr auto release() noexcept -> void {
             if constexpr (!_is_pointer && !_is_reference) {
                 if (is_value()) {
-                    _inner._value.~inner_value_type();
+                    _get_value().~inner_value_type();
                 }
             }
+
+            _set_empty(); // Mark this option as empty after releasing ownership
         }
 
         constexpr auto operator =(const self_type& other) noexcept -> self_type& {
@@ -140,7 +191,7 @@ namespace kstd {
 
             if (other) {
                 release();
-                _inner._value = other._inner._value;
+                _set_value(other._get_value()); // Copy value
             }
 
             return *this;
@@ -151,10 +202,10 @@ namespace kstd {
                 release();
 
                 if constexpr (_is_pointer || _is_reference) {
-                    _inner._value = other._inner._value;
+                    _set_value(other._get_value()); // Copy value
                 }
                 else {
-                    _inner._value = std::move(other._inner._value);
+                    _set_value(std::move(other._get_value())); // Move value
                 }
             }
 
@@ -162,14 +213,21 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            constexpr auto size = sizeof(_inner._dummy);
-            u8 dummy[size];
-            std::memset(dummy, 0, size);
-            return std::memcmp(_inner._dummy, dummy, size) == 0;
+            if constexpr (_is_reference) {
+                return std::bit_cast<const void*>(_inner._dummy) == nullptr;
+            }
+            else {
+                return !_inner._is_present;
+            }
         }
 
         [[nodiscard]] constexpr auto is_value() const noexcept -> bool {
-            return !is_empty();
+            if constexpr (_is_reference) {
+                return std::bit_cast<const void*>(_inner._dummy) != nullptr;
+            }
+            else {
+                return _inner._is_present;
+            }
         }
 
         [[nodiscard]] constexpr auto borrow_value() noexcept -> borrowed_value_type {
@@ -183,7 +241,7 @@ namespace kstd {
                 return *_inner._value;
             }
             else {
-                return _inner._value;
+                return _inner._inner._value;
             }
         }
 
@@ -198,7 +256,7 @@ namespace kstd {
                 return *_inner._value;
             }
             else if constexpr (_is_pointer) {
-                return _inner._value;
+                return _inner._inner._value;
             }
             else {
                 return std::move(_inner._value);
@@ -210,7 +268,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator *() noexcept -> decltype(auto) {
-            return get_value();
+            return borrow_value();
         }
 
         [[nodiscard]] constexpr auto operator ->() noexcept -> naked_value_type* {
@@ -220,13 +278,13 @@ namespace kstd {
 
     template<typename T>
     KSTD_REQUIRES(!std::is_void<T>::value)
-    [[nodiscard]] constexpr auto make_empty() noexcept -> decltype(auto) {
+    [[nodiscard]] constexpr auto make_empty() noexcept -> Option<T> {
         return Option<T>();
     }
 
     template<typename T>
     KSTD_REQUIRES(!std::is_void<T>::value)
-    [[nodiscard]] constexpr auto make_value(T value) noexcept -> decltype(auto) {
+    [[nodiscard]] constexpr auto make_value(T value) noexcept -> Option<T> {
         if constexpr (std::is_pointer<T>::value || std::is_reference<T>::value) {
             return Option<T>(value);
         }
