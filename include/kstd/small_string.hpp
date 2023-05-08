@@ -58,18 +58,18 @@ namespace kstd {
 
         public:
 
-        BasicSmallString() noexcept :
+        constexpr BasicSmallString() noexcept :
                 _is_large(false) { // Initialize the large bit to 0 for small-string, makes clang-tidy stfu
             std::memset(_data, 0, capacity * char_size);
             _size = capacity; // We start out with n - 1 characters available
         }
 
-        BasicSmallString(const self_type& other) noexcept :
+        constexpr BasicSmallString(const self_type& other) noexcept :
                 _is_large(false) { // Initialize the large bit to 0 for small-string, makes clang-tidy stfu
             std::memcpy(_data, other._data, capacity * char_size);
         }
 
-        BasicSmallString(self_type&& other) noexcept :
+        constexpr BasicSmallString(self_type&& other) noexcept :
                 _is_large(false) { // Initialize the large bit to 0 for small-string, makes clang-tidy stfu
             std::memcpy(_data, other._data, capacity * char_size);
         }

@@ -41,15 +41,15 @@ namespace kstd {
 
         public:
 
-        RelativePtr() noexcept :
+        constexpr RelativePtr() noexcept :
                 _offset(0) {
         }
 
+        constexpr RelativePtr(const self_type& other) noexcept = delete;
+
+        constexpr RelativePtr(self_type&& other) noexcept = delete;
+
         ~RelativePtr() noexcept = default;
-
-        RelativePtr(const self_type& other) noexcept = delete;
-
-        RelativePtr(self_type&& other) noexcept = delete;
 
         constexpr auto operator =(const self_type& other) noexcept -> self_type& = delete;
 

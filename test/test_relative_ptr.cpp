@@ -31,7 +31,7 @@ struct TestStruct final {
  * Since a relative pointer imposes linear allocation
  * on the data that it points to, we need to create a
  * test harness which mimics the behaviour of a linear
- * allocator as found in real-time graphics applications.
+ * allocator, as found in real-time graphics applications for example.
  */
 
 TEST(kstd_RelativePtr, TestUnsignedOffset) {

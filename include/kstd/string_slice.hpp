@@ -22,7 +22,12 @@
 #include "string_fwd.hpp"
 #include "types.hpp"
 #include <cstring>
-#include <string_view>
+
+// Forward declarations for optional support types
+namespace std {
+    template<typename CHAR, typename TRAITS>
+    class basic_string_view; // NOLINT
+}
 
 namespace kstd {
     template<typename CHAR> //
@@ -33,7 +38,7 @@ namespace kstd {
         using const_pointer = const value_type*;
         using size_type = usize;
         using const_iterator = const_pointer;
-        using view_type = std::basic_string_view<value_type>;
+        using std_type = std::basic_string_view<value_type>;
 
         private:
 
@@ -52,7 +57,7 @@ namespace kstd {
                 _size(size) {
         }
 
-        constexpr BasicStringSlice(view_type view) noexcept : // NOLINT
+        constexpr BasicStringSlice(std_type view) noexcept : // NOLINT
                 _data(view.data()),
                 _size(view.size()) {
         }
@@ -65,11 +70,11 @@ namespace kstd {
 
         constexpr auto operator =(self_type&& other) noexcept -> self_type& = default;
 
-        [[nodiscard]] constexpr auto to_view() const noexcept -> view_type {
-            return {_data, static_cast<typename view_type::size_type>(_size)};
+        [[nodiscard]] constexpr auto to_view() const noexcept -> std_type {
+            return {_data, static_cast<typename std_type::size_type>(_size)};
         }
 
-        [[nodiscard]] constexpr operator view_type() const noexcept { // NOLINT: allow implicit conversion to std::basic_string_view<>
+        [[nodiscard]] constexpr operator std_type() const noexcept { // NOLINT: allow implicit conversion to std::basic_string_view<>
             return to_view();
         }
 

@@ -21,5 +21,5 @@
 #include <kstd/string_slice.hpp>
 
 TEST(kstd_StringSlice, TestCreate) {
-
+    using namespace kstd::string_literals;
 }

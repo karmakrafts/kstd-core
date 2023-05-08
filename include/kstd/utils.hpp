@@ -14,22 +14,11 @@
 
 /**
  * @author Alexander Hinze
- * @since 02/05/2023
+ * @since 09/05/2023
  */
 
-#include <gtest/gtest.h>
-#include <kstd/out_ptr.hpp>
-#include <kstd/types.hpp>
-#include <malloc.h>
+#pragma once
 
-// Define function with C-linkage for testing
-extern "C" auto the_c_function(kstd::i32** data_to_set) -> void {
-    *data_to_set = reinterpret_cast<kstd::i32*>(::malloc(sizeof(kstd::i32)));
-    *(*data_to_set) = 420;
-}
+namespace kstd {
 
-TEST(kstd_OutPtr, TestOutPtr) {
-    auto the_data = std::unique_ptr<kstd::i32, kstd::FreeDeleter<kstd::i32>>(nullptr);
-    the_c_function(make_out(the_data));
-    ASSERT_EQ(*the_data, 420);
 }

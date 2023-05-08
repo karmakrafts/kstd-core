@@ -58,9 +58,9 @@ namespace kstd {
 
         public:
 
-        explicit OutPtr(smart_pointer& owner) noexcept :
+        explicit constexpr OutPtr(smart_pointer& owner) noexcept :
                 _owner(owner),
-                _new_value(pointer()) {
+                _new_value() {
         }
 
         ~OutPtr() noexcept {

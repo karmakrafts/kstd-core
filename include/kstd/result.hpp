@@ -96,12 +96,12 @@ namespace kstd {
 
         using borrowed_value_type = typename std::conditional<_is_pointer, T, naked_value_type&>::type;
 
-        Result() noexcept :
+        constexpr Result() noexcept :
                 _inner(),
                 _type(ResultType::EMPTY) {
         }
 
-        Result(value_type value) noexcept : // NOLINT
+        constexpr Result(value_type value) noexcept : // NOLINT
                 _inner(),
                 _type(ResultType::OK) {
             if constexpr ((_is_pointer || _is_reference) || !std::is_trivial<T>::value) {
@@ -122,13 +122,13 @@ namespace kstd {
             }
         }
 
-        Result(Error<E> error) noexcept : // NOLINT
+        constexpr Result(Error<E> error) noexcept : // NOLINT
                 _inner(),
                 _type(ResultType::ERROR) {
             _inner._error = std::move(error.get_error());
         }
 
-        Result(const self_type& other) noexcept :
+        constexpr Result(const self_type& other) noexcept :
                 _inner(),
                 _type(other._type) {
             if (other.is_ok()) {
@@ -139,7 +139,7 @@ namespace kstd {
             }
         }
 
-        Result(self_type&& other) noexcept :
+        constexpr Result(self_type&& other) noexcept :
                 _inner(),
                 _type(other._type) {
             if (other.is_ok()) {

@@ -30,7 +30,8 @@ namespace kstd {
     struct Option;
 
     namespace {
-        template<typename T> KSTD_REQUIRES(!std::is_void<T>::value)
+        template<typename T> //
+        KSTD_REQUIRES(!std::is_void<T>::value)
         union OptionInner final {
             using value_type = typename std::conditional<std::is_reference<T>::value, typename std::remove_reference<T>::type*, T>::type;
 
@@ -55,7 +56,8 @@ namespace kstd {
             // @formatter:on
         };
 
-        template<typename T> KSTD_REQUIRES(!std::is_void<T>::value)
+        template<typename T> //
+        KSTD_REQUIRES(!std::is_void<T>::value)
         struct StatefulOptionInner final {
             using inner_type = OptionInner<T>;
             using value_type = typename inner_type::value_type;
@@ -100,7 +102,7 @@ namespace kstd {
                 _inner._value = value; // Refs don't need a state flag
             }
             else {
-                if constexpr(_is_pointer) {
+                if constexpr (_is_pointer) {
                     _inner._inner._value = value;
                 }
                 else {
@@ -131,11 +133,11 @@ namespace kstd {
 
         public:
 
-        Option() noexcept :
+        constexpr Option() noexcept :
                 _inner() {
         }
 
-        Option(value_type value) noexcept : // NOLINT
+        constexpr Option(value_type value) noexcept : // NOLINT
                 _inner() {
             if constexpr ((_is_pointer || _is_reference) || !std::is_trivial<T>::value) {
                 if constexpr (_is_reference) {
@@ -155,7 +157,7 @@ namespace kstd {
             }
         }
 
-        Option(const self_type& other) noexcept :
+        constexpr Option(const self_type& other) noexcept :
                 _inner() {
             if (other) {
                 release();
@@ -163,7 +165,7 @@ namespace kstd {
             }
         }
 
-        Option(self_type&& other) noexcept :
+        constexpr Option(self_type&& other) noexcept :
                 _inner() {
             if (other) {
                 release();

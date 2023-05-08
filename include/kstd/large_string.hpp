@@ -65,21 +65,21 @@ namespace kstd {
 
         public:
 
-        BasicString() noexcept :
+        constexpr BasicString() noexcept :
                 _small() {
         }
 
         // This allows for implicit assignment of string slices to owning strings
-        BasicString(view_type view) noexcept : // NOLINT
+        constexpr BasicString(view_type view) noexcept : // NOLINT
                 _small() {
             *this = std::move(view.to_owning());
         }
 
-        BasicString(const self_type& other) noexcept :
+        constexpr BasicString(const self_type& other) noexcept :
                 _small() {
         }
 
-        BasicString(self_type&& other) noexcept :
+        constexpr BasicString(self_type&& other) noexcept :
                 _small() {
         }
 
