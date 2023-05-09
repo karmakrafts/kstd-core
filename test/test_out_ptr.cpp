@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include <kstd/out_ptr.hpp>
 #include <kstd/types.hpp>
-#include <malloc.h>
+#include <cstring>
 
 // Define function with C-linkage for testing
 extern "C" auto the_c_function(kstd::i32** data_to_set) -> void {
