@@ -20,26 +20,9 @@
 #pragma once
 
 #include <utility>
+#include <tuple>
 #include "types.hpp"
 #include "meta.hpp"
-
-// Forward declarations for optional support types
-#ifdef PLATFORM_APPLE
-namespace std {
-    namespace __1 {
-        template<typename... ELEMENTS>
-        class tuple; // NOLINT
-    }
-
-    template<typename... ELEMENTS>
-    using tuple = __1::tuple<ELEMENTS...>; // NOLINT
-}
-#else
-namespace std {
-    template<typename... ELEMENTS>
-    class tuple; // NOLINT
-}
-#endif
 
 namespace kstd {
     namespace {
