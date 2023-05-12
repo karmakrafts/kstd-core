@@ -286,6 +286,15 @@ namespace kstd::meta {
     template<typename T>
     struct IsVolatile<volatile T> : public True {};
 
+    template<typename T>
+    struct IsVolatile<volatile T*> : public True {};
+
+    template<typename T>
+    struct IsVolatile<volatile T&> : public True {};
+
+    template<typename T>
+    struct IsVolatile<volatile T&&> : public True {};
+
     template<typename T> //
     constexpr bool is_volatile = IsVolatile<T>::value;
 

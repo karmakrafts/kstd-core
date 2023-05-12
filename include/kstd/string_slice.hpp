@@ -21,6 +21,7 @@
 
 #include "string_fwd.hpp"
 #include "types.hpp"
+#include "allocator.hpp"
 #include <cstring>
 
 #ifdef KSTD_STD_STRING_VIEW_SUPPORT
@@ -85,7 +86,7 @@ namespace kstd {
         }
         #endif
 
-        template<typename ALLOCATOR = std::allocator<ValueType>>
+        template<typename ALLOCATOR = DefaultAllocator<ValueType>>
         KSTD_REQUIRES(concepts::Allocator<ALLOCATOR>)
         [[nodiscard]] constexpr auto to_owning() const noexcept -> BasicString<ValueType, ALLOCATOR> {
             BasicString<ValueType, ALLOCATOR> result;
