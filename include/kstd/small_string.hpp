@@ -38,20 +38,20 @@ namespace kstd {
         static constexpr usize usable_capacity = capacity - 1;
         static constexpr usize char_size = sizeof(CHAR);
 
-        using self_type = BasicSmallString<CHAR, SIZE>;
-        using value_type = CHAR;
-        using pointer = value_type*;
-        using const_pointer = const value_type*;
-        using size_type = usize;
-        using iterator = pointer;
-        using const_iterator = const_pointer;
+        using Self = BasicSmallString<CHAR, SIZE>;
+        using ValueType = CHAR;
+        using Pointer = ValueType*;
+        using ConstPointer = const ValueType*;
+        using SizeType = usize;
+        using Iterator = Pointer;
+        using ConstIterator = ConstPointer;
 
         private:
 
-        CHAR _data[capacity];
+        ValueType _data[capacity];
 
         struct {
-            CHAR _padding0[usable_capacity];
+            ValueType _padding0[usable_capacity];
             usize _size : (char_size << 3) - 1;
             bool _is_large : 1; // We can't overlap with the large string bit
         };
@@ -64,17 +64,17 @@ namespace kstd {
             _size = capacity; // We start out with n - 1 characters available
         }
 
-        constexpr BasicSmallString(const self_type& other) noexcept :
+        constexpr BasicSmallString(const Self& other) noexcept :
                 _is_large(false) { // Initialize the large bit to 0 for small-string, makes clang-tidy stfu
             std::memcpy(_data, other._data, capacity * char_size);
         }
 
-        constexpr BasicSmallString(self_type&& other) noexcept :
+        constexpr BasicSmallString(Self&& other) noexcept :
                 _is_large(false) { // Initialize the large bit to 0 for small-string, makes clang-tidy stfu
             std::memcpy(_data, other._data, capacity * char_size);
         }
 
-        constexpr auto operator =(const self_type& other) noexcept -> self_type& {
+        constexpr auto operator =(const Self& other) noexcept -> Self& {
             if (&other != this) {
                 std::memcpy(_data, other._data, capacity * char_size);
             }
@@ -82,32 +82,32 @@ namespace kstd {
             return *this;
         }
 
-        constexpr auto operator =(self_type&& other) noexcept -> self_type& {
+        constexpr auto operator =(Self&& other) noexcept -> Self& {
             std::memcpy(_data, other._data, capacity * char_size);
             return *this;
         }
 
-        [[nodiscard]] constexpr auto get_data() noexcept -> pointer {
+        [[nodiscard]] constexpr auto get_data() noexcept -> Pointer {
             return _data;
         }
 
-        [[nodiscard]] constexpr auto get_c_str() const noexcept -> const_pointer {
+        [[nodiscard]] constexpr auto get_c_str() const noexcept -> ConstPointer {
             return _data;
         }
 
-        constexpr auto resize(size_type new_size) noexcept -> void {
+        constexpr auto resize(SizeType new_size) noexcept -> void {
             _size = usable_capacity - new_size;
         }
 
-        [[nodiscard]] constexpr auto get_size() const noexcept -> size_type {
+        [[nodiscard]] constexpr auto get_size() const noexcept -> SizeType {
             return usable_capacity - _size;
         }
 
-        [[nodiscard]] constexpr auto get_capacity() const noexcept -> size_type {
+        [[nodiscard]] constexpr auto get_capacity() const noexcept -> SizeType {
             return capacity;
         }
 
-        [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> size_type {
+        [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> SizeType {
             return capacity * char_size;
         }
 
@@ -115,28 +115,28 @@ namespace kstd {
             return get_size() == 0;
         }
 
-        [[nodiscard]] constexpr auto begin() noexcept -> iterator {
+        [[nodiscard]] constexpr auto begin() noexcept -> Iterator {
             return get_data();
         }
 
-        [[nodiscard]] constexpr auto end() noexcept -> iterator {
+        [[nodiscard]] constexpr auto end() noexcept -> Iterator {
             return get_data() + get_size(); // Pointer to last char
         }
 
-        [[nodiscard]] constexpr auto cbegin() noexcept -> const_iterator {
+        [[nodiscard]] constexpr auto cbegin() noexcept -> ConstIterator {
             return get_c_str();
         }
 
-        [[nodiscard]] constexpr auto cend() noexcept -> const_iterator {
+        [[nodiscard]] constexpr auto cend() noexcept -> ConstIterator {
             return get_c_str() + get_size(); // Pointer to last char
         }
 
         constexpr auto clear() noexcept -> void {
-            std::memset(_data, 0, sizeof(self_type)); // Zero out self
+            std::memset(_data, 0, sizeof(Self)); // Zero out self
             _size = usable_capacity; // Reset available char count
         }
 
-        [[nodiscard]] constexpr auto operator [](size_type index) noexcept -> value_type& {
+        [[nodiscard]] constexpr auto operator [](SizeType index) noexcept -> ValueType& {
             #ifdef BUILD_DEBUG
             if (index > _size) {
                 throw std::runtime_error("String index out of bounds");

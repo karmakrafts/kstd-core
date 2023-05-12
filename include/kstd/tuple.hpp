@@ -19,60 +19,48 @@
 
 #pragma once
 
-#include <utility>
-#include <tuple>
 #include "types.hpp"
 #include "meta.hpp"
+#include "box.hpp"
+#include "utils.hpp"
 
 namespace kstd {
     namespace {
-        template<usize INDEX, typename... TYPES>
+        template<typename... TYPES>
         struct TupleInner;
 
-        template<usize INDEX, typename HEAD>
-        struct TupleInner<INDEX, HEAD> final {
-            static constexpr usize index = INDEX;
+        template<typename HEAD>
+        struct TupleInner<HEAD> final {
+            using ValueType = HEAD;
 
-            HEAD _head;
+            ValueType _head;
 
             constexpr TupleInner() noexcept :
                     _head() {
             }
 
-            constexpr TupleInner(HEAD head) noexcept : // NOLINT
-                    _head() {
-                if constexpr (std::is_pointer<HEAD>::value || std::is_reference<HEAD>::value) {
-                    _head = head;
-                }
-                else {
-                    _head = std::move(head);
-                }
+            constexpr TupleInner(ValueType head) noexcept : // NOLINT
+                    _head(move(head)) {
             }
 
             ~TupleInner() noexcept = default;
         };
 
-        template<usize INDEX, typename HEAD, typename... TAIL>
-        struct TupleInner<INDEX, HEAD, TAIL...> final {
-            static constexpr usize index = INDEX;
+        template<typename HEAD, typename... TAIL>
+        struct TupleInner<HEAD, TAIL...> final {
+            using ValueType = HEAD;
 
-            HEAD _head;
-            TupleInner<INDEX + 1, TAIL...> _tail;
+            ValueType _head;
+            TupleInner<TAIL...> _tail;
 
             constexpr TupleInner() noexcept :
                     _head(),
                     _tail() {
             }
 
-            constexpr TupleInner(HEAD head, TAIL&& ... tail) noexcept :  // NOLINT
-                    _head(),
-                    _tail(std::forward<TAIL>(tail)...) {
-                if constexpr (std::is_pointer<HEAD>::value || std::is_reference<HEAD>::value) {
-                    _head = head;
-                }
-                else {
-                    _head = std::move(head);
-                }
+            constexpr TupleInner(ValueType head, TAIL&& ... tail) noexcept :  // NOLINT
+                    _head(move(head)),
+                    _tail(forward<TAIL>(tail)...) {
             }
 
             ~TupleInner() noexcept = default;
@@ -83,16 +71,15 @@ namespace kstd {
     struct Tuple final {
         static constexpr usize num_values = sizeof...(TYPES);
 
-        using self_type [[maybe_unused]] = Tuple<TYPES...>;
-        using std_type = std::tuple<TYPES...>;
-        using types = Pack<TYPES...>;
+        using Self [[maybe_unused]] = Tuple<TYPES...>;
+        using Types = meta::Pack<TYPES...>;
 
         private:
 
-        TupleInner<0, TYPES...> _inner;
+        TupleInner<TYPES...> _inner;
 
         template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
-        [[nodiscard]] constexpr auto _get(TupleInner<CURRENT, HEAD, TAIL...>& inner) noexcept -> typename nth_pack_element<INDEX, types>::type {
+        [[nodiscard]] constexpr auto _get(TupleInner<HEAD, TAIL...>& inner) noexcept -> meta::pack_element<INDEX, Types> {
             if constexpr (CURRENT < INDEX) {
                 return _get<INDEX, CURRENT + 1, TAIL...>(inner._tail);
             }
@@ -107,7 +94,7 @@ namespace kstd {
         }
 
         constexpr Tuple(TYPES&& ... values) noexcept : // NOLINT
-                _inner(std::forward<TYPES>(values)...) {
+                _inner(forward<TYPES>(values)...) {
         }
 
         ~Tuple() noexcept = default;
@@ -117,7 +104,7 @@ namespace kstd {
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() noexcept -> typename nth_pack_element<INDEX, types>::type {
+        [[nodiscard]] constexpr auto get() noexcept -> meta::pack_element<INDEX, Types> {
             return _get<INDEX, 0, TYPES...>(_inner);
         }
     };
@@ -133,9 +120,9 @@ namespace kstd {
 namespace std { // @formatter:off
     template<typename... ARGS> //
     struct tuple_size<kstd::Tuple<ARGS...>> { // NOLINT
-        using value_type = size_t;
+        using value_type = kstd::usize;
         static constexpr value_type value = sizeof...(ARGS);
-        using type = std::integral_constant<value_type, value>;
+        using type = kstd::meta::Constant<value_type, value>;
 
         [[nodiscard]] constexpr auto operator ()() const noexcept -> value_type {
             return value;

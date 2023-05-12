@@ -19,17 +19,16 @@
 
 #include <gtest/gtest.h>
 #include <kstd/tuple.hpp>
-#include <tuple>
 
 TEST(kstd_Tuple, TestValues) {
     kstd::Pair<kstd::i32, kstd::f32> pair(1337, 3.141F);
 
     // Template get<>
     const auto a = pair.get<0>();
-    ASSERT_TRUE((std::is_same<typename std::decay<decltype(a)>::type, kstd::i32>::value));
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(a)>, kstd::i32>);
     ASSERT_EQ(a, 1337);
     const auto b = pair.get<1>();
-    ASSERT_TRUE((std::is_same<typename std::decay<decltype(b)>::type, kstd::f32>::value));
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(b)>, kstd::f32>);
     ASSERT_EQ(b, 3.141F);
 
     // std::tuple_size support
@@ -38,8 +37,8 @@ TEST(kstd_Tuple, TestValues) {
 
     // Structured bindings
     auto& [x, y] = pair;
-    ASSERT_TRUE((std::is_same<typename std::decay<decltype(x)>::type, kstd::i32>::value));
-    ASSERT_TRUE((std::is_same<typename std::decay<decltype(y)>::type, kstd::f32>::value));
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(y)>, kstd::f32>);
     ASSERT_EQ(x, 1337);
     ASSERT_EQ(y, 3.141F);
 }

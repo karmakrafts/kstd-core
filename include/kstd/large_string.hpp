@@ -41,23 +41,23 @@ namespace kstd {
     template<typename CHAR, typename ALLOCATOR> //
     KSTD_REQUIRES(concepts::Char<CHAR> && concepts::Allocator<ALLOCATOR>)
     union BasicString final {
-        using value_type = CHAR;
-        using self_type = BasicString<value_type, ALLOCATOR>;
-        using inner_type = StringInner<value_type>;
-        using small_type = BasicSmallString<value_type, sizeof(inner_type) / sizeof(value_type)>;
-        using view_type = BasicStringSlice<CHAR>;
-        using pointer = value_type*;
-        using const_pointer = const value_type*;
-        using size_type = usize;
-        using iterator = pointer;
-        using const_iterator = const_pointer;
+        using ValueType = CHAR;
+        using Self = BasicString<ValueType, ALLOCATOR>;
+        using InnerType = StringInner<ValueType>;
+        using SmallType = BasicSmallString<ValueType, sizeof(InnerType) / sizeof(ValueType)>;
+        using SliceType = BasicStringSlice<CHAR>;
+        using Pointer = ValueType*;
+        using ConstPointer = const ValueType*;
+        using SizeType = usize;
+        using Iterator = Pointer;
+        using ConstIterator = ConstPointer;
 
-        static_assert(sizeof(small_type) == sizeof(inner_type)); // Make sure size is calculated right
+        static_assert(sizeof(SmallType) == sizeof(InnerType)); // Make sure size is calculated right
 
         private:
 
-        inner_type _inner;
-        small_type _small;
+        InnerType _inner;
+        SmallType _small;
 
         [[nodiscard]] constexpr auto is_small() const noexcept -> bool {
             return !_inner.is_large;
@@ -70,28 +70,28 @@ namespace kstd {
         }
 
         // This allows for implicit assignment of string slices to owning strings
-        constexpr BasicString(view_type view) noexcept : // NOLINT
+        constexpr BasicString(SliceType view) noexcept : // NOLINT
                 _small() {
             *this = std::move(view.to_owning());
         }
 
-        constexpr BasicString(const self_type& other) noexcept :
+        constexpr BasicString(const Self& other) noexcept :
                 _small() {
         }
 
-        constexpr BasicString(self_type&& other) noexcept :
+        constexpr BasicString(Self&& other) noexcept :
                 _small() {
         }
 
-        constexpr auto operator =(const self_type& other) noexcept -> self_type& {
+        constexpr auto operator =(const Self& other) noexcept -> Self& {
             return *this;
         }
 
-        constexpr auto operator =(self_type&& other) noexcept -> self_type& {
+        constexpr auto operator =(Self&& other) noexcept -> Self& {
             return *this;
         }
 
-        [[nodiscard]] constexpr auto get_data() noexcept -> pointer {
+        [[nodiscard]] constexpr auto get_data() noexcept -> Pointer {
             if (is_small()) {
                 return _small.get_data();
             }
@@ -99,7 +99,7 @@ namespace kstd {
             return _inner.data;
         }
 
-        [[nodiscard]] constexpr auto get_c_str() const noexcept -> const_pointer {
+        [[nodiscard]] constexpr auto get_c_str() const noexcept -> ConstPointer {
             if (is_small()) {
                 return _small.get_c_str();
             }
@@ -107,7 +107,7 @@ namespace kstd {
             return _inner.data;
         }
 
-        [[nodiscard]] constexpr auto get_size() const noexcept -> size_type {
+        [[nodiscard]] constexpr auto get_size() const noexcept -> SizeType {
             if (is_small()) {
                 return _small.get_size();
             }
@@ -115,17 +115,17 @@ namespace kstd {
             return _inner.size;
         }
 
-        [[nodiscard]] constexpr auto get_capacity() const noexcept -> size_type {
+        [[nodiscard]] constexpr auto get_capacity() const noexcept -> SizeType {
             if (is_small()) {
-                return small_type::capacity;
+                return SmallType::capacity;
             }
 
             return _inner.capacity;
         }
 
-        [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> size_type {
+        [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> SizeType {
             if (is_small()) {
-                return small_type::capacity * sizeof(CHAR);
+                return SmallType::capacity * sizeof(CHAR);
             }
 
             return _inner.capacity * sizeof(CHAR);
@@ -135,19 +135,19 @@ namespace kstd {
             return get_size() == 0;
         }
 
-        [[nodiscard]] constexpr auto begin() noexcept -> iterator {
+        [[nodiscard]] constexpr auto begin() noexcept -> Iterator {
             return get_data();
         }
 
-        [[nodiscard]] constexpr auto end() noexcept -> iterator {
+        [[nodiscard]] constexpr auto end() noexcept -> Iterator {
             return get_data() + get_size(); // Pointer to last char
         }
 
-        [[nodiscard]] constexpr auto cbegin() noexcept -> const_iterator {
+        [[nodiscard]] constexpr auto cbegin() noexcept -> ConstIterator {
             return get_c_str();
         }
 
-        [[nodiscard]] constexpr auto cend() noexcept -> const_iterator {
+        [[nodiscard]] constexpr auto cend() noexcept -> ConstIterator {
             return get_c_str() + get_size(); // Pointer to last char
         }
 
@@ -164,16 +164,16 @@ namespace kstd {
             return {};
         }
 
-        constexpr auto reserve(size_type new_capacity, bool collapse = true) noexcept -> void {
+        constexpr auto reserve(SizeType new_capacity, bool collapse = true) noexcept -> void {
 
         }
 
-        [[nodiscard]] constexpr auto compact() noexcept -> self_type& {
+        [[nodiscard]] constexpr auto compact() noexcept -> Self& {
             reserve(get_capacity());
             return *this;
         }
 
-        [[nodiscard]] constexpr auto operator [](size_type index) noexcept -> value_type& {
+        [[nodiscard]] constexpr auto operator [](SizeType index) noexcept -> ValueType& {
             #ifdef BUILD_DEBUG
             if (index > get_size()) {
                 throw std::runtime_error("String index out of bounds");

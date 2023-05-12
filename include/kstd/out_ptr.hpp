@@ -21,9 +21,9 @@
 
 #include <exception>
 #include <concepts>
-#include <type_traits>
 #include <cstring>
 #include "kstd/concepts.hpp"
+#include "meta.hpp"
 
 namespace kstd {
     namespace {
@@ -31,9 +31,9 @@ namespace kstd {
         template<typename P> //
         concept SmartPointer = requires(P value, typename P::pointer ptr) {
             typename P::pointer;
-            requires std::is_pointer<typename P::pointer>::value;
+            requires meta::is_ptr<typename P::pointer>;
             value.reset(ptr);
-            requires std::same_as<decltype(value.reset(ptr)), void>;
+            requires meta::is_same<decltype(value.reset(ptr)), void>;
         };
         #endif // KSTD_CONCEPTS_AVAILABLE
     }
@@ -46,19 +46,19 @@ namespace kstd {
     template<typename P> // @formatter:off
     KSTD_REQUIRES(SmartPointer<P>) // @formatter:on
     struct OutPtr final {
-        using self_type = OutPtr<P>;
-        using element_type = typename P::element_type;
-        using smart_pointer = P;
-        using pointer = element_type*;
+        using Self = OutPtr<P>;
+        using ElementType = typename P::element_type;
+        using SmartPointer = P;
+        using Pointer = ElementType*;
 
         private:
 
-        smart_pointer& _owner;
-        pointer _new_value;
+        SmartPointer& _owner;
+        Pointer _new_value;
 
         public:
 
-        explicit constexpr OutPtr(smart_pointer& owner) noexcept :
+        explicit constexpr OutPtr(SmartPointer& owner) noexcept :
                 _owner(owner),
                 _new_value() {
         }
@@ -71,22 +71,22 @@ namespace kstd {
             _owner.reset(_new_value);
         }
 
-        constexpr OutPtr(const self_type& other) noexcept = delete;
+        constexpr OutPtr(const Self& other) noexcept = delete;
 
-        constexpr OutPtr(self_type&& other) noexcept :
+        constexpr OutPtr(Self&& other) noexcept :
                 _owner(other._owner),
                 _new_value(other._new_value) {
         }
 
-        constexpr auto operator =(const self_type& other) noexcept -> self_type& = delete;
+        constexpr auto operator =(const Self& other) noexcept -> Self& = delete;
 
-        constexpr auto operator =(self_type&& other) noexcept -> self_type& {
+        constexpr auto operator =(Self&& other) noexcept -> Self& {
             _owner = other._owner;
             _new_value = other._new_value;
             return *this;
         }
 
-        [[nodiscard]] constexpr operator pointer*() noexcept { // NOLINT
+        [[nodiscard]] constexpr operator Pointer*() noexcept { // NOLINT
             return &_new_value;
         }
     };
@@ -104,7 +104,7 @@ namespace kstd {
 
     template<typename P>
     KSTD_REQUIRES(SmartPointer<P>)
-    [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> OutPtr<P> {
+    [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> decltype(auto) {
         return OutPtr<P>(pointer);
     }
 }

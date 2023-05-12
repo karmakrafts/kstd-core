@@ -34,7 +34,7 @@ TEST(kstd_Option, TestValue) {
     ASSERT_TRUE(opt);
 
     ASSERT_EQ(opt.borrow_value(), str);
-    opt.release();
+    opt.drop();
 
     ASSERT_FALSE(opt);
     opt = {str};
@@ -51,7 +51,7 @@ TEST(kstd_Option, TestPointer) {
     ASSERT_TRUE(opt);
 
     ASSERT_EQ(*opt.borrow_value(), str);
-    opt.release();
+    opt.drop();
 
     ASSERT_FALSE(opt);
     opt = {&str};
@@ -68,7 +68,7 @@ TEST(kstd_Option, TestReference) {
     ASSERT_TRUE(opt);
 
     ASSERT_EQ(opt.borrow_value(), str);
-    opt.release();
+    opt.drop();
 
     ASSERT_FALSE(opt);
     opt = {str};

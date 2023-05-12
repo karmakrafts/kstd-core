@@ -20,285 +20,159 @@
 #pragma once
 
 #include <cstring>
-#include <utility>
 #include "kstd/concepts.hpp"
-#include "kstd/types.hpp"
+#include "types.hpp"
+#include "utils.hpp"
+#include "meta.hpp"
+#include "box.hpp"
 
 namespace kstd {
     template<typename T> //
-    KSTD_REQUIRES(!std::is_void<T>::value)
-    struct Option;
-
-    namespace {
-        template<typename T> //
-        KSTD_REQUIRES(!std::is_void<T>::value)
-        union OptionInner final {
-            using value_type = typename std::conditional<std::is_reference<T>::value, typename std::remove_reference<T>::type*, T>::type;
-
-            private:
-
-            friend class Option<T>;
-
-            value_type _value;
-            u8 _dummy[sizeof(value_type)];
-
-            static_assert(sizeof(_dummy) == sizeof(value_type));
-
-            public:
-
-            OptionInner() noexcept :
-                    _dummy() {
-                std::memset(_dummy, 0, sizeof(_dummy));
-            }
-
-            // @formatter:off
-            ~OptionInner() noexcept {}
-            // @formatter:on
-        };
-
-        template<typename T> //
-        KSTD_REQUIRES(!std::is_void<T>::value)
-        struct StatefulOptionInner final {
-            using inner_type = OptionInner<T>;
-            using value_type = typename inner_type::value_type;
-
-            private:
-
-            friend class Option<T>;
-
-            inner_type _inner;
-            bool _is_present;
-
-            public:
-
-            StatefulOptionInner() noexcept :
-                    _inner(),
-                    _is_present() {
-            }
-
-            ~StatefulOptionInner() noexcept = default;
-        };
-    }
-
-    template<typename T> //
-    KSTD_REQUIRES(!std::is_void<T>::value)
+    KSTD_REQUIRES(!meta::is_void<T>)
     struct Option final {
-        static constexpr bool _is_pointer = std::is_pointer<T>::value;
-        static constexpr bool _is_reference = std::is_reference<T>::value;
+        static constexpr bool is_pointer = meta::is_ptr<T>;
+        static constexpr bool is_reference = meta::is_ref<T>;
+        static constexpr bool is_value = !is_pointer && !is_reference;
 
-        using self_type = Option<T>;
-        using value_type = T;
-        using naked_value_type = typename std::remove_all_extents<typename std::remove_reference<value_type>::type>::type;
-        using inner_type = typename std::conditional<_is_reference, OptionInner<T>, StatefulOptionInner<T>>::type;
-        using inner_value_type [[maybe_unused]] = typename inner_type::value_type;
-        using borrowed_value_type = typename std::conditional<_is_pointer, T, naked_value_type&>::type;
+        using Self = Option<T>;
+        using ValueType = T;
+        using NakedValueType = typename std::remove_all_extents<typename std::remove_reference<ValueType>::type>::type;
+        using InnerType = Box<ValueType>;
+        using BorrowedValueType = meta::conditional<is_pointer, ValueType, NakedValueType&>;
+        using ConstBorrowedValueType = meta::conditional<is_pointer, ValueType, const NakedValueType&>;
 
         private:
 
-        inner_type _inner;
-
-        constexpr auto _set_value(inner_value_type value) noexcept -> void {
-            if constexpr (_is_reference) {
-                _inner._value = value; // Refs don't need a state flag
-            }
-            else {
-                if constexpr (_is_pointer) {
-                    _inner._inner._value = value;
-                }
-                else {
-                    _inner._inner._value = std::move(value);
-                }
-
-                _inner._is_present = true;
-            }
-        }
-
-        [[nodiscard]] constexpr auto _get_value() noexcept -> inner_value_type {
-            if constexpr (_is_reference) {
-                return _inner._value;
-            }
-            else {
-                return _inner._inner._value;
-            }
-        }
-
-        constexpr auto _set_empty() noexcept -> void {
-            if constexpr (_is_reference) {
-                std::memset(_inner._dummy, 0, sizeof(void*));
-            }
-            else {
-                _inner._is_present = false;
-            }
-        }
+        InnerType _inner;
+        bool _is_present;
 
         public:
 
         constexpr Option() noexcept :
-                _inner() {
+                _inner(),
+                _is_present(false) {
         }
 
-        constexpr Option(value_type value) noexcept : // NOLINT
-                _inner() {
-            if constexpr ((_is_pointer || _is_reference) || !std::is_trivial<T>::value) {
-                if constexpr (_is_reference) {
-                    _set_value(&value);
-                }
-                else {
-                    _set_value(value);
-                }
-            }
-            else {
-                if constexpr (std::is_move_assignable<T>::value) {
-                    _set_value(std::move(value));
-                }
-                else {
-                    _set_value(value);
-                }
-            }
+        constexpr Option(ValueType value) noexcept : // NOLINT
+                _inner(move(value)),
+                _is_present(true) {
         }
 
-        constexpr Option(const self_type& other) noexcept :
-                _inner() {
+        constexpr Option(const Self& other) noexcept :
+                _inner(),
+                _is_present(other._is_present) {
             if (other) {
-                release();
-                _set_value(other._get_value()); // Copy value
+                drop();
+                _inner = other._inner.borrow();
             }
         }
 
-        constexpr Option(self_type&& other) noexcept :
-                _inner() {
+        constexpr Option(Self&& other) noexcept :
+                _inner(),
+                _is_present(other._is_present) {
             if (other) {
-                release();
-
-                if constexpr (_is_pointer || _is_reference) {
-                    _set_value(other._get_value()); // Copy value
-                }
-                else {
-                    _set_value(std::move(other._get_value())); // Move value
-                }
+                drop();
+                _inner = other._inner.get();
             }
         }
 
         ~Option() noexcept {
-            release();
+            drop();
         }
 
-        constexpr auto release() noexcept -> void {
-            if constexpr (!_is_pointer && !_is_reference) {
-                if (is_value()) {
-                    _get_value().~inner_value_type();
-                }
-            }
-
-            _set_empty(); // Mark this option as empty after releasing ownership
+        constexpr auto reset() noexcept -> void {
+            _is_present = false;
         }
 
-        constexpr auto operator =(const self_type& other) noexcept -> self_type& {
+        constexpr auto drop() noexcept -> void {
+            _inner.~InnerType();
+            _is_present = false; // Mark this option as empty after releasing ownership
+        }
+
+        constexpr auto operator =(const Self& other) noexcept -> Self& {
             if (this == &other) {
                 return *this;
             }
 
             if (other) {
-                release();
-                _set_value(other._get_value()); // Copy value
+                drop();
+                _inner = other._inner.borrow();
+                _is_present = true;
             }
 
             return *this;
         }
 
-        constexpr auto operator =(self_type&& other) noexcept -> self_type& {
+        constexpr auto operator =(Self&& other) noexcept -> Self& {
             if (other) {
-                release();
-
-                if constexpr (_is_pointer || _is_reference) {
-                    _set_value(other._get_value()); // Copy value
-                }
-                else {
-                    _set_value(std::move(other._get_value())); // Move value
-                }
+                drop();
+                _inner = other._inner.get();
+                _is_present = true;
             }
 
             return *this;
         }
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            if constexpr (_is_reference) {
-                return *reinterpret_cast<const void* const*>(_inner._dummy) == nullptr;
-            }
-            else {
-                return !_inner._is_present;
-            }
+            return !_is_present;
         }
 
-        [[nodiscard]] constexpr auto is_value() const noexcept -> bool {
-            if constexpr (_is_reference) {
-                return *reinterpret_cast<const void* const*>(_inner._dummy) != nullptr;
-            }
-            else {
-                return _inner._is_present;
-            }
+        [[nodiscard]] constexpr auto has_value() const noexcept -> bool {
+            return _is_present;
         }
 
-        [[nodiscard]] constexpr auto borrow_value() noexcept -> borrowed_value_type {
+        [[nodiscard]] constexpr auto borrow_value() noexcept -> BorrowedValueType {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
             #endif
 
-            if constexpr (_is_reference) {
-                return *_inner._value;
-            }
-            else {
-                return _inner._inner._value;
-            }
+            return _inner.borrow();
         }
 
-        [[nodiscard]] constexpr auto get_value() noexcept -> T {
+        [[nodiscard]] constexpr auto borrow_value() const noexcept -> ConstBorrowedValueType {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
             #endif
 
-            if constexpr (_is_reference) {
-                return *_inner._value;
+            return _inner.borrow();
+        }
+
+        [[nodiscard]] constexpr auto get_value() noexcept -> decltype(auto) {
+            #ifdef BUILD_DEBUG
+            if (is_empty()) {
+                throw std::runtime_error("Result has no value");
             }
-            else if constexpr (_is_pointer) {
-                return _inner._inner._value;
-            }
-            else {
-                return std::move(_inner._inner._value);
-            }
+            #endif
+
+            return _inner.get();
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept { // NOLINT
-            return is_value();
+            return has_value();
         }
 
         [[nodiscard]] constexpr auto operator *() noexcept -> decltype(auto) {
             return borrow_value();
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> naked_value_type* {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> NakedValueType* {
             return &borrow_value();
         }
     };
 
     template<typename T>
-    KSTD_REQUIRES(!std::is_void<T>::value)
-    [[nodiscard]] constexpr auto make_empty() noexcept -> Option<T> {
+    KSTD_REQUIRES(!meta::is_void<T>)
+    [[nodiscard]] constexpr auto make_empty() noexcept -> decltype(auto) {
         return Option<T>();
     }
 
     template<typename T>
-    KSTD_REQUIRES(!std::is_void<T>::value)
-    [[nodiscard]] constexpr auto make_value(T value) noexcept -> Option<T> {
-        if constexpr (std::is_pointer<T>::value || std::is_reference<T>::value) {
-            return Option<T>(value);
-        }
-        else {
-            return Option<T>(std::move(value));
-        }
+    KSTD_REQUIRES(!meta::is_void<T>)
+    [[nodiscard]] constexpr auto make_value(T value) noexcept -> decltype(auto) {
+        return Option<T>(move(value));
     }
 }

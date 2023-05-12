@@ -26,18 +26,18 @@ namespace kstd {
     template<typename T, typename OFFSET = u32> //
     KSTD_REQUIRES(!std::is_void<T>::value && std::integral<OFFSET>)
     struct RelativePtr final {
-        using self_type = RelativePtr<T, OFFSET>;
-        using element_type = T;
-        using offset_type = OFFSET;
-        using pointer = element_type*;
-        using const_pointer = const element_type*;
-        using reference = element_type&;
-        using const_reference = const element_type&;
-        using size_type = usize;
+        using Self = RelativePtr<T, OFFSET>;
+        using ElementType = T;
+        using OffsetType = OFFSET;
+        using Pointer = ElementType*;
+        using ConstPointer = const ElementType*;
+        using Reference = ElementType&;
+        using ConstReference = const ElementType&;
+        using SizeType = usize;
 
         private:
 
-        offset_type _offset;
+        OffsetType _offset;
 
         public:
 
@@ -45,38 +45,38 @@ namespace kstd {
                 _offset(0) {
         }
 
-        constexpr RelativePtr(const self_type& other) noexcept = delete;
+        constexpr RelativePtr(const Self& other) noexcept = delete;
 
-        constexpr RelativePtr(self_type&& other) noexcept = delete;
+        constexpr RelativePtr(Self&& other) noexcept = delete;
 
         ~RelativePtr() noexcept = default;
 
-        constexpr auto operator =(const self_type& other) noexcept -> self_type& = delete;
+        constexpr auto operator =(const Self& other) noexcept -> Self& = delete;
 
-        constexpr auto operator =(self_type&& other) noexcept -> self_type& = delete;
+        constexpr auto operator =(Self&& other) noexcept -> Self& = delete;
 
-        constexpr auto operator =(pointer value) noexcept -> self_type& {
+        constexpr auto operator =(Pointer value) noexcept -> Self& {
             set(value);
             return *this;
         }
 
         constexpr auto set(T* value) noexcept -> void {
-            _offset = static_cast<offset_type>(reinterpret_cast<u8*>(value) - reinterpret_cast<u8*>(this));
+            _offset = static_cast<OffsetType>(reinterpret_cast<u8*>(value) - reinterpret_cast<u8*>(this));
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> pointer {
+        [[nodiscard]] constexpr auto get() noexcept -> Pointer {
             return reinterpret_cast<T*>(reinterpret_cast<u8*>(this) + _offset);
         }
 
-        [[nodiscard]] constexpr auto get() const noexcept -> const_pointer {
+        [[nodiscard]] constexpr auto get() const noexcept -> ConstPointer {
             return reinterpret_cast<T*>(reinterpret_cast<u8*>(this) + _offset);
         }
 
-        [[nodiscard]] constexpr operator pointer() noexcept { // NOLINT
+        [[nodiscard]] constexpr operator Pointer() noexcept { // NOLINT
             return get();
         }
 
-        [[nodiscard]] constexpr operator const_pointer() const noexcept { // NOLINT
+        [[nodiscard]] constexpr operator ConstPointer() const noexcept { // NOLINT
             return get();
         }
 
@@ -84,27 +84,27 @@ namespace kstd {
             return _offset != 0;
         }
 
-        [[nodiscard]] constexpr auto operator *() noexcept -> reference {
+        [[nodiscard]] constexpr auto operator *() noexcept -> Reference {
             return *get();
         }
 
-        [[nodiscard]] constexpr auto operator *() const noexcept -> const_reference {
+        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstReference {
             return *get();
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> pointer {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> const_pointer {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator [](size_type index) noexcept -> reference {
+        [[nodiscard]] constexpr auto operator [](SizeType index) noexcept -> Reference {
             return get()[index];
         }
 
-        [[nodiscard]] constexpr auto operator [](size_type index) const noexcept -> const_reference {
+        [[nodiscard]] constexpr auto operator [](SizeType index) const noexcept -> ConstReference {
             return get()[index];
         }
     };

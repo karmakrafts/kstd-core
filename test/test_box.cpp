@@ -14,26 +14,26 @@
 
 /**
  * @author Alexander Hinze
- * @since 11/05/2023
+ * @since 10/05/2023
  */
 
-#pragma once
+#include <gtest/gtest.h>
+#include <kstd/box.hpp>
 
-#include "meta.hpp"
+TEST(kstd_Box, TestValue) {
+    kstd::i32 x = 1337;
+    kstd::Box<kstd::i32> val_box(x);
+    ASSERT_EQ(*val_box, x);
+}
 
-namespace kstd {
-    template<typename T>
-    [[nodiscard]] constexpr auto forward(meta::remove_ref<T>& value) noexcept -> T&& {
-        return static_cast<T&&>(value);
-    }
+TEST(kstd_Box, TestReference) {
+    kstd::i32 x = 1337;
+    kstd::Box<kstd::i32&> ref_box(x);
+    ASSERT_EQ(*ref_box, x);
+}
 
-    template<typename T>
-    [[nodiscard]] constexpr auto forward(meta::remove_ref<T>&& value) noexcept -> T&& {
-        return static_cast<T&&>(value);
-    }
-
-    template<typename T>
-    [[nodiscard]] constexpr auto move(T&& value) noexcept -> meta::remove_ref<T>&& {
-        return static_cast<meta::remove_ref<T>&&>(value);
-    }
+TEST(kstd_Box, TestPointer) {
+    kstd::i32 x = 1337;
+    kstd::Box<kstd::i32*> ptr_box(&x);
+    ASSERT_EQ(**ptr_box, x);
 }
