@@ -27,6 +27,7 @@ TEST(kstd_Tuple, TestValues) {
     const auto a = pair.get<0>();
     static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(a)>, kstd::i32>);
     ASSERT_EQ(a, 1337);
+
     const auto b = pair.get<1>();
     static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(b)>, kstd::f32>);
     ASSERT_EQ(b, 3.141F);
@@ -47,10 +48,50 @@ TEST(kstd_Tuple, TestReferences) {
     kstd::i32 a = 1337;
     kstd::f32 b = 3.141F;
     kstd::Pair<kstd::i32&, kstd::f32&> pair(a, b);
+
+    // Template get<>
+    const auto x_a = pair.get<0>();
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x_a)>, kstd::i32>);
+    ASSERT_EQ(a, 1337);
+
+    const auto x_b = pair.get<1>();
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x_b)>, kstd::f32>);
+    ASSERT_EQ(b, 3.141F);
+
+    // std::tuple_size support
+    const auto size = std::tuple_size<decltype(pair)>::value;
+    ASSERT_EQ(size, pair.get_size());
+
+    // Structured bindings
+    auto& [x, y] = pair;
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(y)>, kstd::f32>);
+    ASSERT_EQ(x, 1337);
+    ASSERT_EQ(y, 3.141F);
 }
 
 TEST(kstd_Tuple, TestPointers) {
     kstd::i32 a = 1337;
     kstd::f32 b = 3.141F;
     kstd::Pair<kstd::i32*, kstd::f32*> pair(&a, &b);
+
+    // Template get<>
+    const auto x_a = pair.get<0>();
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x_a)>, kstd::i32>);
+    ASSERT_EQ(a, 1337);
+
+    const auto x_b = pair.get<1>();
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x_b)>, kstd::f32>);
+    ASSERT_EQ(b, 3.141F);
+
+    // std::tuple_size support
+    const auto size = std::tuple_size<decltype(pair)>::value;
+    ASSERT_EQ(size, pair.get_size());
+
+    // Structured bindings
+    auto& [x, y] = pair;
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(y)>, kstd::f32>);
+    ASSERT_EQ(*x, 1337);
+    ASSERT_EQ(*y, 3.141F);
 }

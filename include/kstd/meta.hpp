@@ -258,6 +258,47 @@ namespace kstd::meta {
     template<typename T> //
     constexpr bool is_default_constructible = IsDefaultConstructible<T>::value;
 
+    // is_const
+
+    template<typename T>
+    struct IsConst : public False {};
+
+    template<typename T>
+    struct IsConst<const T> : public True {};
+
+    template<typename T>
+    struct IsConst<const T*> : public True {};
+
+    template<typename T>
+    struct IsConst<const T&> : public True {};
+
+    template<typename T>
+    struct IsConst<const T&&> : public True {};
+
+    template<typename T> //
+    constexpr bool is_const = IsConst<T>::value;
+
+    // is_volatile
+
+    template<typename T>
+    struct IsVolatile : public False {};
+
+    template<typename T>
+    struct IsVolatile<volatile T> : public True {};
+
+    template<typename T> //
+    constexpr bool is_volatile = IsVolatile<T>::value;
+
+    // is_cv
+
+    template<typename T>
+    struct IsCV final {
+        static constexpr bool value = is_const<T> || is_volatile<T>;
+    };
+
+    template<typename T> //
+    constexpr bool is_cv = IsCV<T>::value;
+
     // remove_ref
 
     template<typename T>
@@ -271,7 +312,17 @@ namespace kstd::meta {
     };
 
     template<typename T>
+    struct RemoveRef<const T&> {
+        using type = T;
+    };
+
+    template<typename T>
     struct RemoveRef<T&&> {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemoveRef<const T&&> {
         using type = T;
     };
 
@@ -287,6 +338,21 @@ namespace kstd::meta {
 
     template<typename T>
     struct RemovePtr<T*> {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemovePtr<const T*> {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemovePtr<volatile T*> {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemovePtr<const volatile T*> {
         using type = T;
     };
 
@@ -312,7 +378,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct NakedType final {
-        using type = remove_const<remove_ptr<remove_ref<T>>>;
+        using type = remove_ref<remove_ptr<remove_const<T>>>;
     };
 
     template<typename T> //
@@ -331,7 +397,7 @@ namespace kstd::meta {
     struct PackElement;
 
     template<usize INDEX, typename HEAD, typename... TAIL>
-    struct PackElement<INDEX, Pack<HEAD, TAIL...>> : PackElement<INDEX - 1, Pack<TAIL...>> {};
+    struct PackElement<INDEX, Pack<HEAD, TAIL...>> : public PackElement<INDEX - 1, Pack<TAIL...>> {};
 
     template<typename HEAD, typename... TAIL>
     struct PackElement<0, Pack<HEAD, TAIL...>> {

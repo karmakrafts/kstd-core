@@ -53,13 +53,12 @@ namespace kstd {
         [[maybe_unused]] static constexpr bool is_reference = false;
         [[maybe_unused]] static constexpr bool is_value = false;
 
-        using Self = Box<T, def_if_ptr<T>>;
         using ValueType = T;
-        using StoredValueType = T;
-        using BorrowedValueType = T;
-        using ConstBorrowedValueType = const T;
-        using PointerType = T;
-        using ConstPointerType = const T;
+        using Self = Box<ValueType, def_if_ptr<ValueType>>;
+        using StoredValueType = ValueType;
+        using BorrowedValueType = ValueType;
+        using Pointer = ValueType;
+        using ConstPointer = const ValueType;
 
         private:
 
@@ -88,10 +87,6 @@ namespace kstd {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType { // NOLINT
-            return _value;
-        }
-
         [[nodiscard]] constexpr auto get() noexcept -> ValueType {
             return _value;
         }
@@ -109,15 +104,11 @@ namespace kstd {
             return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstBorrowedValueType { // NOLINT
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> PointerType {
-            return borrow();
-        }
-
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointerType { // NOLINT
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer { // NOLINT
             return borrow();
         }
     };
@@ -134,12 +125,11 @@ namespace kstd {
 
         using Self = Box<T, def_if_ref<T>>;
         using ValueType = T;
-        using naked_type = meta::remove_ref<typename std::remove_const<T>::type>;
-        using StoredValueType = naked_type*;
-        using BorrowedValueType = naked_type&;
-        using ConstBorrowedValueType = const naked_type&;
-        using PointerType = naked_type*;
-        using ConstPointerType = const naked_type*;
+        using NakedValueType = meta::naked_type<ValueType>;
+        using BorrowedValueType = ValueType;
+        using Pointer = NakedValueType*;
+        using ConstPointer = const NakedValueType*;
+        using StoredValueType = meta::conditional<meta::is_const<ValueType>, ConstPointer, Pointer>;
 
         private:
 
@@ -168,10 +158,6 @@ namespace kstd {
             return *_value;
         }
 
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-            return *_value;
-        }
-
         [[nodiscard]] constexpr auto get() noexcept -> ValueType {
             return *_value;
         }
@@ -189,15 +175,11 @@ namespace kstd {
             return *_value;
         }
 
-        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstBorrowedValueType {
-            return *_value;
-        }
-
-        [[nodiscard]] constexpr auto operator ->() noexcept -> PointerType {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointerType {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return _value;
         }
     };
@@ -219,9 +201,8 @@ namespace kstd {
         using Self = Box<T, def_if_val<T>>;
         using ValueType = T;
         using BorrowedValueType = ValueType&;
-        using ConstBorrowedValueType = const ValueType&;
-        using PointerType = ValueType*;
-        using ConstPointerType = const ValueType*;
+        using Pointer = ValueType*;
+        using ConstPointer = const ValueType*;
 
         private:
 
@@ -263,10 +244,6 @@ namespace kstd {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-            return _value;
-        }
-
         [[nodiscard]] constexpr auto get() noexcept -> ValueType&& {
             return move(_value);
         }
@@ -293,15 +270,11 @@ namespace kstd {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstBorrowedValueType {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> PointerType {
-            return _value;
-        }
-
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointerType {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return _value;
         }
     };
@@ -311,5 +284,14 @@ namespace kstd {
     KSTD_REQUIRES(!meta::is_void<T>)
     [[nodiscard]] constexpr auto make_box(T value) noexcept -> decltype(auto) {
         return Box<T>(move_or_copy(value));
+    }
+
+    namespace meta {
+        template<typename T>
+        struct ToBox final {
+            using type = Box<T>;
+        };
+
+        template<typename T> using to_box = typename ToBox<T>::type;
     }
 }

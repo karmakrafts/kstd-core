@@ -30,10 +30,10 @@ namespace kstd {
         struct TupleInner;
 
         template<typename HEAD>
-        struct TupleInner<HEAD> final {
+        struct TupleInner<HEAD> {
             using ValueType = HEAD;
 
-            ValueType _head;
+            Box<ValueType> _head;
 
             constexpr TupleInner() noexcept :
                     _head() {
@@ -47,10 +47,10 @@ namespace kstd {
         };
 
         template<typename HEAD, typename... TAIL>
-        struct TupleInner<HEAD, TAIL...> final {
+        struct TupleInner<HEAD, TAIL...> {
             using ValueType = HEAD;
 
-            ValueType _head;
+            Box<ValueType> _head;
             TupleInner<TAIL...> _tail;
 
             constexpr TupleInner() noexcept :
@@ -58,7 +58,7 @@ namespace kstd {
                     _tail() {
             }
 
-            constexpr TupleInner(ValueType head, TAIL&& ... tail) noexcept :  // NOLINT
+            constexpr TupleInner(HEAD head, TAIL&& ... tail) noexcept :  // NOLINT
                     _head(move_or_copy(head)),
                     _tail(forward<TAIL>(tail)...) {
             }
@@ -80,11 +80,12 @@ namespace kstd {
 
         template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
         [[nodiscard]] constexpr auto _get(TupleInner<HEAD, TAIL...>& inner) noexcept -> meta::pack_element<INDEX, Types> {
-            if constexpr (CURRENT < INDEX) {
+            if constexpr (CURRENT == INDEX) {
+                return *inner._head;
+            }
+            else {
                 return _get<INDEX, CURRENT + 1, TAIL...>(inner._tail);
             }
-
-            return inner._head;
         }
 
         public:

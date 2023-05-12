@@ -33,14 +33,14 @@ TEST(kstd_Option, TestValue) {
     auto opt = kstd::make_value(str);
     ASSERT_TRUE(opt);
 
-    ASSERT_EQ(opt.borrow_value(), str);
+    ASSERT_EQ(opt.borrow(), str);
     opt.drop();
 
     ASSERT_FALSE(opt);
     opt = {str};
 
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.get_value(), str);
+    ASSERT_EQ(opt.get(), str);
 }
 
 TEST(kstd_Option, TestPointer) {
@@ -50,14 +50,14 @@ TEST(kstd_Option, TestPointer) {
     auto opt = kstd::make_value(&str);
     ASSERT_TRUE(opt);
 
-    ASSERT_EQ(*opt.borrow_value(), str);
+    ASSERT_EQ(*opt.borrow(), str);
     opt.drop();
 
     ASSERT_FALSE(opt);
     opt = {&str};
 
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.get_value(), &str);
+    ASSERT_EQ(opt.get(), &str);
 }
 
 TEST(kstd_Option, TestReference) {
@@ -67,12 +67,12 @@ TEST(kstd_Option, TestReference) {
     auto opt = kstd::make_value<const kstd::StringSlice&>(str);
     ASSERT_TRUE(opt);
 
-    ASSERT_EQ(opt.borrow_value(), str);
+    ASSERT_EQ(opt.borrow(), str);
     opt.drop();
 
     ASSERT_FALSE(opt);
     opt = {str};
 
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.get_value(), str);
+    ASSERT_EQ(opt.get(), str);
 }

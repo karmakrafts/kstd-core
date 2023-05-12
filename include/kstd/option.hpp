@@ -36,10 +36,8 @@ namespace kstd {
 
         using Self = Option<T>;
         using ValueType = T;
-        using NakedValueType = typename std::remove_all_extents<typename std::remove_reference<ValueType>::type>::type;
+        using NakedValueType = meta::naked_type<ValueType>;
         using InnerType = Box<ValueType>;
-        using BorrowedValueType = meta::conditional<is_pointer, ValueType, NakedValueType&>;
-        using ConstBorrowedValueType = meta::conditional<is_pointer, ValueType, const NakedValueType&>;
 
         private:
 
@@ -96,7 +94,7 @@ namespace kstd {
 
             if (other) {
                 drop();
-                _inner = other._inner.borrow();
+                _inner = other._inner;
                 _is_present = true;
             }
 
@@ -106,7 +104,7 @@ namespace kstd {
         constexpr auto operator =(Self&& other) noexcept -> Self& {
             if (other) {
                 drop();
-                _inner = other._inner.get();
+                _inner = move(other._inner);
                 _is_present = true;
             }
 
@@ -121,7 +119,7 @@ namespace kstd {
             return _is_present;
         }
 
-        [[nodiscard]] constexpr auto borrow_value() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto borrow() noexcept -> decltype(auto) {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
@@ -131,17 +129,7 @@ namespace kstd {
             return _inner.borrow();
         }
 
-        [[nodiscard]] constexpr auto borrow_value() const noexcept -> ConstBorrowedValueType {
-            #ifdef BUILD_DEBUG
-            if (is_empty()) {
-                throw std::runtime_error("Result has no value");
-            }
-            #endif
-
-            return _inner.borrow();
-        }
-
-        [[nodiscard]] constexpr auto get_value() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
@@ -156,11 +144,11 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator *() noexcept -> decltype(auto) {
-            return borrow_value();
+            return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> NakedValueType* {
-            return &borrow_value();
+        [[nodiscard]] constexpr auto operator ->() noexcept -> decltype(auto) {
+            return &borrow();
         }
     };
 
