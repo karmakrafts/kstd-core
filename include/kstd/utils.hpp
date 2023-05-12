@@ -36,4 +36,14 @@ namespace kstd {
     [[nodiscard]] constexpr auto move(T&& value) noexcept -> meta::remove_ref<T>&& {
         return static_cast<meta::remove_ref<T>&&>(value);
     }
+
+    template<typename T>
+    [[nodiscard]] constexpr auto move_or_copy(T&& value) noexcept -> decltype(auto) {
+        if constexpr (meta::is_ref<T> || meta::is_ptr<T>) {
+            return value;
+        }
+        else {
+            return move(value);
+        }
+    }
 }

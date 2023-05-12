@@ -54,7 +54,7 @@ namespace kstd {
         }
 
         constexpr Option(ValueType value) noexcept : // NOLINT
-                _inner(move(value)),
+                _inner(move_or_copy(value)),
                 _is_present(true) {
         }
 
@@ -173,6 +173,6 @@ namespace kstd {
     template<typename T>
     KSTD_REQUIRES(!meta::is_void<T>)
     [[nodiscard]] constexpr auto make_value(T value) noexcept -> decltype(auto) {
-        return Option<T>(move(value));
+        return Option<T>(move_or_copy(value));
     }
 }

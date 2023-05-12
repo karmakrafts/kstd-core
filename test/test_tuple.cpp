@@ -44,9 +44,9 @@ TEST(kstd_Tuple, TestValues) {
 }
 
 TEST(kstd_Tuple, TestReferences) {
-    //kstd::i32 a = 1337;
-    //kstd::f32 b = 3.141F;
-    //kstd::Pair<kstd::i32&, kstd::f32&> pair(a, b);
+    kstd::i32 a = 1337;
+    kstd::f32 b = 3.141F;
+    kstd::Pair<kstd::i32&, kstd::f32&> pair(a, b);
 }
 
 TEST(kstd_Tuple, TestPointers) {

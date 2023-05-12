@@ -36,7 +36,7 @@ namespace kstd {
         public:
 
         explicit Error(E error) noexcept :
-                _error(move(error)) {
+                _error(move_or_copy(error)) {
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E& {
@@ -112,7 +112,7 @@ namespace kstd {
         constexpr Result(Error<E> error) noexcept : // NOLINT
                 _inner(),
                 _type(ResultType::ERROR) {
-            _inner._error = move(error.get_error());
+            _inner._error = move_or_copy(error.get_error());
         }
 
         constexpr Result(const Self& other) noexcept :
@@ -130,10 +130,10 @@ namespace kstd {
                 _inner(),
                 _type(other._type) {
             if (other.is_ok()) {
-                _inner._value = move(*other._inner._value);
+                _inner._value = move_or_copy(*other._inner._value);
             }
             else if (other.is_error()) {
-                _inner._error = move(*other._inner._error);
+                _inner._error = move_or_copy(*other._inner._error);
             }
         }
 
@@ -180,12 +180,12 @@ namespace kstd {
                     _inner._value = other._inner._value;
                 }
                 else {
-                    _inner._value = std::move(other._inner._value);
+                    _inner._value = move_or_copy(other._inner._value);
                 }
             }
             else if (other.is_error()) {
                 drop();
-                _inner._error = std::move(other._inner._error);
+                _inner._error = move_or_copy(other._inner._error);
             }
 
             _type = other._type;
@@ -269,7 +269,7 @@ namespace kstd {
             }
             #endif
 
-            return Result<TT, E>(Error<E>(std::move(_inner._error)));
+            return Result<TT, E>(Error<E>(move_or_copy(_inner._error)));
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept { // NOLINT
@@ -287,16 +287,11 @@ namespace kstd {
 
     template<typename T, typename E = StringSlice>
     [[nodiscard]] constexpr auto make_ok(T value) noexcept -> decltype(auto) {
-        if constexpr (std::is_reference<T>::value || std::is_pointer<T>::value) {
-            return Result<T, E>(value);
-        }
-        else {
-            return Result<T, E>(std::move(value));
-        }
+        return Result<T, E>(move_or_copy(value));
     }
 
     template<typename T, typename E>
     [[nodiscard]] constexpr auto make_error(E error) noexcept -> decltype(auto) {
-        return Result<T, E>(Error<E>(std::move(error)));
+        return Result<T, E>(Error<E>(move_or_copy(error)));
     }
 }

@@ -40,7 +40,7 @@ namespace kstd {
             }
 
             constexpr TupleInner(ValueType head) noexcept : // NOLINT
-                    _head(move(head)) {
+                    _head(move_or_copy(head)) {
             }
 
             ~TupleInner() noexcept = default;
@@ -59,7 +59,7 @@ namespace kstd {
             }
 
             constexpr TupleInner(ValueType head, TAIL&& ... tail) noexcept :  // NOLINT
-                    _head(move(head)),
+                    _head(move_or_copy(head)),
                     _tail(forward<TAIL>(tail)...) {
             }
 
