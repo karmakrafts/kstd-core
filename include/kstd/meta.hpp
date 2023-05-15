@@ -495,14 +495,74 @@ namespace kstd::meta {
     template<usize COUNT, typename PACK> //
     using skip_elements = typename SkipElements<COUNT, PACK>::type;
 
+    static_assert(is_same<skip_elements<0, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>, "Pack type should be Pack<i32, f32, u64>");
+    static_assert(is_same<skip_elements<1, Pack<i32, f32, u64>>, Pack<f32, u64>>, "Pack type should be Pack<f32, u64>");
+    static_assert(is_same<skip_elements<2, Pack<i32, f32, u64>>, Pack<u64>>, "Pack type should be Pack<u64>");
+    static_assert(is_same<skip_elements<3, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
+
+    static_assert(skip_elements<0, Pack<i32, f32, u64>>().get_size() == 3, "Pack size should be 3");
     static_assert(skip_elements<1, Pack<i32, f32, u64>>().get_size() == 2, "Pack size should be 2");
-    static_assert(is_same<skip_elements<1, Pack<i32, f32, u64>>, Pack<f32, u64>>);
-
     static_assert(skip_elements<2, Pack<i32, f32, u64>>().get_size() == 1, "Pack size should be 1");
-    static_assert(is_same<skip_elements<2, Pack<i32, f32, u64>>, Pack<u64>>);
-
     static_assert(skip_elements<3, Pack<i32, f32, u64>>().get_size() == 0, "Pack size should be 0");
-    static_assert(is_same<skip_elements<3, Pack<i32, f32, u64>>, Pack<>>);
+
+    // trim_elements
+
+    template<usize COUNT, typename PACK, typename = Pack<>>
+    struct TrimElements;
+
+    template<usize COUNT, typename HEAD, typename... TAIL, typename... ACCUMULATED>
+    struct TrimElements<COUNT, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> : public TrimElements<COUNT - 1, Pack<TAIL...>, Pack<ACCUMULATED..., HEAD>> {};
+
+    template<typename HEAD, typename... TAIL, typename... ACCUMULATED>
+    struct TrimElements<0, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> {
+        using type = Pack<ACCUMULATED...>;
+    };
+
+    template<typename... ACCUMULATED>
+    struct TrimElements<0, Pack<>, Pack<ACCUMULATED...>> {
+        using type = Pack<ACCUMULATED...>;
+    };
+
+    template<usize COUNT, typename PACK> //
+    using trim_elements = typename TrimElements<COUNT, PACK>::type;
+
+    static_assert(is_same<trim_elements<3, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>, "Pack type should be Pack<i32, f32, u64>");
+    static_assert(is_same<trim_elements<2, Pack<i32, f32, u64>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<trim_elements<1, Pack<i32, f32, u64>>, Pack<i32>>, "Pack type should be Pack<i32>");
+    static_assert(is_same<trim_elements<0, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
+
+    static_assert(trim_elements<0, Pack<i32, f32, u64>>().get_size() == 0, "Pack size should be 0");
+    static_assert(trim_elements<1, Pack<i32, f32, u64>>().get_size() == 1, "Pack size should be 1");
+    static_assert(trim_elements<2, Pack<i32, f32, u64>>().get_size() == 2, "Pack size should be 2");
+    static_assert(trim_elements<3, Pack<i32, f32, u64>>().get_size() == 3, "Pack size should be 3");
+
+    // slice_pack
+
+    template<usize BEGIN, usize END, typename PACK>
+    struct SlicePack;
+
+    template<usize BEGIN, usize END, typename... TYPES>
+    struct SlicePack<BEGIN, END, Pack<TYPES...>> {
+        using type = trim_elements<END + 1 - BEGIN, skip_elements<BEGIN, Pack<TYPES...>>>;
+    };
+
+    template<usize BEGIN, usize END, typename PACK> //
+    using slice_pack = typename SlicePack<BEGIN, END, PACK>::type;
+
+    static_assert(is_same<slice_pack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>, "Pack type should be Pack<i32, f32, u64, u32>");
+    static_assert(is_same<slice_pack<0, 2, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64>>, "Pack type should be Pack<i32, f32, u64>");
+    static_assert(is_same<slice_pack<0, 1, Pack<i32, f32, u64, u32>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<slice_pack<0, 0, Pack<i32, f32, u64, u32>>, Pack<i32>>, "Pack type should be Pack<i32>");
+
+    static_assert(is_same<slice_pack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>, "Pack type should be Pack<i32, f32, u64, u32>");
+    static_assert(is_same<slice_pack<1, 3, Pack<i32, f32, u64, u32>>, Pack<f32, u64, u32>>, "Pack type should be Pack<f32, u64, u32>");
+    static_assert(is_same<slice_pack<2, 3, Pack<i32, f32, u64, u32>>, Pack<u64, u32>>, "Pack type should be Pack<u64, u32>");
+    static_assert(is_same<slice_pack<3, 3, Pack<i32, f32, u64, u32>>, Pack<u32>>, "Pack type should be Pack<u32>");
+
+    static_assert(slice_pack<0, 3, Pack<i32, f32, u64, u32>>().get_size() == 4);
+    static_assert(slice_pack<0, 2, Pack<i32, f32, u64, u32>>().get_size() == 3);
+    static_assert(slice_pack<0, 1, Pack<i32, f32, u64, u32>>().get_size() == 2);
+    static_assert(slice_pack<0, 0, Pack<i32, f32, u64, u32>>().get_size() == 1);
 
     // join_packs
 
