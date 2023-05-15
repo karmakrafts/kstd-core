@@ -453,7 +453,7 @@ namespace kstd::meta {
     struct Pack final {
         [[maybe_unused]] static constexpr usize num_types = sizeof...(TYPES);
 
-        [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
+        [[nodiscard, maybe_unused]] constexpr auto get_size() const noexcept -> usize {
             return num_types;
         }
     };
@@ -473,6 +473,36 @@ namespace kstd::meta {
 
     template<usize INDEX, typename PACK> //
     using pack_element = typename PackElement<INDEX, PACK>::type;
+
+    // skip_elements
+
+    template<usize COUNT, typename PACK, typename = Pack<>>
+    struct SkipElements;
+
+    template<usize COUNT, typename HEAD, typename... TAIL, typename... SKIPPED>
+    struct SkipElements<COUNT, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> : public SkipElements<COUNT - 1, Pack<TAIL...>, Pack<SKIPPED..., HEAD>> {};
+
+    template<typename HEAD, typename... TAIL, typename... SKIPPED>
+    struct SkipElements<0, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> {
+        using type = Pack<HEAD, TAIL...>;
+    };
+
+    template<typename... SKIPPED>
+    struct SkipElements<0, Pack<>, Pack<SKIPPED...>> {
+        using type = Pack<>;
+    };
+
+    template<usize COUNT, typename PACK> //
+    using skip_elements = typename SkipElements<COUNT, PACK>::type;
+
+    static_assert(skip_elements<1, Pack<i32, f32, u64>>().get_size() == 2, "Pack size should be 2");
+    static_assert(is_same<skip_elements<1, Pack<i32, f32, u64>>, Pack<f32, u64>>);
+
+    static_assert(skip_elements<2, Pack<i32, f32, u64>>().get_size() == 1, "Pack size should be 1");
+    static_assert(is_same<skip_elements<2, Pack<i32, f32, u64>>, Pack<u64>>);
+
+    static_assert(skip_elements<3, Pack<i32, f32, u64>>().get_size() == 0, "Pack size should be 0");
+    static_assert(is_same<skip_elements<3, Pack<i32, f32, u64>>, Pack<>>);
 
     // join_packs
 
