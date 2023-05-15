@@ -474,10 +474,16 @@ namespace kstd::meta {
     template<usize INDEX, typename PACK> //
     using pack_element = typename PackElement<INDEX, PACK>::type;
 
+    static_assert(is_same<pack_element<0, Pack<i32, f32, u32>>, i32>, "Type should be i32");
+    static_assert(is_same<pack_element<1, Pack<i32, f32, u32>>, f32>, "Type should be f32");
+    static_assert(is_same<pack_element<2, Pack<i32, f32, u32>>, u32>, "Type should be u32");
+
     // skip_elements
 
     template<usize COUNT, typename PACK, typename = Pack<>>
-    struct SkipElements;
+    struct SkipElements {
+        using type = Pack<>;
+    };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... SKIPPED>
     struct SkipElements<COUNT, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> : public SkipElements<COUNT - 1, Pack<TAIL...>, Pack<SKIPPED..., HEAD>> {};
@@ -495,6 +501,9 @@ namespace kstd::meta {
     template<usize COUNT, typename PACK> //
     using skip_elements = typename SkipElements<COUNT, PACK>::type;
 
+    static_assert(is_same<skip_elements<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<skip_elements<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+
     static_assert(is_same<skip_elements<0, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>, "Pack type should be Pack<i32, f32, u64>");
     static_assert(is_same<skip_elements<1, Pack<i32, f32, u64>>, Pack<f32, u64>>, "Pack type should be Pack<f32, u64>");
     static_assert(is_same<skip_elements<2, Pack<i32, f32, u64>>, Pack<u64>>, "Pack type should be Pack<u64>");
@@ -508,7 +517,9 @@ namespace kstd::meta {
     // trim_elements
 
     template<usize COUNT, typename PACK, typename = Pack<>>
-    struct TrimElements;
+    struct TrimElements {
+        using type = Pack<>;
+    };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... ACCUMULATED>
     struct TrimElements<COUNT, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> : public TrimElements<COUNT - 1, Pack<TAIL...>, Pack<ACCUMULATED..., HEAD>> {};
@@ -525,6 +536,9 @@ namespace kstd::meta {
 
     template<usize COUNT, typename PACK> //
     using trim_elements = typename TrimElements<COUNT, PACK>::type;
+
+    static_assert(is_same<trim_elements<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<trim_elements<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
     static_assert(is_same<trim_elements<3, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>, "Pack type should be Pack<i32, f32, u64>");
     static_assert(is_same<trim_elements<2, Pack<i32, f32, u64>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
@@ -546,8 +560,17 @@ namespace kstd::meta {
         using type = trim_elements<END + 1 - BEGIN, skip_elements<BEGIN, Pack<TYPES...>>>;
     };
 
+    template<usize BEGIN, usize END>
+    struct SlicePack<BEGIN, END, Pack<>> {
+        using type = Pack<>;
+    };
+
     template<usize BEGIN, usize END, typename PACK> //
     using slice_pack = typename SlicePack<BEGIN, END, PACK>::type;
+
+    static_assert(is_same<slice_pack<0, 0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<slice_pack<0, 1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<slice_pack<1, 2, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
     static_assert(is_same<slice_pack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>, "Pack type should be Pack<i32, f32, u64, u32>");
     static_assert(is_same<slice_pack<0, 2, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64>>, "Pack type should be Pack<i32, f32, u64>");
@@ -559,10 +582,10 @@ namespace kstd::meta {
     static_assert(is_same<slice_pack<2, 3, Pack<i32, f32, u64, u32>>, Pack<u64, u32>>, "Pack type should be Pack<u64, u32>");
     static_assert(is_same<slice_pack<3, 3, Pack<i32, f32, u64, u32>>, Pack<u32>>, "Pack type should be Pack<u32>");
 
-    static_assert(slice_pack<0, 3, Pack<i32, f32, u64, u32>>().get_size() == 4);
-    static_assert(slice_pack<0, 2, Pack<i32, f32, u64, u32>>().get_size() == 3);
-    static_assert(slice_pack<0, 1, Pack<i32, f32, u64, u32>>().get_size() == 2);
-    static_assert(slice_pack<0, 0, Pack<i32, f32, u64, u32>>().get_size() == 1);
+    static_assert(slice_pack<0, 3, Pack<i32, f32, u64, u32>>().get_size() == 4, "Pack size should be 4");
+    static_assert(slice_pack<0, 2, Pack<i32, f32, u64, u32>>().get_size() == 3, "Pack size should be 3");
+    static_assert(slice_pack<0, 1, Pack<i32, f32, u64, u32>>().get_size() == 2, "Pack size should be 2");
+    static_assert(slice_pack<0, 0, Pack<i32, f32, u64, u32>>().get_size() == 1, "Pack size should be 1");
 
     // join_packs
 
@@ -576,6 +599,12 @@ namespace kstd::meta {
 
     template<typename PACK_A, typename PACK_B> //
     using join_packs = typename JoinPacks<PACK_A, PACK_B>::type;
+
+    static_assert(is_same<join_packs<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+
+    static_assert(is_same<join_packs<Pack<>, Pack<i32, f32>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<join_packs<Pack<i32, f32>, Pack<>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<join_packs<Pack<i32, f32>, Pack<i32, f32>>, Pack<i32, f32, i32, f32>>, "Pack type should be Pack<i32, f32, i32, f32>");
 
     // transform_pack
 
