@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include <cstring>
-#include "kstd/concepts.hpp"
+#include <string.h> // NOLINT: we don't want any C++ std includes
 #include "types.hpp"
 #include "utils.hpp"
 #include "meta.hpp"
@@ -28,7 +27,6 @@
 
 namespace kstd {
     template<typename T> //
-    KSTD_REQUIRES(!meta::is_void<T>)
     struct Option final {
         static constexpr bool is_pointer = meta::is_ptr<T>;
         static constexpr bool is_reference = meta::is_ref<T>;
@@ -36,7 +34,6 @@ namespace kstd {
 
         using Self = Option<T>;
         using ValueType = T;
-        using NakedValueType = meta::naked_type<ValueType>;
         using InnerType = Box<ValueType>;
 
         private:
@@ -153,13 +150,11 @@ namespace kstd {
     };
 
     template<typename T>
-    KSTD_REQUIRES(!meta::is_void<T>)
     [[nodiscard]] constexpr auto make_empty() noexcept -> decltype(auto) {
         return Option<T>();
     }
 
     template<typename T>
-    KSTD_REQUIRES(!meta::is_void<T>)
     [[nodiscard]] constexpr auto make_value(T value) noexcept -> decltype(auto) {
         return Option<T>(move_or_copy(value));
     }

@@ -19,28 +19,18 @@
 
 #pragma once
 
+#include <string.h> // NOLINT: we don't want any C++ std includes
 #include "string_fwd.hpp"
 #include "types.hpp"
 #include "allocator.hpp"
-#include <cstring>
-
-#ifdef KSTD_STD_STRING_VIEW_SUPPORT
-    #include <string_view>
-#endif
 
 namespace kstd {
     template<typename CHAR> //
-    KSTD_REQUIRES(concepts::Char<CHAR>)
     struct BasicStringSlice final {
         using Self = BasicStringSlice<CHAR>;
         using ValueType = CHAR;
         using ConstPointer = const ValueType*;
         using SizeType = usize;
-        using ConstIterator = ConstPointer;
-
-        #ifdef KSTD_STD_STRING_VIEW_SUPPORT
-        using std_type = std::basic_string_view<value_type>;
-        #endif
 
         private:
 
@@ -59,12 +49,26 @@ namespace kstd {
                 _size(size) {
         }
 
-        #ifdef KSTD_STD_STRING_VIEW_SUPPORT
-        constexpr BasicStringSlice(std_type view) noexcept : // NOLINT
-                _data(view.data()),
-                _size(view.size()) {
+        constexpr BasicStringSlice(ConstPointer data) noexcept : // NOLINT
+                _data(data),
+                _size(0) {
+            // We specialize over C-API intrinsics, since they can use SSE and AVX
+            if constexpr (meta::is_same<ValueType, char>) {
+                _size = ::strlen(data);
+            }
+            else if constexpr (meta::is_same<ValueType, wchar_t>) {
+                _size = ::wcslen(data);
+            }
+            else {
+                // Unoptimized version for compatibility
+                auto* ptr = data;
+
+                while (*ptr != static_cast<ValueType>('\0')) {
+                    ++_size;
+                    ++ptr;
+                }
+            }
         }
-        #endif
 
         constexpr BasicStringSlice(const Self& other) noexcept = default;
 
@@ -76,26 +80,6 @@ namespace kstd {
 
         constexpr auto operator =(Self&& other) noexcept -> Self& = default;
 
-        #ifdef KSTD_STD_STRING_VIEW_SUPPORT
-        [[nodiscard]] constexpr auto to_view() const noexcept -> std_type {
-            return {_data, static_cast<typename std_type::size_type>(_size)};
-        }
-
-        [[nodiscard]] constexpr operator std_type() const noexcept { // NOLINT: allow implicit conversion to std::basic_string_view<>
-            return to_view();
-        }
-        #endif
-
-        template<typename ALLOCATOR = DefaultAllocator<ValueType>>
-        KSTD_REQUIRES(concepts::Allocator<ALLOCATOR>)
-        [[nodiscard]] constexpr auto to_owning() const noexcept -> BasicString<ValueType, ALLOCATOR> {
-            BasicString<ValueType, ALLOCATOR> result;
-            result.reserve(_size + 1);
-            std::memcpy(result.get_data(), _data, _size);
-            result[_size] = static_cast<ValueType>(0); // Insert null-terminator
-            return result;
-        }
-
         [[nodiscard]] constexpr auto get_data() const noexcept -> ConstPointer {
             return _data;
         }
@@ -106,14 +90,6 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
             return _size == 0;
-        }
-
-        [[nodiscard]] constexpr auto cbegin() noexcept -> ConstIterator {
-            return get_data();
-        }
-
-        [[nodiscard]] constexpr auto cend() noexcept -> ConstIterator {
-            return get_data() + get_size(); // Pointer to last char
         }
 
         [[nodiscard]] constexpr auto sub_slice(SizeType begin, SizeType end) const noexcept -> Self {
@@ -159,14 +135,6 @@ namespace kstd {
     using StringSlice = BasicStringSlice<char>;
     using WStringSlice = BasicStringSlice<wchar_t>;
 
-    #ifdef KSTD_SIZED_CHAR_TYPES
-
-    using String8Slice = BasicStringSlice<char8_t>;
-    using String16Slice = BasicStringSlice<char16_t>;
-    using String32Slice = BasicStringSlice<char32_t>;
-
-    #endif
-
     namespace string_literals {
         [[nodiscard]] constexpr auto operator ""_str(const char* data, usize size) noexcept -> StringSlice {
             return {data, size};
@@ -175,21 +143,5 @@ namespace kstd {
         [[nodiscard]] constexpr auto operator ""_str(const wchar_t* data, usize size) noexcept -> WStringSlice {
             return {data, size};
         }
-
-        #ifdef KSTD_SIZED_CHAR_TYPES
-
-        [[nodiscard]] constexpr auto operator ""_str(const char8_t* data, usize size) noexcept -> String8Slice {
-            return {data, size};
-        }
-
-        [[nodiscard]] constexpr auto operator ""_str(const char16_t* data, usize size) noexcept -> String16Slice {
-            return {data, size};
-        }
-
-        [[nodiscard]] constexpr auto operator ""_str(const char32_t* data, usize size) noexcept -> String32Slice {
-            return {data, size};
-        }
-
-        #endif // KSTD_SIZED_CHAR_TYPES
     }
 }

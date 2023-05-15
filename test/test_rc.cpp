@@ -14,18 +14,19 @@
 
 /**
  * @author Alexander Hinze
- * @since 05/05/2023
+ * @since 12/05/2023
  */
 
-#pragma once
+#include <gtest/gtest.h>
+#include <kstd/rc.hpp>
+#include <kstd/string_slice.hpp>
 
-#include "kstd/concepts.hpp"
+TEST(kstd_BasicRc, TestRc) {
+    using namespace kstd::string_literals;
+    auto ptr = kstd::make_rc<kstd::StringSlice>("Hello World!");
+}
 
-namespace kstd::concepts {
-    #ifdef KSTD_CONCEPTS_AVAILABLE
-    template<typename T> concept Char8 = std::integral<T> && sizeof(T) == 1;
-    template<typename T> concept Char16 = std::integral<T> && sizeof(T) == 2;
-    template<typename T> concept Char32 = std::integral<T> && sizeof(T) == 4;
-    template<typename T> concept Char = Char8<T> || Char16<T> || Char32<T>;
-    #endif // KSTD_CONCEPTS_AVAILABLE
+TEST(kstd_BasicRc, TestArc) {
+    using namespace kstd::string_literals;
+    auto ptr = kstd::make_arc<kstd::StringSlice>("Hello World!");
 }

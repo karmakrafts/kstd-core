@@ -19,6 +19,5 @@
 
 #pragma once
 
-#include "small_string.hpp"
-#include "large_string.hpp"
 #include "string_fwd.hpp"
+#include "string_slice.hpp"

@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <atomic>
 
 namespace kstd {
     using i8 = std::int8_t;
@@ -24,4 +25,7 @@ namespace kstd {
     using f32 = float;
     using f64 = double;
     using f64ex = long double;
+
+    template<typename T> //
+    using Atomic = std::atomic<T>; // Not viable to implement our own atomics
 }

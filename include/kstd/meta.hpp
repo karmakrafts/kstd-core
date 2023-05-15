@@ -21,7 +21,6 @@
 
 #include <type_traits>
 #include "types.hpp"
-#include "kstd/concepts.hpp"
 
 namespace kstd::meta {
     // Constant
@@ -380,14 +379,69 @@ namespace kstd::meta {
         using type = T;
     };
 
+    template<typename T>
+    struct RemoveConst<const T*> {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemoveConst<const T&> {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemoveConst<const T&&> {
+        using type = T;
+    };
+
     template<typename T> //
     using remove_const = typename RemoveConst<T>::type;
+
+    // remove_volatile
+
+    template<typename T>
+    struct RemoveVolatile {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemoveVolatile<const T> {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemoveVolatile<const T*> {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemoveVolatile<const T&> {
+        using type = T;
+    };
+
+    template<typename T>
+    struct RemoveVolatile<const T&&> {
+        using type = T;
+    };
+
+    template<typename T> //
+    using remove_volatile = typename RemoveVolatile<T>::type;
+
+    // remove_cv
+
+    template<typename T>
+    struct RemoveCV final {
+        using type = remove_const<remove_volatile<T>>;
+    };
+
+    template<typename T> //
+    using remove_cv = typename RemoveCV<T>::type;
 
     // naked_type
 
     template<typename T>
     struct NakedType final {
-        using type = remove_ref<remove_ptr<remove_const<T>>>;
+        using type = remove_ref<remove_ptr<remove_cv<T>>>;
     };
 
     template<typename T> //
@@ -398,6 +452,10 @@ namespace kstd::meta {
     template<typename... TYPES>
     struct Pack final {
         [[maybe_unused]] static constexpr usize num_types = sizeof...(TYPES);
+
+        [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
+            return num_types;
+        }
     };
 
     // pack_element
@@ -432,13 +490,11 @@ namespace kstd::meta {
     // transform_pack
 
     template<template<typename> typename TRANSFORM, typename... TYPES> //
-    KSTD_REQUIRES(requires { typename TRANSFORM<TYPES...>::type; })
     struct TransformPack {
         using type = Pack<typename TRANSFORM<TYPES>::type...>;
     };
 
     template<template<typename> typename TRANSFORM, typename... TYPES> //
-            KSTD_REQUIRES(requires { typename TRANSFORM<TYPES...>::type; })
     using transform_pack = typename TransformPack<TRANSFORM, TYPES...>::type;
 
     // substitute_void

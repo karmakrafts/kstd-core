@@ -21,7 +21,6 @@
 
 #include "meta.hpp"
 #include "utils.hpp"
-#include "kstd/concepts.hpp"
 
 namespace kstd {
     namespace {
@@ -47,7 +46,6 @@ namespace kstd {
      * Specialization for pointers, always pass-by-value
      */
     template<typename T> //
-    KSTD_REQUIRES(!meta::is_void<T>)
     struct Box<T, def_if_ptr<T>> final {
         [[maybe_unused]] static constexpr bool is_pointer = true;
         [[maybe_unused]] static constexpr bool is_reference = false;
@@ -117,7 +115,6 @@ namespace kstd {
      * Specialization for references, stores a pointer
      */
     template<typename T> //
-    KSTD_REQUIRES(!meta::is_void<T>)
     struct Box<T, def_if_ref<T>> final {
         [[maybe_unused]] static constexpr bool is_pointer = false;
         [[maybe_unused]] static constexpr bool is_reference = true;
@@ -188,7 +185,6 @@ namespace kstd {
      * Specialization for owned values, uses move semantics
      */
     template<typename T>  //
-    KSTD_REQUIRES(!meta::is_void<T>)
     struct Box<T, def_if_val<T>> final {
         static_assert(meta::is_move_assignable<T>, "Box type is not move assignable");
         static_assert(meta::is_move_constructible<T>, "Box type is not move constructible");
@@ -280,8 +276,6 @@ namespace kstd {
     };
 
     template<typename T>
-    //
-    KSTD_REQUIRES(!meta::is_void<T>)
     [[nodiscard]] constexpr auto make_box(T value) noexcept -> decltype(auto) {
         return Box<T>(move_or_copy(value));
     }

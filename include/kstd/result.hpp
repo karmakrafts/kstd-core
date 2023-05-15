@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include <cstring>
-#include "kstd/concepts.hpp"
+#include <string.h> // NOLINT: we don't want any C++ std includes
 #include "types.hpp"
 #include "utils.hpp"
 #include "string_slice.hpp"
@@ -29,7 +28,6 @@
 
 namespace kstd {
     template<typename E> //
-    KSTD_REQUIRES(meta::is_pod<E>)
     class Error final {
         E _error;
 
@@ -45,7 +43,6 @@ namespace kstd {
     };
 
     template<typename T, typename E = StringSlice> //
-    KSTD_REQUIRES(meta::is_pod<E> && meta::is_move_assignable<E>)
     struct Result;
 
     namespace {
@@ -54,7 +51,6 @@ namespace kstd {
         };
 
         template<typename T, typename E> //
-        KSTD_REQUIRES(meta::is_pod<E> && meta::is_move_assignable<E>)
         union ResultInner {
             using ValueType = meta::substitute_void<T, u8>;
 
@@ -76,7 +72,6 @@ namespace kstd {
     }
 
     template<typename T, typename E> //
-    KSTD_REQUIRES(meta::is_pod<E> && meta::is_move_assignable<E>)
     struct Result final {
         static constexpr bool is_pointer = meta::is_ptr<T>;
         static constexpr bool is_reference = meta::is_ref<T>;

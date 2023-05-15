@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 #include <kstd/result.hpp>
-#include <kstd/large_string.hpp>
 #include <kstd/string_slice.hpp>
 
 using namespace kstd::string_literals;

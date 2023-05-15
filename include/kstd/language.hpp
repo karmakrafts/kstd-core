@@ -14,12 +14,23 @@
 
 /**
  * @author Alexander Hinze
- * @since 05/05/2023
+ * @since 13/05/2023
  */
 
-#include <gtest/gtest.h>
-#include <kstd/string.hpp>
+#pragma once
 
-TEST(kstd_SmallString, TestCreate) {
+#if __cplusplus >= 202002L
+    #define KSTD_CPP_20
+#endif
 
-}
+#if __cplusplus >= 201703L
+    #define KSTD_CPP_17
+#endif
+
+#if __cplusplus >= 201402L
+    #define KSTD_CPP_14
+#endif
+
+#if __cplusplus >= 201103L
+    #define KSTD_CPP_11
+#endif

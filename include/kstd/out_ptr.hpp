@@ -19,46 +19,29 @@
 
 #pragma once
 
-#include <exception>
-#include <concepts>
-#include <cstring>
-#include "kstd/concepts.hpp"
+#include <string.h> // NOLINT: we don't want any C++ std includes
 #include "meta.hpp"
 
 namespace kstd {
-    namespace {
-        #ifdef KSTD_CONCEPTS_AVAILABLE
-        template<typename P> //
-        concept SmartPointer = requires(P value, typename P::pointer ptr) {
-            typename P::pointer;
-            requires meta::is_ptr<typename P::pointer>;
-            value.reset(ptr);
-            requires meta::is_same<decltype(value.reset(ptr)), void>;
-        };
-        #endif // KSTD_CONCEPTS_AVAILABLE
-    }
-
     /*
      * This is a freestanding implementation
      * of a mechanism identical to std::out_ptr as described here:
      * https://en.cppreference.com/w/cpp/memory/out_ptr_t/out_ptr
      */
     template<typename P> // @formatter:off
-    KSTD_REQUIRES(SmartPointer<P>) // @formatter:on
     struct OutPtr final {
-        using Self = OutPtr<P>;
-        using ElementType = typename P::element_type;
-        using SmartPointer = P;
-        using Pointer = ElementType*;
+        using OwnerType = P;
+        using ValueType = typename OwnerType::ValueType;
+        using Self = OutPtr<OwnerType>;
 
         private:
 
-        SmartPointer& _owner;
-        Pointer _new_value;
+        OwnerType& _owner;
+        ValueType* _new_value;
 
         public:
 
-        explicit constexpr OutPtr(SmartPointer& owner) noexcept :
+        explicit constexpr OutPtr(OwnerType& owner) noexcept :
                 _owner(owner),
                 _new_value() {
         }
@@ -86,24 +69,12 @@ namespace kstd {
             return *this;
         }
 
-        [[nodiscard]] constexpr operator Pointer*() noexcept { // NOLINT
+        [[nodiscard]] constexpr operator ValueType**() noexcept { // NOLINT
             return &_new_value;
         }
     };
 
-    /*
-     * A simple free-deleter for smart pointers with ownership of a
-     * C-style malloc'ed object.
-     */
-    template<typename T> //
-    struct FreeDeleter final {
-        inline auto operator ()(T* ptr) const noexcept -> void {
-            ::free(ptr);
-        }
-    };
-
     template<typename P>
-    KSTD_REQUIRES(SmartPointer<P>)
     [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> decltype(auto) {
         return OutPtr<P>(pointer);
     }

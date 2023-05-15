@@ -19,13 +19,7 @@
 
 #pragma once
 
-#ifdef BUILD_DEBUG
-
-    #include <stdexcept>
-
-#endif
-
-#include <cstring>
+#include <string.h> // NOLINT: we don't want any C++ std includes
 #include "types.hpp"
 #include "meta.hpp"
 #include "utils.hpp"
@@ -46,24 +40,20 @@
 namespace kstd {
     template<typename T, typename IMPL>
     struct BasicAllocator {
+        using ValueType = T;
+
         [[nodiscard]] constexpr auto get_self() noexcept -> IMPL& {
-            // TODO: add static_assert to check IMPL base type -> add meta::is_base_of
             return static_cast<IMPL&>(*this);
         }
 
         template<typename... ARGS>
         [[nodiscard]] constexpr auto construct(ARGS&& ... args) noexcept -> T* {
             auto* memory = get_self().allocate(1);
-            #ifdef BUILD_DEBUG
-            if (memory == nullptr) {
-                throw std::runtime_error("Could not allocate object memory");
-            }
-            #endif
             new(memory) T(forward<ARGS>(args)...);
             return memory;
         }
 
-        constexpr auto destruct(T* object) noexcept -> void {
+        constexpr auto destroy(T* object) noexcept -> void {
             if (object == nullptr) {
                 return;
             }
@@ -74,9 +64,11 @@ namespace kstd {
     };
 
     template<typename T>
-    struct DefaultAllocator final : BasicAllocator<T, DefaultAllocator<T>> {
+    struct Allocator final : BasicAllocator<T, Allocator<T>> {
+        using ValueType = T;
+
         [[nodiscard]] constexpr auto allocate(usize count) noexcept -> T* {
-            return KSTD_MEMORY_ALLOC_FN(sizeof(T) * count);
+            return reinterpret_cast<T*>(KSTD_MEMORY_ALLOC_FN(sizeof(T) * count));
         }
 
         constexpr auto deallocate(T* ptr, [[maybe_unused]] usize count) noexcept -> void {
