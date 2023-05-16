@@ -57,6 +57,36 @@ namespace kstd::meta {
     template<typename T> //
     constexpr bool is_standard_layout = IsStandardLayout<T>::value;
 
+    // is_trivial
+
+    template<typename T>
+    struct IsTrivial final {
+        static constexpr bool value = __is_trivial(T);
+    };
+
+    template<typename T> //
+    constexpr bool is_trivial = IsTrivial<T>::value;
+
+    // is_trivially_copyable
+
+    template<typename T>
+    struct IsTriviallyCopyable final {
+        static constexpr bool value = __is_trivially_copyable(T);
+    };
+
+    template<typename T> //
+    constexpr bool is_trivially_copyable = IsTriviallyCopyable<T>::value;
+
+    // is_base_of
+
+    template<typename BASE, typename DERIVED>
+    struct IsSuperType final {
+        static constexpr bool value = __is_base_of(BASE, DERIVED);
+    };
+
+    template<typename BASE, typename DERIVED> //
+    constexpr bool is_super_type = IsSuperType<BASE, DERIVED>::value;
+
     // is_constructible
 
     template<typename T, typename... ARGS>
@@ -88,6 +118,15 @@ namespace kstd::meta {
     constexpr bool is_assignable = IsAssignable<LHS, RHS>::value;
 
     // is_destructible
+
+    /*
+     * Quick note: on GCC and Clang we need to implement this ourselves.
+     * We simply do this using SFINAE; We obtain the type of an unevaluated destructor call expression over T.
+     * If the destructor call expression is valid, the surrounding decltype expression will just give us void,
+     * since a destructor is just a void function.
+     * Otherwise, if it is ill-formed, the surrounding decltype expression will prevent the specialization from matching
+     * because it itself will become ill-formed.
+     */
 
     #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
     template<typename T, typename = void>
