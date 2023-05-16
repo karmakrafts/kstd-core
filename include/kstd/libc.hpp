@@ -19,62 +19,64 @@
 
 #pragma once
 
-#include <stdlib.h> // NOLINT
-#include <string.h> // NOLINT
-#include <stdio.h> // NOLINT
-#include <wchar.h> // NOLINT
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
+#include <cwchar>
 
 #undef stderr
 #undef stdout
 #undef stdin
 
+extern FILE* stdout; // NOLINT
+extern FILE* stderr; // NOLINT
+extern FILE* stdin; // NOLINT
+
 namespace kstd::libc {
-    using ::exit;
+    using std::exit;
 
-    using ::malloc;
-    using ::realloc;
-    using ::calloc;
-    using ::free;
+    using std::malloc;
+    using std::realloc;
+    using std::calloc;
+    using std::free;
 
-    using ::memset;
-    using ::memcpy;
-    using ::memmove;
-    using ::memchr;
-    using ::memcmp;
+    using std::memset;
+    using std::memcpy;
+    using std::memmove;
+    using std::memchr;
+    using std::memcmp;
 
-    using ::strlen;
-    using ::strnlen;
-    using ::strcmp;
-    using ::strncmp;
-    using ::strcat;
-    using ::strcpy;
-    using ::strncpy;
-    using ::strchr;
-    using ::strrchr;
-    using ::strstr;
-    using ::strtok;
-    using ::strxfrm;
+    using std::strlen;
+    using std::strcmp;
+    using std::strncmp;
+    using std::strcat;
+    using std::strcpy;
+    using std::strncpy;
+    using std::strchr;
+    using std::strrchr;
+    using std::strstr;
+    using std::strtok;
+    using std::strxfrm;
 
-    using ::wcslen;
-    using ::wcsnlen;
-    using ::wcscmp;
-    using ::wcsncmp;
-    using ::wcscat;
-    using ::wcscpy;
-    using ::wcsncpy;
-    using ::wcschr;
-    using ::wcsrchr;
-    using ::wcsstr;
-    using ::wcstok;
-    using ::wcsxfrm;
+    using std::wcslen;
+    using std::wcscmp;
+    using std::wcsncmp;
+    using std::wcscat;
+    using std::wcscpy;
+    using std::wcsncpy;
+    using std::wcschr;
+    using std::wcsrchr;
+    using std::wcsstr;
+    using std::wcstok;
+    using std::wcsxfrm;
 
-    using ::scanf;
-    using ::printf;
-    using ::fprintf;
+    using std::scanf;
+    using std::printf;
+    using std::fprintf;
 
-    using ::wscanf;
-    using ::wprintf;
-    using ::fwprintf;
+    using std::wscanf;
+    using std::wprintf;
+    using std::fwprintf;
 
     using ::stdout;
     using ::stderr;
