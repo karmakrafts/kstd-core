@@ -21,6 +21,7 @@
 
 #include <stdlib.h> // NOLINT
 #include <string.h> // NOLINT
+#include <stdio.h> // NOLINT
 #include <wchar.h> // NOLINT
 
 #undef stderr
