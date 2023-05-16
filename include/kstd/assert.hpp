@@ -22,20 +22,11 @@
 #include "libc.hpp"
 
 namespace kstd {
-    namespace {
-        struct AssertionError final : public std::runtime_error {
-            explicit inline AssertionError(const char* message) noexcept :
-                    std::runtime_error(message) {
-            }
-
-            ~AssertionError() noexcept final = default;
-        };
-    }
-
     constexpr auto assert_true(bool condition, const char* message = "Assertion failed") noexcept -> void {
         #ifdef BUILD_DEBUG
         if (!condition) {
             libc::fprintf(libc::stderr, "%s\n", message);
+            libc::exit(4);
         }
         #endif
     }
@@ -44,6 +35,7 @@ namespace kstd {
         #ifdef BUILD_DEBUG
         if (condition) {
             libc::fprintf(libc::stderr, "%s\n", message);
+            libc::exit(4);
         }
         #endif
     }

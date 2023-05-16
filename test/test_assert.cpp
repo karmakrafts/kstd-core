@@ -20,14 +20,7 @@
 #include <gtest/gtest.h>
 #include <kstd/assert.hpp>
 
-#if defined(PLATFORM_LINUX)
-    #define EXPECTED_EXIT_CODE 6
-#elif defined(PLATFORM_APPLE)
-    #define EXPECTED_EXIT_CODE 1
-#else
-    #define EXPECTED_EXIT_CODE 1
-#endif
-
 TEST(kstd, TestAssert) {
     kstd::assert_true(true);
+    ASSERT_EXIT(kstd::assert_true(false), testing::ExitedWithCode(4), "");
 }
