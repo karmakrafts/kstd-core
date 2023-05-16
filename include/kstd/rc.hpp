@@ -38,13 +38,13 @@ namespace kstd {
         };
     }
 
-    template<typename T, typename COUNTER_TYPE, typename ALLOCATOR> //
+    template<typename T, typename COUNTER_TYPE, template<typename> typename ALLOCATOR> //
     struct BasicRc final {
         using ElementType = T;
         using CounterType = COUNTER_TYPE;
-        using Allocator = ALLOCATOR;
+        using Allocator = ALLOCATOR<ElementType>;
         using InnerType = RcInner<ElementType, CounterType>;
-        using Self = BasicRc<ElementType, CounterType, Allocator>;
+        using Self = BasicRc<ElementType, CounterType, ALLOCATOR>;
 
         private:
 
@@ -57,7 +57,7 @@ namespace kstd {
         }
 
         explicit constexpr BasicRc(T* value) noexcept :
-                _inner(new InnerType()) { // TODO: somehow allocate this using ALLOCATOR
+                _inner(ALLOCATOR<InnerType>().construct()) {
             _inner->value = value;
             _inner->count = 1;
         }
@@ -82,10 +82,11 @@ namespace kstd {
                     --_inner->count;
                 }
                 else {
-                    Allocator allocator;
-                    allocator.destroy(_inner->value);
-                    delete _inner; // TODO: somehow deallocate this using ALLOCATOR
+                    Allocator().destroy(_inner->value);
+                    ALLOCATOR<InnerType>().destroy(_inner);
                 }
+
+                _inner = nullptr; // Avoid dangling pointer
             }
         }
 
@@ -93,7 +94,7 @@ namespace kstd {
             drop();
 
             if (_inner == nullptr) {
-                _inner = new InnerType();
+                _inner = ALLOCATOR<InnerType>().construct();
             }
 
             _inner->value = pointer;
@@ -105,18 +106,22 @@ namespace kstd {
                 return *this;
             }
 
-            reset(*other);
-            ++_inner->count;
+            _inner = other._inner;
+
+            if (_inner) {
+                ++_inner->count;
+            }
+
             return *this;
         }
 
         constexpr auto operator =(Self&& other) noexcept -> Self& {
-            reset(*other);
+            _inner = other._inner;
             return *this;
         }
 
         [[nodiscard]] constexpr auto has_value() const noexcept -> bool {
-            return _inner != nullptr;
+            return _inner != nullptr && _inner->value != nullptr;
         }
 
         [[nodiscard]] constexpr auto get_count() const noexcept -> usize {
@@ -129,6 +134,14 @@ namespace kstd {
 
         [[nodiscard]] constexpr operator bool() const noexcept { // NOLINT
             return has_value();
+        }
+
+        [[nodiscard]] constexpr operator T*() noexcept { // NOLINT
+            return _inner->value;
+        }
+
+        [[nodiscard]] constexpr operator const T*() const noexcept { // NOLINT
+            return _inner->value;
         }
 
         [[nodiscard]] constexpr auto operator *() noexcept -> T& {
@@ -146,23 +159,31 @@ namespace kstd {
         [[nodiscard]] constexpr auto operator ->() const noexcept -> const T* {
             return _inner->value;
         }
+
+        [[nodiscard]] constexpr auto operator ==(decltype(nullptr)) const noexcept -> bool {
+            return !has_value();
+        }
+
+        [[nodiscard]] constexpr auto operator !=(decltype(nullptr)) const noexcept -> bool {
+            return has_value();
+        }
     };
 
-    template<typename T, typename ALLOCATOR = Allocator<T>> //
+    template<typename T, template<typename> typename ALLOCATOR = Allocator> //
     using Rc = BasicRc<T, usize, ALLOCATOR>;
 
-    template<typename T, typename ALLOCATOR = Allocator<T>> //
+    template<typename T, template<typename> typename ALLOCATOR = Allocator> //
     using Arc = BasicRc<T, Atomic<usize>, ALLOCATOR>;
 
-    template<typename T, typename ALLOCATOR = Allocator<T>, typename... ARGS>
-    [[nodiscard]] constexpr auto make_rc(ARGS&& ... args) noexcept -> Rc<T> {
-        ALLOCATOR allocator;
+    template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
+    [[nodiscard]] constexpr auto make_rc(ARGS&& ... args) noexcept -> Rc<T, ALLOCATOR> {
+        ALLOCATOR<T> allocator;
         return Rc<T, ALLOCATOR>(allocator.construct(forward<ARGS>(args)...));
     }
 
-    template<typename T, typename ALLOCATOR = Allocator<T>, typename... ARGS>
-    [[nodiscard]] constexpr auto make_arc(ARGS&& ... args) noexcept -> Arc<T> {
-        ALLOCATOR allocator;
+    template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
+    [[nodiscard]] constexpr auto make_arc(ARGS&& ... args) noexcept -> Arc<T, ALLOCATOR> {
+        ALLOCATOR<T> allocator;
         return Arc<T, ALLOCATOR>(allocator.construct(forward<ARGS>(args)...));
     }
 }

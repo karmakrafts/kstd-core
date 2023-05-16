@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <cstring>
+#include "libc.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 #include "meta.hpp"

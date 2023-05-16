@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include <cstring>
 #include "meta.hpp"
 
 namespace kstd {

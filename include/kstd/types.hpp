@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
+#include <stdint.h> // NOLINT
+#include <stddef.h> // NOLINT
 #include <atomic>
 
 namespace kstd {

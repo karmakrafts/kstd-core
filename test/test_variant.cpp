@@ -14,25 +14,8 @@
 
 /**
  * @author Alexander Hinze
- * @since 05/05/2023
+ * @since 16/05/2023
  */
 
-#pragma once
-
-#include "string_fwd.hpp"
-#include "types.hpp"
-#include "allocator.hpp"
-
-namespace kstd {
-    template<typename CHAR, template<typename> typename ALLOCATOR>
-    struct BasicString final {
-        using ValueType = CHAR;
-        using Allocator = ALLOCATOR<ValueType>;
-    };
-
-    template<template<typename> typename ALLOCATOR> //
-    using String = BasicString<char, ALLOCATOR>;
-
-    template<template<typename> typename ALLOCATOR> //
-    using WString = BasicString<wchar_t, ALLOCATOR>;
-}
+#include <gtest/gtest.h>
+#include <kstd/variant.hpp>

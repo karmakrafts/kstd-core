@@ -23,19 +23,16 @@
 
 namespace kstd {
     template<typename T>
-    // Forward for values
     [[nodiscard]] constexpr auto forward(T value) noexcept -> T {
         return value;
     }
 
     template<typename T>
-    // Forward for lvalue references
     [[nodiscard]] constexpr auto forward(meta::remove_ref<T>& value) noexcept -> T&& {
         return static_cast<T&&>(value);
     }
 
     template<typename T>
-    // Forward for rvalue reference
     [[nodiscard]] constexpr auto forward(meta::remove_ref<T>&& value) noexcept -> T&& {
         return static_cast<T&&>(value);
     }

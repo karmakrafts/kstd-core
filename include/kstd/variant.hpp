@@ -14,25 +14,41 @@
 
 /**
  * @author Alexander Hinze
- * @since 05/05/2023
+ * @since 16/05/2023
  */
 
 #pragma once
 
-#include "string_fwd.hpp"
 #include "types.hpp"
-#include "allocator.hpp"
+#include "meta.hpp"
 
 namespace kstd {
-    template<typename CHAR, template<typename> typename ALLOCATOR>
-    struct BasicString final {
-        using ValueType = CHAR;
-        using Allocator = ALLOCATOR<ValueType>;
+    namespace {
+        template<typename... TYPES>
+        union VariantInner;
+
+        template<typename HEAD, typename... TAIL>
+        union VariantInner<HEAD, TAIL...> {
+            using ValueType = HEAD;
+
+            ValueType _head;
+            VariantInner<TAIL...> _tail;
+        };
+
+        template<typename HEAD>
+        union VariantInner<HEAD> {
+            using ValueType = HEAD;
+
+            ValueType _head;
+        };
+    }
+
+    template<typename... TYPES>
+    struct Variant final {
+        using Types = meta::Pack<TYPES...>;
+
+        private:
+
+        VariantInner<TYPES...> _inner;
     };
-
-    template<template<typename> typename ALLOCATOR> //
-    using String = BasicString<char, ALLOCATOR>;
-
-    template<template<typename> typename ALLOCATOR> //
-    using WString = BasicString<wchar_t, ALLOCATOR>;
 }

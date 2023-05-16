@@ -14,25 +14,20 @@
 
 /**
  * @author Alexander Hinze
- * @since 05/05/2023
+ * @since 16/05/2023
  */
 
-#pragma once
+#include <gtest/gtest.h>
+#include <kstd/assert.hpp>
 
-#include "string_fwd.hpp"
-#include "types.hpp"
-#include "allocator.hpp"
+#if defined(PLATFORM_LINUX)
+    #define EXPECTED_EXIT_CODE 6
+#elif defined(PLATFORM_APPLE)
+    #define EXPECTED_EXIT_CODE 1
+#else
+    #define EXPECTED_EXIT_CODE 1
+#endif
 
-namespace kstd {
-    template<typename CHAR, template<typename> typename ALLOCATOR>
-    struct BasicString final {
-        using ValueType = CHAR;
-        using Allocator = ALLOCATOR<ValueType>;
-    };
-
-    template<template<typename> typename ALLOCATOR> //
-    using String = BasicString<char, ALLOCATOR>;
-
-    template<template<typename> typename ALLOCATOR> //
-    using WString = BasicString<wchar_t, ALLOCATOR>;
+TEST(kstd, TestAssert) {
+    kstd::assert_true(true);
 }

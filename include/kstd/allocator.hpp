@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include <cstring>
+#include "libc.hpp"
 #include "types.hpp"
 #include "meta.hpp"
 #include "utils.hpp"
+#include "assert.hpp"
 
 /*
  * Allows for the easy customization of the default memory allocator used by the kstd library.
@@ -30,11 +31,11 @@
  * automatically use your custom memory allocator implementation.
  */
 #ifndef KSTD_MEMORY_ALLOC_FN
-    #define KSTD_MEMORY_ALLOC_FN(s) ::malloc(s)
+    #define KSTD_MEMORY_ALLOC_FN(s) kstd::libc::malloc(s)
 #endif
 
 #ifndef KSTD_MEMORY_FREE_FN
-    #define KSTD_MEMORY_FREE_FN(p) ::free(p)
+    #define KSTD_MEMORY_FREE_FN(p) kstd::libc::free(p)
 #endif
 
 namespace kstd {
@@ -49,6 +50,7 @@ namespace kstd {
         template<typename... ARGS>
         [[nodiscard]] constexpr auto construct(ARGS&& ... args) noexcept -> T* {
             auto* memory = get_self().allocate(1);
+            assert_true(memory != nullptr, "Could not allocate memory");
             new(memory) T(forward<ARGS>(args)...);
             return memory;
         }
@@ -68,7 +70,7 @@ namespace kstd {
         using ValueType = T;
 
         [[nodiscard]] constexpr auto allocate(usize count) noexcept -> T* {
-            return reinterpret_cast<T*>(KSTD_MEMORY_ALLOC_FN(sizeof(T) * count));
+            return reinterpret_cast<T*>(KSTD_MEMORY_ALLOC_FN(sizeof(ValueType) * count));
         }
 
         constexpr auto deallocate(T* ptr, [[maybe_unused]] usize count) noexcept -> void {

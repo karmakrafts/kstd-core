@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 #include <kstd/option.hpp>
-#include <kstd/string.hpp>
+#include <kstd/string_slice.hpp>
 
 TEST(kstd_Option, TestEmpty) {
     auto opt = kstd::make_empty<kstd::StringSlice>();

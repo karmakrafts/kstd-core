@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <cstring>
+#include "libc.hpp"
 #include "string_fwd.hpp"
 #include "types.hpp"
 #include "allocator.hpp"
@@ -54,10 +54,10 @@ namespace kstd {
                 _size(0) {
             // We specialize over C-API intrinsics, since they can use SSE and AVX
             if constexpr (meta::is_same<ValueType, char>) {
-                _size = ::strlen(data);
+                _size = libc::strlen(data);
             }
             else if constexpr (meta::is_same<ValueType, wchar_t>) {
-                _size = ::wcslen(data);
+                _size = libc::wcslen(data);
             }
             else {
                 // Unoptimized version for compatibility
@@ -93,21 +93,12 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto sub_slice(SizeType begin, SizeType end) const noexcept -> Self {
-            #ifdef BUILD_DEBUG
-            if (begin >= _size || end >= _size || end > begin) {
-                throw std::runtime_error("Invalid begin or end index for string slice");
-            }
-            #endif
+            assert_false(begin >= _size || end >= _size || end > begin, "Index out of bounds");
             return Self(_data + begin, _data + end);
         }
 
         [[nodiscard]] constexpr auto operator [](SizeType index) const noexcept -> ValueType {
-            #ifdef BUILD_DEBUG
-            if (index >= _size) {
-                throw std::runtime_error("Index out of bounds");
-            }
-            #endif
-
+            assert_false(index >= _size, "Index out of bounds");
             return _data[index];
         }
 

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <cstring>
+#include "libc.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 #include "string_slice.hpp"
@@ -205,15 +205,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto borrow_value() noexcept -> BorrowedValueType {
-            #ifdef BUILD_DEBUG
-            if (!is_void && is_empty()) {
-                throw std::runtime_error("Result has no value");
-            }
-
-            if (is_error()) {
-                throw std::runtime_error("Result is an error");
-            }
-            #endif
+            assert_true(!is_error(), "Result has no value");
 
             if constexpr (!is_void) {
                 return _inner._value.borrow();
@@ -221,16 +213,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto get_value() noexcept -> decltype(auto) {
-            #ifdef BUILD_DEBUG
-            if (!is_void && is_empty()) {
-                throw std::runtime_error("Result has no value");
-            }
-
-            if (is_error()) {
-                throw std::runtime_error("Result is an error");
-            }
-            #endif
-
+            assert_true(!is_error(), "Result has no value");
             _type = ResultType::EMPTY;
 
             if constexpr (!is_void) {
@@ -239,31 +222,13 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E {
-            #ifdef BUILD_DEBUG
-            if (!is_void && is_empty()) {
-                throw std::runtime_error("Result has no value");
-            }
-
-            if (!is_error()) {
-                throw std::runtime_error("Result is not an error");
-            }
-            #endif
-
+            assert_true(is_error(), "Result has no error");
             return _inner._error;
         }
 
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
-            #ifdef BUILD_DEBUG
-            if (!is_void && is_empty()) {
-                throw std::runtime_error("Result has no value");
-            }
-
-            if (!is_error()) {
-                throw std::runtime_error("Result is not an error");
-            }
-            #endif
-
+            assert_true(is_error(), "Result has no error");
             return Result<TT, E>(Error<E>(move_or_copy(_inner._error)));
         }
 

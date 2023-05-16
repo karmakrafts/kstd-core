@@ -24,4 +24,7 @@
 namespace kstd {
     template<typename CHAR> //
     struct BasicStringSlice;
+
+    template<typename CHAR, template<typename> typename ALLOCATOR> //
+    struct BasicString;
 }

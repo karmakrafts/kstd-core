@@ -279,14 +279,4 @@ namespace kstd {
     [[nodiscard]] constexpr auto make_box(T value) noexcept -> decltype(auto) {
         return Box<T>(move_or_copy(value));
     }
-
-    namespace meta {
-        template<typename T>
-        struct ToBox final {
-            using type = Box<T>;
-        };
-
-        template<typename T> //
-        using to_box = typename ToBox<T>::type;
-    }
 }
