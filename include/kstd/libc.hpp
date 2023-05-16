@@ -52,8 +52,6 @@ namespace kstd::libc {
     using ::strchr;
     using ::strrchr;
     using ::strstr;
-    using ::strcasecmp;
-    using ::strncasecmp;
     using ::strtok;
     using ::strxfrm;
 
@@ -67,8 +65,6 @@ namespace kstd::libc {
     using ::wcschr;
     using ::wcsrchr;
     using ::wcsstr;
-    using ::wcscasecmp;
-    using ::wcsncasecmp;
     using ::wcstok;
     using ::wcsxfrm;
 
