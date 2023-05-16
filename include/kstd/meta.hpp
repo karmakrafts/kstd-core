@@ -44,11 +44,7 @@ namespace kstd::meta {
 
     template<typename T>
     [[nodiscard]] constexpr auto uninitialized() noexcept -> T {
-        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
-        return __declval<T>(0);
-        #else
-        return *reinterpret_cast<T*>(nullptr); // NOLINT
-        #endif // defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+        throw; // NOLINT: Terminate with exception
     }
 
     // is_standard_layout
