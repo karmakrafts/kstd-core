@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <string.h> // NOLINT: we don't want any C++ std includes
+#include <cstring>
 #include "types.hpp"
 #include "meta.hpp"
 #include "utils.hpp"

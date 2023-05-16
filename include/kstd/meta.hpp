@@ -238,7 +238,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct IsMoveAssignable final {
-        static constexpr bool value = is_assignable < T &, T&&>;
+        static constexpr bool value = is_assignable<T&, T&&>;
     };
 
     template<typename T> //
@@ -268,8 +268,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct IsCopyAssignable final {
-        static constexpr bool value = is_assignable < T &,
-        const T&>;
+        static constexpr bool value = is_assignable<T&, const T&>;
     };
 
     template<typename T> //
