@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <type_traits>
-
 #define KSTD_BITFLAGS(t, n, ...) enum class n : t {                  \
     NONE = 0,                                                        \
     __VA_ARGS__                                                      \

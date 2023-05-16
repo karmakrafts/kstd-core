@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include <type_traits>
 #include "types.hpp"
 
 namespace kstd::meta {
@@ -29,7 +28,6 @@ namespace kstd::meta {
     struct Constant {
         static constexpr T value = VALUE;
         using ValueType = T;
-        using value_type = ValueType; // std compatibility
 
         [[nodiscard]] constexpr auto operator ()() const noexcept -> ValueType {
             return value;
@@ -41,6 +39,95 @@ namespace kstd::meta {
     struct True : public Constant<bool, true> {};
 
     struct False : public Constant<bool, false> {};
+
+    // uninitialized
+
+    template<typename T>
+    [[nodiscard]] constexpr auto uninitialized() noexcept -> T {
+        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+        return __declval<T>(0);
+        #else
+        return *reinterpret_cast<T*>(nullptr); // NOLINT
+        #endif
+    }
+
+    // is_standard_layout
+
+    template<typename T>
+    struct IsStandardLayout final {
+        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+        static constexpr bool value = __is_standard_layout(T);
+        #else
+        static constexpr bool value = false; // TODO: ...
+        #endif
+    };
+
+    template<typename T> //
+    constexpr bool is_standard_layout = IsStandardLayout<T>::value;
+
+    // is_constructible
+
+    template<typename T, typename... ARGS>
+    struct IsConstructible final {
+        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+        static constexpr bool value = __is_constructible(T, ARGS...);
+        #else
+        static constexpr bool value = false; // TODO: ...
+        #endif
+    };
+
+    template<typename T, typename... ARGS> //
+    constexpr bool is_constructible = IsConstructible<T, ARGS...>::value;
+
+    // is_default_constructible
+
+    template<typename T>
+    struct IsDefaultConstructible final {
+        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+        static constexpr bool value = __is_constructible(T);
+        #else
+        static constexpr bool value = false; // TODO: ...
+        #endif
+    };
+
+    template<typename T> //
+    constexpr bool is_default_constructible = IsDefaultConstructible<T>::value;
+
+    // is_assignable
+
+    template<typename LHS, typename RHS>
+    struct IsAssignable final {
+        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+        static constexpr bool value = __is_assignable(LHS, RHS);
+        #else
+        static constexpr bool value = false; // TODO: ...
+        #endif
+    };
+
+    template<typename LHS, typename RHS> //
+    constexpr bool is_assignable = IsAssignable<LHS, RHS>::value;
+
+    // is_destructible
+
+    template<typename T, typename = void>
+    struct IsDestructible : public False {};
+
+    template<typename T>
+    struct IsDestructible<T, decltype(uninitialized<T>().~T())> : public True {};
+
+    template<typename T> //
+    constexpr bool is_destructible = IsDestructible<T>::value;
+
+    namespace {
+        struct Destructible final {};
+
+        struct NonDestructible final {
+            ~NonDestructible() noexcept = delete;
+        };
+
+        static_assert(is_destructible<Destructible>, "Type is destructible, trait should return true");
+        static_assert(!is_destructible<NonDestructible>, "Type is non-destructible, trait should return false");
+    }
 
     // is_same
 
@@ -77,32 +164,32 @@ namespace kstd::meta {
 
     template<typename T>
     struct DefIf<true, T> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct DefIf<false, T> {};
 
     template<bool CONDITION, typename T = void> //
-    using def_if = typename DefIf<CONDITION, T>::type;
+    using def_if = typename DefIf<CONDITION, T>::Type;
 
-    // cond
+    // conditional
 
     template<bool CONDITION, typename IF_TRUE, typename IF_FALSE>
     struct Conditional;
 
     template<typename IF_TRUE, typename IF_FALSE>
     struct Conditional<true, IF_TRUE, IF_FALSE> {
-        using type = IF_TRUE;
+        using Type = IF_TRUE;
     };
 
     template<typename IF_TRUE, typename IF_FALSE>
     struct Conditional<false, IF_TRUE, IF_FALSE> {
-        using type = IF_FALSE;
+        using Type = IF_FALSE;
     };
 
     template<bool CONDITION, typename IF_TRUE, typename IF_FALSE> //
-    using conditional = typename Conditional<CONDITION, IF_TRUE, IF_FALSE>::type;
+    using conditional = typename Conditional<CONDITION, IF_TRUE, IF_FALSE>::Type;
 
     // is_ptr
 
@@ -160,23 +247,11 @@ namespace kstd::meta {
     template<typename T> //
     constexpr bool is_ref = IsRef<T>::value;
 
-    // is_pod
-
-    template<typename T>
-    struct IsPod final {
-        // We should use abstraction over the std-lib here since this ties into compiler builtins
-        static constexpr bool value = std::is_standard_layout<T>::value;
-    };
-
-    template<typename T> //
-    constexpr bool is_pod = IsPod<T>::value;
-
     // is_move_assignable
 
     template<typename T>
     struct IsMoveAssignable final {
-        // We should use abstraction over the std-lib here since this ties into compiler builtins
-        static constexpr bool value = std::is_move_assignable<T>::value;
+        static constexpr bool value = is_assignable < T &, T&&>;
     };
 
     template<typename T> //
@@ -186,8 +261,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct IsMoveConstructible final {
-        // We should use abstraction over the std-lib here since this ties into compiler builtins
-        static constexpr bool value = std::is_move_constructible<T>::value;
+        static constexpr bool value = is_constructible<T, T&&>;
     };
 
     template<typename T> //
@@ -207,8 +281,8 @@ namespace kstd::meta {
 
     template<typename T>
     struct IsCopyAssignable final {
-        // We should use abstraction over the std-lib here since this ties into compiler builtins
-        static constexpr bool value = std::is_copy_assignable<T>::value;
+        static constexpr bool value = is_assignable < T &,
+        const T&>;
     };
 
     template<typename T> //
@@ -218,8 +292,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct IsCopyConstructible final {
-        // We should use abstraction over the std-lib here since this ties into compiler builtins
-        static constexpr bool value = std::is_copy_constructible<T>::value;
+        static constexpr bool value = is_constructible<T, const T&>;
     };
 
     template<typename T> //
@@ -234,28 +307,6 @@ namespace kstd::meta {
 
     template<typename T> //
     constexpr bool is_copyable = IsCopyable<T>::value;
-
-    // is_destructible
-
-    template<typename T>
-    struct IsDestructible final {
-        // We should use abstraction over the std-lib here since this ties into compiler builtins
-        static constexpr bool value = std::is_destructible<T>::value;
-    };
-
-    template<typename T> //
-    constexpr bool is_destructible = IsDestructible<T>::value;
-
-    // is_default_constructible
-
-    template<typename T>
-    struct IsDefaultConstructible final {
-        // We should use abstraction over the std-lib here since this ties into compiler builtins
-        static constexpr bool value = std::is_default_constructible<T>::value;
-    };
-
-    template<typename T> //
-    constexpr bool is_default_constructible = IsDefaultConstructible<T>::value;
 
     // is_const
 
@@ -311,141 +362,141 @@ namespace kstd::meta {
 
     template<typename T>
     struct RemoveRef {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveRef<T&> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveRef<const T&> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveRef<T&&> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveRef<const T&&> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T> //
-    using remove_ref = typename RemoveRef<T>::type;
+    using remove_ref = typename RemoveRef<T>::Type;
 
     // remove_ptr
 
     template<typename T>
     struct RemovePtr {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemovePtr<T*> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemovePtr<const T*> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemovePtr<volatile T*> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemovePtr<const volatile T*> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T> //
-    using remove_ptr = typename RemovePtr<T>::type;
+    using remove_ptr = typename RemovePtr<T>::Type;
 
     // remove_const
 
     template<typename T>
     struct RemoveConst {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveConst<const T> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveConst<const T*> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveConst<const T&> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveConst<const T&&> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T> //
-    using remove_const = typename RemoveConst<T>::type;
+    using remove_const = typename RemoveConst<T>::Type;
 
     // remove_volatile
 
     template<typename T>
     struct RemoveVolatile {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveVolatile<const T> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveVolatile<const T*> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveVolatile<const T&> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T>
     struct RemoveVolatile<const T&&> {
-        using type = T;
+        using Type = T;
     };
 
     template<typename T> //
-    using remove_volatile = typename RemoveVolatile<T>::type;
+    using remove_volatile = typename RemoveVolatile<T>::Type;
 
     // remove_cv
 
     template<typename T>
     struct RemoveCV final {
-        using type = remove_const<remove_volatile<T>>;
+        using Type = remove_const<remove_volatile<T>>;
     };
 
     template<typename T> //
-    using remove_cv = typename RemoveCV<T>::type;
+    using remove_cv = typename RemoveCV<T>::Type;
 
     // naked_type
 
     template<typename T>
     struct NakedType final {
-        using type = remove_ref<remove_ptr<remove_cv<T>>>;
+        using Type = remove_ref<remove_ptr<remove_cv<T>>>;
     };
 
     template<typename T> //
-    using naked_type = typename NakedType<T>::type;
+    using naked_type = typename NakedType<T>::Type;
 
     // Pack
 
@@ -468,11 +519,11 @@ namespace kstd::meta {
 
     template<typename HEAD, typename... TAIL>
     struct PackElement<0, Pack<HEAD, TAIL...>> {
-        using type = HEAD;
+        using Type = HEAD;
     };
 
     template<usize INDEX, typename PACK> //
-    using pack_element = typename PackElement<INDEX, PACK>::type;
+    using pack_element = typename PackElement<INDEX, PACK>::Type;
 
     static_assert(is_same<pack_element<0, Pack<i32, f32, u32>>, i32>, "Type should be i32");
     static_assert(is_same<pack_element<1, Pack<i32, f32, u32>>, f32>, "Type should be f32");
@@ -482,7 +533,7 @@ namespace kstd::meta {
 
     template<usize COUNT, typename PACK, typename = Pack<>>
     struct SkipElements {
-        using type = Pack<>;
+        using Type = Pack<>;
     };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... SKIPPED>
@@ -490,16 +541,16 @@ namespace kstd::meta {
 
     template<typename HEAD, typename... TAIL, typename... SKIPPED>
     struct SkipElements<0, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> {
-        using type = Pack<HEAD, TAIL...>;
+        using Type = Pack<HEAD, TAIL...>;
     };
 
     template<typename... SKIPPED>
     struct SkipElements<0, Pack<>, Pack<SKIPPED...>> {
-        using type = Pack<>;
+        using Type = Pack<>;
     };
 
     template<usize COUNT, typename PACK> //
-    using skip_elements = typename SkipElements<COUNT, PACK>::type;
+    using skip_elements = typename SkipElements<COUNT, PACK>::Type;
 
     static_assert(is_same<skip_elements<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
     static_assert(is_same<skip_elements<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
@@ -518,7 +569,7 @@ namespace kstd::meta {
 
     template<usize COUNT, typename PACK, typename = Pack<>>
     struct TrimElements {
-        using type = Pack<>;
+        using Type = Pack<>;
     };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... ACCUMULATED>
@@ -526,16 +577,16 @@ namespace kstd::meta {
 
     template<typename HEAD, typename... TAIL, typename... ACCUMULATED>
     struct TrimElements<0, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> {
-        using type = Pack<ACCUMULATED...>;
+        using Type = Pack<ACCUMULATED...>;
     };
 
     template<typename... ACCUMULATED>
     struct TrimElements<0, Pack<>, Pack<ACCUMULATED...>> {
-        using type = Pack<ACCUMULATED...>;
+        using Type = Pack<ACCUMULATED...>;
     };
 
     template<usize COUNT, typename PACK> //
-    using trim_elements = typename TrimElements<COUNT, PACK>::type;
+    using trim_elements = typename TrimElements<COUNT, PACK>::Type;
 
     static_assert(is_same<trim_elements<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
     static_assert(is_same<trim_elements<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
@@ -547,6 +598,7 @@ namespace kstd::meta {
 
     static_assert(trim_elements<0, Pack<i32, f32, u64>>().get_size() == 0, "Pack size should be 0");
     static_assert(trim_elements<1, Pack<i32, f32, u64>>().get_size() == 1, "Pack size should be 1");
+
     static_assert(trim_elements<2, Pack<i32, f32, u64>>().get_size() == 2, "Pack size should be 2");
     static_assert(trim_elements<3, Pack<i32, f32, u64>>().get_size() == 3, "Pack size should be 3");
 
@@ -557,16 +609,16 @@ namespace kstd::meta {
 
     template<usize BEGIN, usize END, typename... TYPES>
     struct SlicePack<BEGIN, END, Pack<TYPES...>> {
-        using type = trim_elements<END + 1 - BEGIN, skip_elements<BEGIN, Pack<TYPES...>>>;
+        using Type = trim_elements<END + 1 - BEGIN, skip_elements<BEGIN, Pack<TYPES...>>>;
     };
 
     template<usize BEGIN, usize END>
     struct SlicePack<BEGIN, END, Pack<>> {
-        using type = Pack<>;
+        using Type = Pack<>;
     };
 
     template<usize BEGIN, usize END, typename PACK> //
-    using slice_pack = typename SlicePack<BEGIN, END, PACK>::type;
+    using slice_pack = typename SlicePack<BEGIN, END, PACK>::Type;
 
     static_assert(is_same<slice_pack<0, 0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
     static_assert(is_same<slice_pack<0, 1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
@@ -594,11 +646,11 @@ namespace kstd::meta {
 
     template<typename... TYPES_A, typename... TYPES_B>
     struct JoinPacks<Pack<TYPES_A...>, Pack<TYPES_B...>> {
-        using type = Pack<TYPES_A..., TYPES_B...>;
+        using Type = Pack<TYPES_A..., TYPES_B...>;
     };
 
     template<typename PACK_A, typename PACK_B> //
-    using join_packs = typename JoinPacks<PACK_A, PACK_B>::type;
+    using join_packs = typename JoinPacks<PACK_A, PACK_B>::Type;
 
     static_assert(is_same<join_packs<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
@@ -610,11 +662,11 @@ namespace kstd::meta {
 
     template<template<typename> typename TRANSFORM, typename... TYPES> //
     struct TransformPack {
-        using type = Pack<typename TRANSFORM<TYPES>::type...>;
+        using Type = Pack<typename TRANSFORM<TYPES>::Type...>;
     };
 
     template<template<typename> typename TRANSFORM, typename... TYPES> //
-    using transform_pack = typename TransformPack<TRANSFORM, TYPES...>::type;
+    using transform_pack = typename TransformPack<TRANSFORM, TYPES...>::Type;
 
     // substitute_void
 

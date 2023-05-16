@@ -286,6 +286,7 @@ namespace kstd {
             using type = Box<T>;
         };
 
-        template<typename T> using to_box = typename ToBox<T>::type;
+        template<typename T> //
+        using to_box = typename ToBox<T>::type;
     }
 }

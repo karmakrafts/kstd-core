@@ -30,7 +30,6 @@ namespace kstd {
     struct Option final {
         static constexpr bool is_pointer = meta::is_ptr<T>;
         static constexpr bool is_reference = meta::is_ref<T>;
-        static constexpr bool is_value = !is_pointer && !is_reference;
 
         using Self = Option<T>;
         using ValueType = T;

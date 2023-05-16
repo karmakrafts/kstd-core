@@ -45,11 +45,6 @@ namespace kstd {
         using Allocator = ALLOCATOR;
         using InnerType = RcInner<ElementType, CounterType>;
         using Self = BasicRc<ElementType, CounterType, Allocator>;
-        using Pointer = ElementType*;
-        using ConstPointer = const ElementType*;
-        using Reference = ElementType&;
-        using ConstReference = const ElementType&;
-        using SizeType = usize;
 
         private:
 
@@ -61,8 +56,8 @@ namespace kstd {
                 _inner() {
         }
 
-        explicit constexpr BasicRc(Pointer value) noexcept :
-                _inner(new InnerType()) {
+        explicit constexpr BasicRc(T* value) noexcept :
+                _inner(new InnerType()) { // TODO: somehow allocate this using ALLOCATOR
             _inner->value = value;
             _inner->count = 1;
         }
@@ -89,12 +84,12 @@ namespace kstd {
                 else {
                     Allocator allocator;
                     allocator.destroy(_inner->value);
-                    delete _inner;
+                    delete _inner; // TODO: somehow deallocate this using ALLOCATOR
                 }
             }
         }
 
-        constexpr auto reset(Pointer pointer) noexcept -> void {
+        constexpr auto reset(T* pointer) noexcept -> void {
             drop();
 
             if (_inner == nullptr) {
@@ -124,31 +119,31 @@ namespace kstd {
             return _inner != nullptr;
         }
 
-        [[nodiscard]] constexpr auto get_count() const noexcept -> SizeType {
+        [[nodiscard]] constexpr auto get_count() const noexcept -> usize {
             if (_inner == nullptr) {
                 return 0;
             }
 
-            return static_cast<SizeType>(_inner->count);
+            return static_cast<usize>(_inner->count);
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept { // NOLINT
             return has_value();
         }
 
-        [[nodiscard]] constexpr auto operator *() noexcept -> Reference {
+        [[nodiscard]] constexpr auto operator *() noexcept -> T& {
             return *_inner->value;
         }
 
-        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstReference {
+        [[nodiscard]] constexpr auto operator *() const noexcept -> const T& {
             return *_inner->value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> T* {
             return _inner->value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> const T* {
             return _inner->value;
         }
     };
