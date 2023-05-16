@@ -48,18 +48,14 @@ namespace kstd::meta {
         return __declval<T>(0);
         #else
         return *reinterpret_cast<T*>(nullptr); // NOLINT
-        #endif
+        #endif // defined(COMPILER_GCC) || defined(COMPILER_CLANG)
     }
 
     // is_standard_layout
 
     template<typename T>
     struct IsStandardLayout final {
-        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
         static constexpr bool value = __is_standard_layout(T);
-        #else
-        static constexpr bool value = false; // TODO: ...
-        #endif
     };
 
     template<typename T> //
@@ -69,11 +65,7 @@ namespace kstd::meta {
 
     template<typename T, typename... ARGS>
     struct IsConstructible final {
-        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
         static constexpr bool value = __is_constructible(T, ARGS...);
-        #else
-        static constexpr bool value = false; // TODO: ...
-        #endif
     };
 
     template<typename T, typename... ARGS> //
@@ -83,11 +75,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct IsDefaultConstructible final {
-        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
         static constexpr bool value = __is_constructible(T);
-        #else
-        static constexpr bool value = false; // TODO: ...
-        #endif
     };
 
     template<typename T> //
@@ -97,11 +85,7 @@ namespace kstd::meta {
 
     template<typename LHS, typename RHS>
     struct IsAssignable final {
-        #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
         static constexpr bool value = __is_assignable(LHS, RHS);
-        #else
-        static constexpr bool value = false; // TODO: ...
-        #endif
     };
 
     template<typename LHS, typename RHS> //
@@ -109,11 +93,18 @@ namespace kstd::meta {
 
     // is_destructible
 
+    #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
     template<typename T, typename = void>
     struct IsDestructible : public False {};
 
     template<typename T>
     struct IsDestructible<T, decltype(uninitialized<T>().~T())> : public True {};
+    #else
+    template<typename T>
+    struct IsDestructible final {
+        static constexpr bool value = __is_destructible(T);
+    };
+    #endif // defined(COMPILER_GCC) || defined(COMPILER_CLANG)
 
     template<typename T> //
     constexpr bool is_destructible = IsDestructible<T>::value;
