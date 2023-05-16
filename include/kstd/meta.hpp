@@ -80,12 +80,12 @@ namespace kstd::meta {
     // is_base_of
 
     template<typename BASE, typename DERIVED>
-    struct IsSuperType final {
+    struct IsBaseOf final {
         static constexpr bool value = __is_base_of(BASE, DERIVED);
     };
 
     template<typename BASE, typename DERIVED> //
-    constexpr bool is_super_type = IsSuperType<BASE, DERIVED>::value;
+    constexpr bool is_base_of = IsBaseOf<BASE, DERIVED>::value;
 
     // is_constructible
 
