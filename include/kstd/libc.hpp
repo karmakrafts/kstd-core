@@ -24,13 +24,24 @@
 #include <cstdio>
 #include <cwchar>
 
+// C89/99 says these should be macros, but we don't want that in C++..
 #undef stderr
 #undef stdout
 #undef stdin
 
+#if defined(PLATFORM_LINUX)
 extern FILE* stdout; // NOLINT
 extern FILE* stderr; // NOLINT
 extern FILE* stdin; // NOLINT
+#elif defined(PLATFORM_APPLE)
+extern FILE* __stdoutp;
+extern FILE* __stderrp;
+extern FILE* __stdinp;
+#else
+extern _iobuf* stdout;
+extern _iobuf* stderr;
+extern _iobuf* stdin;
+#endif
 
 namespace kstd::libc {
     using std::exit;
@@ -78,7 +89,13 @@ namespace kstd::libc {
     using std::wprintf;
     using std::fwprintf;
 
+    #if defined(PLATFORM_LINUX) || defined(PLATFORM_WINDOWS)
     using ::stdout;
     using ::stderr;
     using ::stdin;
+    #else
+    using stdout = ::__stdoutp;
+    using stderr = ::__stderrp;
+    using stdin = ::__stdinp;
+    #endif
 }
