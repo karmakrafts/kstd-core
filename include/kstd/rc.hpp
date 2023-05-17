@@ -42,7 +42,6 @@ namespace kstd {
     struct BasicRc final {
         using ElementType = T;
         using CounterType = COUNTER_TYPE;
-        using Allocator = ALLOCATOR<ElementType>;
         using InnerType = RcInner<ElementType, CounterType>;
         using Self = BasicRc<ElementType, CounterType, ALLOCATOR>;
 
@@ -82,7 +81,7 @@ namespace kstd {
                     --_inner->count;
                 }
                 else {
-                    Allocator().destroy(_inner->value);
+                    ALLOCATOR<ElementType>().destroy(_inner->value);
                     ALLOCATOR<InnerType>().destroy(_inner);
                 }
 
@@ -136,12 +135,36 @@ namespace kstd {
             return has_value();
         }
 
-        [[nodiscard]] constexpr operator T*() noexcept { // NOLINT
-            return _inner->value;
+        [[nodiscard]] constexpr auto operator +(usize offset) const noexcept -> T* {
+            if(_inner == nullptr) {
+                return nullptr;
+            }
+
+            return _inner->value + offset;
         }
 
-        [[nodiscard]] constexpr operator const T*() const noexcept { // NOLINT
-            return _inner->value;
+        [[nodiscard]] constexpr auto operator -(usize offset) const noexcept -> T* {
+            if(_inner == nullptr) {
+                return nullptr;
+            }
+
+            return _inner->value - offset;
+        }
+
+        [[nodiscard]] constexpr auto operator *(usize offset) const noexcept -> T* {
+            if(_inner == nullptr) {
+                return nullptr;
+            }
+
+            return _inner->value * offset;
+        }
+
+        [[nodiscard]] constexpr auto operator /(usize offset) const noexcept -> T* {
+            if(_inner == nullptr) {
+                return nullptr;
+            }
+
+            return _inner->value / offset;
         }
 
         [[nodiscard]] constexpr auto operator *() noexcept -> T& {
