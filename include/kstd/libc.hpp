@@ -24,11 +24,6 @@
 #include <cstdio>
 #include <cwchar>
 
-// C89/99 says these should be macros, but we don't want that in C++..
-#undef stderr
-#undef stdout
-#undef stdin
-
 namespace kstd::libc {
     using std::exit;
 
@@ -75,13 +70,19 @@ namespace kstd::libc {
     using std::wprintf;
     using std::fwprintf;
 
-    #if defined(PLATFORM_LINUX) || defined(PLATFORM_WINDOWS)
-    inline auto stdout = ::stdout;
-    inline auto stderr = ::stderr;
-    inline auto stdin = ::stdin;
-    #else
-    inline auto stdout = ::__stdoutp;
-    inline auto stderr = ::__stderrp;
-    inline auto stdin = ::__stdinp;
-    #endif
+    namespace iob {
+        #if defined(PLATFORM_LINUX)
+        inline auto out = ::stdout;
+        inline auto err = ::stderr;
+        inline auto in = ::stdin;
+        #elif defined(PLATFORM_WINDOWS)
+        inline auto out = ::__acrt_iob_func(1);
+        inline auto err = ::__acrt_iob_func(2);
+        inline auto in = ::__acrt_iob_func(0);
+        #else
+        inline auto out = ::__stdoutp;
+        inline auto err = ::__stderrp;
+        inline auto in = ::__stdinp;
+        #endif
+    }
 }

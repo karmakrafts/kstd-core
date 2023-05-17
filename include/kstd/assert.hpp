@@ -25,7 +25,7 @@ namespace kstd {
     constexpr auto assert_true(bool condition, const char* message = "Assertion failed") noexcept -> void {
         #ifdef BUILD_DEBUG
         if (!condition) {
-            libc::fprintf(libc::stderr, "%s\n", message);
+            libc::fprintf(libc::iob::err, "%s\n", message);
             libc::exit(4);
         }
         #endif
@@ -34,7 +34,7 @@ namespace kstd {
     constexpr auto assert_false(bool condition, const char* message = "Assertion failed") noexcept -> void {
         #ifdef BUILD_DEBUG
         if (condition) {
-            libc::fprintf(libc::stderr, "%s\n", message);
+            libc::fprintf(libc::iob::err, "%s\n", message);
             libc::exit(4);
         }
         #endif
