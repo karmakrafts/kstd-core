@@ -71,6 +71,7 @@ namespace kstd::libc {
     using std::fwprintf;
 
     namespace iob {
+        // @formatter:off
         #if defined(PLATFORM_LINUX)
         inline auto out = ::stdout;
         inline auto err = ::stderr;
@@ -80,9 +81,16 @@ namespace kstd::libc {
         inline auto err = ::__acrt_iob_func(2);
         inline auto in = ::__acrt_iob_func(0);
         #else
-        inline auto out = ::__stdoutp;
-        inline auto err = ::__stderrp;
-        inline auto in = ::__stdinp;
+            #ifdef __DARWIN_UNIX03
+            inline auto out = ::__stdoutp;
+            inline auto err = ::__stderrp;
+            inline auto in = ::__stdinp;
+            #else
+            inline auto out = &::__sF[1];
+            inline auto err = &::__sF[2];
+            inline auto in = &::__sF[0];
+            #endif
         #endif
+        // @formatter:on
     }
 }

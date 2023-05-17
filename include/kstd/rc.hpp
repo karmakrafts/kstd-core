@@ -136,7 +136,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator +(usize offset) const noexcept -> T* {
-            if(_inner == nullptr) {
+            if (_inner == nullptr) {
                 return nullptr;
             }
 
@@ -144,7 +144,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator -(usize offset) const noexcept -> T* {
-            if(_inner == nullptr) {
+            if (_inner == nullptr) {
                 return nullptr;
             }
 
@@ -152,7 +152,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator *(usize offset) const noexcept -> T* {
-            if(_inner == nullptr) {
+            if (_inner == nullptr) {
                 return nullptr;
             }
 
@@ -160,7 +160,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator /(usize offset) const noexcept -> T* {
-            if(_inner == nullptr) {
+            if (_inner == nullptr) {
                 return nullptr;
             }
 
