@@ -26,11 +26,12 @@ namespace kstd {
     namespace {
         template<typename T, typename COUNTER_TYPE>
         struct RcInner final {
-            T* value;
+            T value;
             COUNTER_TYPE count;
 
-            constexpr RcInner() noexcept :
-                    value(),
+            template<typename... ARGS>
+            explicit constexpr RcInner(ARGS&& ... args) noexcept :
+                    value(forward<ARGS>(args)...),
                     count() {
             }
 
@@ -43,6 +44,7 @@ namespace kstd {
         using ElementType = T;
         using CounterType = COUNTER_TYPE;
         using InnerType = RcInner<ElementType, CounterType>;
+        using Allocator = ALLOCATOR<InnerType>;
         using Self = BasicRc<ElementType, CounterType, ALLOCATOR>;
 
         private:
@@ -55,11 +57,10 @@ namespace kstd {
                 _inner() {
         }
 
-        explicit constexpr BasicRc(T* value) noexcept :
-                _inner(ALLOCATOR<InnerType>().construct()) {
-            _inner->value = value;
-            _inner->count = 1;
-        }
+        template<typename... ARGS>
+        explicit constexpr BasicRc(ARGS&& ... args) noexcept :
+                _inner(Allocator().construct(forward<ARGS>(args)...))
+        {}
 
         constexpr BasicRc(const Self& other) noexcept :
                 _inner(other._inner) {
@@ -81,23 +82,10 @@ namespace kstd {
                     --_inner->count;
                 }
                 else {
-                    ALLOCATOR<ElementType>().destroy(_inner->value);
-                    ALLOCATOR<InnerType>().destroy(_inner);
+                    Allocator().destroy(_inner);
+                    _inner = nullptr; // Avoid dangling pointer
                 }
-
-                _inner = nullptr; // Avoid dangling pointer
             }
-        }
-
-        constexpr auto reset(T* pointer) noexcept -> void {
-            drop();
-
-            if (_inner == nullptr) {
-                _inner = ALLOCATOR<InnerType>().construct();
-            }
-
-            _inner->value = pointer;
-            _inner->count = 1;
         }
 
         constexpr auto operator =(const Self& other) noexcept -> Self& {
@@ -120,14 +108,10 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto has_value() const noexcept -> bool {
-            return _inner != nullptr && _inner->value != nullptr;
+            return _inner != nullptr;
         }
 
         [[nodiscard]] constexpr auto get_count() const noexcept -> usize {
-            if (_inner == nullptr) {
-                return 0;
-            }
-
             return static_cast<usize>(_inner->count);
         }
 
@@ -135,56 +119,32 @@ namespace kstd {
             return has_value();
         }
 
-        [[nodiscard]] constexpr auto operator +(usize offset) const noexcept -> T* {
-            if (_inner == nullptr) {
-                return nullptr;
-            }
-
-            return _inner->value + offset;
-        }
-
-        [[nodiscard]] constexpr auto operator -(usize offset) const noexcept -> T* {
-            if (_inner == nullptr) {
-                return nullptr;
-            }
-
-            return _inner->value - offset;
-        }
-
-        [[nodiscard]] constexpr auto operator *(usize offset) const noexcept -> T* {
-            if (_inner == nullptr) {
-                return nullptr;
-            }
-
-            return _inner->value * offset;
-        }
-
-        [[nodiscard]] constexpr auto operator /(usize offset) const noexcept -> T* {
-            if (_inner == nullptr) {
-                return nullptr;
-            }
-
-            return _inner->value / offset;
-        }
-
         [[nodiscard]] constexpr auto operator *() noexcept -> T& {
-            return *_inner->value;
+            return _inner->value;
         }
 
         [[nodiscard]] constexpr auto operator *() const noexcept -> const T& {
-            return *_inner->value;
+            return _inner->value;
         }
 
         [[nodiscard]] constexpr auto operator ->() noexcept -> T* {
-            return _inner->value;
+            return &_inner->value;
         }
 
         [[nodiscard]] constexpr auto operator ->() const noexcept -> const T* {
-            return _inner->value;
+            return &_inner->value;
+        }
+
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+            return _inner == other._inner;
         }
 
         [[nodiscard]] constexpr auto operator ==(decltype(nullptr)) const noexcept -> bool {
             return !has_value();
+        }
+
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+            return _inner != other._inner;
         }
 
         [[nodiscard]] constexpr auto operator !=(decltype(nullptr)) const noexcept -> bool {
@@ -200,13 +160,11 @@ namespace kstd {
 
     template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
     [[nodiscard]] constexpr auto make_rc(ARGS&& ... args) noexcept -> Rc<T, ALLOCATOR> {
-        ALLOCATOR<T> allocator;
-        return Rc<T, ALLOCATOR>(allocator.construct(forward<ARGS>(args)...));
+        return Rc<T, ALLOCATOR>(forward<ARGS>(args)...);
     }
 
     template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
     [[nodiscard]] constexpr auto make_arc(ARGS&& ... args) noexcept -> Arc<T, ALLOCATOR> {
-        ALLOCATOR<T> allocator;
-        return Arc<T, ALLOCATOR>(allocator.construct(forward<ARGS>(args)...));
+        return Arc<T, ALLOCATOR>(forward<ARGS>(args)...);
     }
 }

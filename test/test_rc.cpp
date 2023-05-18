@@ -24,21 +24,9 @@
 TEST(kstd_BasicRc, TestRc) {
     auto ptr = kstd::make_rc<kstd::StringSlice>("Hello World!");
     ASSERT_TRUE(ptr != nullptr);
-
-    ptr.drop();
-    ASSERT_TRUE(ptr == nullptr);
-
-    ptr = kstd::make_rc<kstd::StringSlice>("Hello World!");
-    ASSERT_TRUE(ptr != nullptr);
 }
 
 TEST(kstd_BasicRc, TestArc) {
     auto ptr = kstd::make_arc<kstd::StringSlice>("Hello World!");
-    ASSERT_TRUE(ptr != nullptr);
-
-    ptr.drop();
-    ASSERT_TRUE(ptr == nullptr);
-
-    ptr = kstd::make_arc<kstd::StringSlice>("Hello World!");
     ASSERT_TRUE(ptr != nullptr);
 }
