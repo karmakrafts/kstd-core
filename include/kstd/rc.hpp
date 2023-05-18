@@ -53,10 +53,6 @@ namespace kstd {
 
         public:
 
-        constexpr BasicRc() noexcept :
-                _inner() {
-        }
-
         template<typename... ARGS>
         explicit constexpr BasicRc(ARGS&& ... args) noexcept :
                 _inner(Allocator().construct(forward<ARGS>(args)...)) {
@@ -88,35 +84,12 @@ namespace kstd {
             }
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& {
-            if (this == &other) {
-                return *this;
-            }
+        constexpr auto operator =(const Self& other) noexcept -> Self& = delete;
 
-            _inner = other._inner;
-
-            if (_inner) {
-                ++_inner->count;
-            }
-
-            return *this;
-        }
-
-        constexpr auto operator =(Self&& other) noexcept -> Self& {
-            _inner = other._inner;
-            return *this;
-        }
-
-        [[nodiscard]] constexpr auto has_value() const noexcept -> bool {
-            return _inner != nullptr;
-        }
+        constexpr auto operator =(Self&& other) noexcept -> Self& = delete;
 
         [[nodiscard]] constexpr auto get_count() const noexcept -> usize {
             return static_cast<usize>(_inner->count);
-        }
-
-        [[nodiscard]] constexpr operator bool() const noexcept { // NOLINT
-            return has_value();
         }
 
         [[nodiscard]] constexpr auto operator *() noexcept -> T& {
@@ -139,16 +112,8 @@ namespace kstd {
             return _inner == other._inner;
         }
 
-        [[nodiscard]] constexpr auto operator ==(decltype(nullptr)) const noexcept -> bool {
-            return !has_value();
-        }
-
         [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
             return _inner != other._inner;
-        }
-
-        [[nodiscard]] constexpr auto operator !=(decltype(nullptr)) const noexcept -> bool {
-            return has_value();
         }
     };
 
