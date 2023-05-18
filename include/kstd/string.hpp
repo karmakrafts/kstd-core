@@ -22,12 +22,40 @@
 #include "string_fwd.hpp"
 #include "types.hpp"
 #include "allocator.hpp"
+#include "libc.hpp"
+#include "meta.hpp"
 
 namespace kstd {
     template<typename CHAR, template<typename> typename ALLOCATOR>
     struct BasicString final {
         using ValueType = CHAR;
         using Allocator = ALLOCATOR<ValueType>;
+        using Pointer = ValueType*;
+        using ConstPointer = const ValueType*;
+
+        private:
+
+        Pointer _data;
+
+        public:
+
+        ~BasicString() noexcept = default;
+
+        [[nodiscard]] constexpr auto get_length() const noexcept -> usize {
+            return libc::get_string_length(_data);
+        }
+
+        [[nodiscard]] constexpr auto get_c_str() const noexcept -> ConstPointer {
+            return _data;
+        }
+
+        [[nodiscard]] constexpr auto get_data() const noexcept -> Pointer {
+            return _data;
+        }
+
+        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
+            return get_length() == 0;
+        }
     };
 
     template<template<typename> typename ALLOCATOR> //

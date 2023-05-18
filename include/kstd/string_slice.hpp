@@ -51,23 +51,7 @@ namespace kstd {
 
         constexpr BasicStringSlice(ConstPointer data) noexcept : // NOLINT
                 _data(data),
-                _size(0) {
-            // We specialize over C-API intrinsics, since they can use SSE and AVX
-            if constexpr (meta::is_same<ValueType, char>) {
-                _size = libc::strlen(data);
-            }
-            else if constexpr (meta::is_same<ValueType, wchar_t>) {
-                _size = libc::wcslen(data);
-            }
-            else {
-                // Unoptimized version for compatibility
-                auto* ptr = data;
-
-                while (*ptr != static_cast<ValueType>('\0')) {
-                    ++_size;
-                    ++ptr;
-                }
-            }
+                _size(libc::get_string_length(data)) {
         }
 
         constexpr BasicStringSlice(const Self& other) noexcept = default;

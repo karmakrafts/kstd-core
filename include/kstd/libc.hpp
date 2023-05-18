@@ -23,6 +23,9 @@
 #include <cstring>
 #include <cstdio>
 #include <cwchar>
+#include "meta.hpp"
+#include "types.hpp"
+#include "math.hpp"
 
 namespace kstd::libc {
     using std::exit;
@@ -92,5 +95,40 @@ namespace kstd::libc {
             #endif
         #endif
         // @formatter:on
+    }
+
+    template<typename T>
+    [[nodiscard]] constexpr auto get_string_length(const T* str) noexcept -> usize {
+        if constexpr (meta::is_same<T, char>) {
+            return strlen(str);
+        }
+        else if constexpr (meta::is_same<T, wchar_t>) {
+            return wcslen(str);
+        }
+        else {
+            auto* ptr = str;
+
+            while (*ptr != static_cast<T>('\0')) {
+                ++ptr;
+            }
+
+            return static_cast<usize>(ptr - str); // Use pointer difference
+        }
+    }
+
+    template<typename T>
+    constexpr auto copy_string(T* dst, const T* src) noexcept -> void {
+        if constexpr (meta::is_same<T, char>) {
+            return strcpy(dst, src);
+        }
+        else if constexpr (meta::is_same<T, wchar_t>) {
+            return wcscpy(dst, src);
+        }
+        else {
+            const auto dst_length = get_string_length(dst);
+            const auto src_length = get_string_length(src);
+            const auto length = min(dst_length, src_length);
+            memcpy(dst, src, (length + 1) * sizeof(T));
+        }
     }
 }
