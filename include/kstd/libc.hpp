@@ -68,10 +68,12 @@ namespace kstd::libc {
     using std::scanf;
     using std::printf;
     using std::fprintf;
+    using std::sprintf;
 
     using std::wscanf;
     using std::wprintf;
     using std::fwprintf;
+    using std::swprintf;
 
     namespace iob {
         // @formatter:off
@@ -130,5 +132,15 @@ namespace kstd::libc {
             const auto length = min(dst_length, src_length);
             memcpy(dst, src, (length + 1) * sizeof(T));
         }
+    }
+
+    template<typename T>
+    constexpr auto zero(T* ptr) noexcept -> void {
+        libc::memset(ptr, 0, sizeof(T));
+    }
+
+    template<typename T>
+    constexpr auto zero(T& ptr) noexcept -> void {
+        libc::memset(&ptr, 0, sizeof(T));
     }
 }

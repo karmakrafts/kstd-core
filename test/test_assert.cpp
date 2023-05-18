@@ -20,10 +20,12 @@
 #include <gtest/gtest.h>
 #include <kstd/assert.hpp>
 
+using namespace kstd;
+
 TEST(kstd, TestAssertSuccess) {
-    kstd::assert_true(true);
+    assert_true(false);
 }
 
 TEST(kstd, TestAssertFail) {
-    ASSERT_EXIT(kstd::assert_true(false), testing::ExitedWithCode(4), "");
+    ASSERT_EXIT(assert_true(false), testing::ExitedWithCode(4), "");
 }

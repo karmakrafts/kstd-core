@@ -58,9 +58,9 @@ namespace kstd {
         }
     };
 
-    template<template<typename> typename ALLOCATOR> //
+    template<template<typename> typename ALLOCATOR = Allocator> //
     using String = BasicString<char, ALLOCATOR>;
 
-    template<template<typename> typename ALLOCATOR> //
+    template<template<typename> typename ALLOCATOR = Allocator> //
     using WString = BasicString<wchar_t, ALLOCATOR>;
 }

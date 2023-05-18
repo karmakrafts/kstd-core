@@ -20,19 +20,8 @@
 #pragma once
 
 #include "meta.hpp"
-#include "libc.hpp"
 
 namespace kstd {
-    template<typename T>
-    constexpr auto zero(T* ptr) noexcept -> void {
-        libc::memset(ptr, 0, sizeof(T));
-    }
-
-    template<typename T>
-    constexpr auto zero(T& ptr) noexcept -> void {
-        libc::memset(&ptr, 0, sizeof(T));
-    }
-
     template<typename T>
     [[nodiscard]] constexpr auto forward(T value) noexcept -> T {
         return value;
