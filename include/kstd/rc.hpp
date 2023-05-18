@@ -59,8 +59,8 @@ namespace kstd {
 
         template<typename... ARGS>
         explicit constexpr BasicRc(ARGS&& ... args) noexcept :
-                _inner(Allocator().construct(forward<ARGS>(args)...))
-        {}
+                _inner(Allocator().construct(forward<ARGS>(args)...)) {
+        }
 
         constexpr BasicRc(const Self& other) noexcept :
                 _inner(other._inner) {

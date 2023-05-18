@@ -231,43 +231,43 @@ namespace kstd::meta {
     static_assert(is_ptr<const i32*>, "Type is pointer, trait should return true");
     static_assert(!is_ptr<i32>, "Type is not a pointer, trait should return false");
 
-    // is_lvref
+    // is_lvalue_ref
 
     template<typename T>
-    struct IsLVRef : public False {};
+    struct IsLValueRef : public False {};
 
     template<typename T>
-    struct IsLVRef<T&> : public True {};
+    struct IsLValueRef<T&> : public True {};
 
     template<typename T> //
-    constexpr bool is_lvref = IsLVRef<T>::value;
+    constexpr bool is_lvalue_ref = IsLValueRef<T>::value;
 
-    static_assert(is_lvref<i32&>, "Type is an lvalue reference, trait should return true");
-    static_assert(is_lvref<const i32&>, "Type is an lvalue reference, trait should return true");
-    static_assert(!is_lvref<void>, "Type is not an lvalue reference, trait should return false");
-    static_assert(!is_lvref<i32&&>, "Type is not an lvalue reference, trait should return false");
+    static_assert(is_lvalue_ref<i32&>, "Type is an lvalue reference, trait should return true");
+    static_assert(is_lvalue_ref<const i32&>, "Type is an lvalue reference, trait should return true");
+    static_assert(!is_lvalue_ref<void>, "Type is not an lvalue reference, trait should return false");
+    static_assert(!is_lvalue_ref<i32&&>, "Type is not an lvalue reference, trait should return false");
 
-    // is_rvref
-
-    template<typename T>
-    struct IsRVRef : public False {};
+    // is_rvalue_ref
 
     template<typename T>
-    struct IsRVRef<T&&> : public True {};
+    struct IsRValueRef : public False {};
+
+    template<typename T>
+    struct IsRValueRef<T&&> : public True {};
 
     template<typename T> //
-    constexpr bool is_rvref = IsRVRef<T>::value;
+    constexpr bool is_rvalue_ref = IsRValueRef<T>::value;
 
-    static_assert(!is_rvref<i32&>, "Type is not an rvalue reference, trait should return true");
-    static_assert(!is_rvref<const i32&>, "Type is not an rvalue reference, trait should return true");
-    static_assert(is_rvref<i32&&>, "Type is an rvalue reference, trait should return false");
-    static_assert(is_rvref<const i32&&>, "Type is an rvalue reference, trait should return false");
+    static_assert(!is_rvalue_ref<i32&>, "Type is not an rvalue reference, trait should return true");
+    static_assert(!is_rvalue_ref<const i32&>, "Type is not an rvalue reference, trait should return true");
+    static_assert(is_rvalue_ref<i32&&>, "Type is an rvalue reference, trait should return false");
+    static_assert(is_rvalue_ref<const i32&&>, "Type is an rvalue reference, trait should return false");
 
     // is_ref
 
     template<typename T>
     struct IsRef final {
-        static constexpr bool value = is_lvref<T> || is_rvref<T>;
+        static constexpr bool value = is_lvalue_ref<T> || is_rvalue_ref<T>;
     };
 
     template<typename T> //
@@ -522,6 +522,66 @@ namespace kstd::meta {
 
     template<typename T> //
     using naked_type = typename NakedType<T>::Type;
+
+    // lvalue_ref
+
+    template<typename T>
+    struct LValueRef final {
+        using Type = conditional<is_ptr<T> || is_lvalue_ref<T>, T, T&>;
+    };
+
+    template<typename T> //
+    using lvalue_ref = typename LValueRef<T>::Type;
+
+    // const_lvalue_ref
+
+    template<typename T>
+    struct ConstLValueRef final {
+        using Type = conditional<is_ptr<T> || is_lvalue_ref<T>, T, const T&>;
+    };
+
+    template<typename T> //
+    using const_lvalue_ref = typename ConstLValueRef<T>::Type;
+
+    // rvalue_ref
+
+    template<typename T>
+    struct RValueRef final {
+        using Type = conditional<is_ptr<T> || is_rvalue_ref<T>, T, T&&>;
+    };
+
+    template<typename T> //
+    using rvalue_ref = typename RValueRef<T>::Type;
+
+    // add_const
+
+    template<typename T>
+    struct AddConst final {
+        using Type = const T;
+    };
+
+    template<typename T> //
+    using add_const = typename AddConst<T>::Type;
+
+    // add_volatile
+
+    template<typename T>
+    struct AddVolatile final {
+        using Type = volatile T;
+    };
+
+    template<typename T> //
+    using add_volatile = typename AddVolatile<T>::Type;
+
+    // add_ptr
+
+    template<typename T>
+    struct AddPtr final {
+        using Type = T*;
+    };
+
+    template<typename T> //
+    using add_ptr = typename AddPtr<T>::Type;
 
     // Pack
 

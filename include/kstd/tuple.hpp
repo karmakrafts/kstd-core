@@ -65,56 +65,98 @@ namespace kstd {
 
             ~TupleInner() noexcept = default;
         };
+
+        template<typename PACK>
+        struct TupleImpl;
+
+        template<typename... TYPES>
+        struct TupleImpl<meta::Pack<TYPES...>> {
+            static constexpr usize num_values = sizeof...(TYPES);
+
+            using Types = meta::Pack<TYPES...>;
+            using Self [[maybe_unused]] = TupleImpl<Types>;
+
+            private:
+
+            TupleInner<TYPES...> _inner;
+
+            template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
+            [[nodiscard]] constexpr auto _get(TupleInner<HEAD, TAIL...>& inner) noexcept -> meta::lvalue_ref<meta::pack_element<INDEX, Types>> {
+                if constexpr (CURRENT == INDEX) {
+                    return *inner._head;
+                }
+                else {
+                    return _get<INDEX, CURRENT + 1, TAIL...>(inner._tail);
+                }
+            }
+
+            template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
+            [[nodiscard]] constexpr auto _get(const TupleInner<HEAD, TAIL...>& inner) const noexcept -> meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> { // NOLINT
+                if constexpr (CURRENT == INDEX) {
+                    return *inner._head;
+                }
+                else {
+                    return _get<INDEX, CURRENT + 1, TAIL...>(inner._tail);
+                }
+            }
+
+            template<usize BEGIN, usize END, usize INDEX>
+            constexpr auto _slice(TupleImpl<meta::slice_pack<BEGIN, END, Types>>& tuple) const noexcept -> void {
+                tuple.template get<INDEX>() = get<BEGIN + INDEX>();
+
+                if constexpr (INDEX < (END - BEGIN)) {
+                    _slice<BEGIN, END, INDEX + 1>(tuple);
+                }
+            }
+
+            public:
+
+            constexpr TupleImpl() noexcept :
+                    _inner() {
+            }
+
+            constexpr TupleImpl(TYPES&& ... values) noexcept : // NOLINT
+                    _inner(forward<TYPES>(values)...) {
+            }
+
+            ~TupleImpl() noexcept = default;
+
+            [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
+                return num_values;
+            }
+
+            template<usize INDEX>
+            [[nodiscard]] constexpr auto get() noexcept -> meta::lvalue_ref<meta::pack_element<INDEX, Types>> {
+                return _get<INDEX, 0, TYPES...>(_inner);
+            }
+
+            template<usize INDEX>
+            [[nodiscard]] constexpr auto get() const noexcept -> const meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> { // NOLINT
+                return _get<INDEX, 0, TYPES...>(_inner);
+            }
+
+            template<usize BEGIN, usize END>
+            [[nodiscard]] constexpr auto slice() const noexcept -> TupleImpl<meta::slice_pack<BEGIN, END, Types>> {
+                TupleImpl<meta::slice_pack<BEGIN, END, Types>> result;
+                _slice<BEGIN, END, 0>(result);
+                return result;
+            }
+        };
     }
 
-    template<typename... TYPES>
-    struct Tuple final {
-        static constexpr usize num_values = sizeof...(TYPES);
-
-        using Self [[maybe_unused]] = Tuple<TYPES...>;
-        using Types = meta::Pack<TYPES...>;
-
-        private:
-
-        TupleInner<TYPES...> _inner;
-
-        template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
-        [[nodiscard]] constexpr auto _get(TupleInner<HEAD, TAIL...>& inner) noexcept -> meta::pack_element<INDEX, Types> {
-            if constexpr (CURRENT == INDEX) {
-                return *inner._head;
-            }
-            else {
-                return _get<INDEX, CURRENT + 1, TAIL...>(inner._tail);
-            }
-        }
-
-        public:
-
-        constexpr Tuple() noexcept :
-                _inner() {
-        }
-
-        constexpr Tuple(TYPES&& ... values) noexcept : // NOLINT
-                _inner(forward<TYPES>(values)...) {
-        }
-
-        ~Tuple() noexcept = default;
-
-        [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
-            return num_values;
-        }
-
-        template<usize INDEX>
-        [[nodiscard]] constexpr auto get() noexcept -> meta::pack_element<INDEX, Types> {
-            return _get<INDEX, 0, TYPES...>(_inner);
-        }
-    };
+    template<typename... TYPES> //
+    using Tuple = TupleImpl<meta::Pack<TYPES...>>;
 
     template<typename L, typename R> //
     using Pair = Tuple<L, R>;
 
     template<typename L, typename M, typename R> //
     using Triple = Tuple<L, M, R>;
+
+    namespace meta {
+        template<typename PACK> //
+        using tuple_from_pack = TupleImpl<PACK>;
+    }
 }
 
 // Specializations for std::tuple_size and std::tuple_element to allow structured bindings
