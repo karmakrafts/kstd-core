@@ -32,8 +32,10 @@ namespace kstd {
             public:
 
             explicit inline AssertionMessage(const char* data) noexcept :
-                    _data(static_cast<char*>(libc::malloc(libc::strlen(data) + 1))) {
-                libc::zero(_data);
+                    _data() {
+                const auto size = libc::strlen(data) + 1;
+                _data = static_cast<char*>(libc::malloc(size));
+                libc::memset(_data, 0, size);
                 libc::strcpy(_data, data); // Copy data to heap memory
             }
 
@@ -60,7 +62,7 @@ namespace kstd {
 
         [[nodiscard]] inline auto get_default_assertion_message(const SourceLocation& location = current_location()) noexcept -> AssertionMessage {
             char buffer[KSTD_ASSERTION_BUFFER_SIZE]; // TODO: find a good size for this
-            libc::zero(buffer);
+            libc::memset(buffer, 0, KSTD_ASSERTION_BUFFER_SIZE);
             libc::sprintf(buffer, "%s:%lu [%s]", location.get_file(), location.get_line(), location.get_function());
             return AssertionMessage(buffer);
         }
