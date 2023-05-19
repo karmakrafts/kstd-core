@@ -26,21 +26,6 @@
 
 namespace kstd {
     namespace {
-        template<typename T, typename = void> // NOLINT
-        struct NakedTypeIfRefImpl {
-            using Type = T;
-        };
-
-        template<typename T>
-        struct NakedTypeIfRefImpl<T, meta::def_if<meta::is_ref<T>>> {
-            using Type = meta::remove_ref<T>;
-        };
-
-        template<typename T>
-        struct NakedTypeIfRef final {
-            using Type = typename NakedTypeIfRefImpl<T>::Type;
-        };
-
         template<typename... TYPES>
         struct TupleInner;
 
@@ -154,7 +139,7 @@ namespace kstd {
 
             template<usize NEW_SIZE, usize CURRENT, typename... OTHER_TYPES> // @formatter:off
             constexpr auto _concat(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other,
-                    TupleImpl<meta::transform_pack<NakedTypeIfRef, meta::Pack<TYPES..., OTHER_TYPES...>>>& result) const noexcept -> void { // @formatter:on
+                    TupleImpl<meta::transform_pack<meta::RemoveRef, meta::Pack<TYPES..., OTHER_TYPES...>>>& result) const noexcept -> void { // @formatter:on
                 if constexpr (CURRENT < num_values) {
                     result.template get<CURRENT>() = get<CURRENT>();
                 }
@@ -202,15 +187,15 @@ namespace kstd {
 
             template<typename... OTHER_TYPES> // @formatter:off
             [[nodiscard]] constexpr auto concat(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept ->
-                    TupleImpl<meta::transform_pack<NakedTypeIfRef, meta::Pack<TYPES..., OTHER_TYPES...>>> { // @formatter:on
-                TupleImpl<meta::transform_pack<NakedTypeIfRef, meta::Pack<TYPES..., OTHER_TYPES...>>> result;
+                    TupleImpl<meta::transform_pack<meta::RemoveRef, meta::Pack<TYPES..., OTHER_TYPES...>>> { // @formatter:on
+                TupleImpl<meta::transform_pack<meta::RemoveRef, meta::Pack<TYPES..., OTHER_TYPES...>>> result;
                 _concat<num_values + sizeof...(OTHER_TYPES), 0, OTHER_TYPES...>(other, result);
                 return result;
             }
 
             template<typename... OTHER_TYPES> // @formatter:off
             [[nodiscard]] constexpr auto operator +(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept ->
-                    TupleImpl<meta::transform_pack<NakedTypeIfRef, meta::Pack<TYPES..., OTHER_TYPES...>>> { // @formatter:on
+                    TupleImpl<meta::transform_pack<meta::RemoveRef, meta::Pack<TYPES..., OTHER_TYPES...>>> { // @formatter:on
                 return concat<OTHER_TYPES...>(other);
             }
 
