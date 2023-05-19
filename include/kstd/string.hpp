@@ -57,10 +57,30 @@ namespace kstd {
             _is_on_heap = false;
         }
 
+        constexpr BasicSmallString(const ValueType* data) noexcept { // NOLINT
+            libc::zero(_data);
+            const auto length = libc::get_string_length(data);
+            _available = usable_size - length;
+            _is_on_heap = false;
+            libc::copy_string(_data, data, length);
+        }
+
         ~BasicSmallString() noexcept = default;
+
+        [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {
+            return usable_size;
+        }
+
+        [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> usize {
+            return usable_size * sizeof(ValueType);
+        }
 
         [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
             return usable_size - _available;
+        }
+
+        [[nodiscard]] constexpr auto get_size_in_bytes() const noexcept -> usize {
+            return (usable_size - _available) * sizeof(ValueType);
         }
 
         [[nodiscard]] constexpr auto get_data() noexcept -> Pointer {
@@ -100,17 +120,30 @@ namespace kstd {
                 _is_on_heap(true) {
         }
 
-        explicit constexpr BasicHeapString(const ValueType* value) noexcept :
-                _data(Allocator().allocate(libc::get_string_length(value))),
-                _capacity(libc::get_string_length(value)),
-                _size(_capacity),
+        constexpr BasicHeapString(const ValueType* data) noexcept : // NOLINT
+                _capacity(libc::get_string_length(data) + 1),
+                _data(Allocator().allocate(_capacity)),
+                _size(_capacity - 1),
                 _is_on_heap(true) {
+            libc::copy_string(_data, data, _size);
         }
 
         ~BasicHeapString() noexcept = default;
 
+        [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {
+            return _capacity;
+        }
+
+        [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> usize {
+            return _capacity * sizeof(ValueType);
+        }
+
         [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
-            return libc::get_string_length(_data);
+            return _size;
+        }
+
+        [[nodiscard]] constexpr auto get_size_in_bytes() const noexcept -> usize {
+            return _size * sizeof(ValueType);
         }
 
         [[nodiscard]] constexpr auto get_data() noexcept -> Pointer {
@@ -156,12 +189,36 @@ namespace kstd {
 
         ~BasicString() noexcept = default;
 
+        [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {
+            if(_is_on_heap) {
+                return _heap.get_capacity();
+            }
+
+            return _small.get_capacity();
+        }
+
+        [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> usize {
+            if(_is_on_heap) {
+                return _heap.get_capacity_in_bytes();
+            }
+
+            return _small.get_capacity_in_bytes();
+        }
+
         [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
             if (_is_on_heap) {
                 return _heap.get_size();
             }
 
             return _small.get_size();
+        }
+
+        [[nodiscard]] constexpr auto get_size_in_bytes() const noexcept -> usize {
+            if (_is_on_heap) {
+                return _heap.get_size_in_bytes();
+            }
+
+            return _small.get_size_in_bytes();
         }
 
         [[nodiscard]] constexpr auto get_data() noexcept -> Pointer {
@@ -185,21 +242,15 @@ namespace kstd {
         }
     };
 
-    template<usize SIZE = sizeof(BasicHeapString<char, Allocator<char>>) / sizeof(char)> //
+    template<usize SIZE> //
     using SmallString = BasicSmallString<char, SIZE>;
 
-    template<usize SIZE = sizeof(BasicHeapString<wchar_t, Allocator<wchar_t>>) / sizeof(wchar_t)> //
+    template<usize SIZE> //
     using WSmallString = BasicSmallString<wchar_t, SIZE>;
 
-    template<typename ALLOCATOR = Allocator<char>> //
-    using HeapString = BasicHeapString<char, ALLOCATOR>;
+    using HeapString = BasicHeapString<char>;
+    using WHeapString = BasicHeapString<wchar_t>;
 
-    template<typename ALLOCATOR = Allocator<wchar_t>> //
-    using WHeapString = BasicHeapString<wchar_t, ALLOCATOR>;
-
-    template<typename ALLOCATOR = Allocator<char>> //
-    using String = BasicString<char, ALLOCATOR>;
-
-    template<typename ALLOCATOR = Allocator<wchar_t>> //
-    using WString = BasicString<wchar_t, ALLOCATOR>;
+    using String = BasicString<char>;
+    using WString = BasicString<wchar_t>;
 }

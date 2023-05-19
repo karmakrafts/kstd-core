@@ -136,32 +136,28 @@ namespace kstd::libc {
     }
 
     template<typename T>
+    constexpr auto copy_string(T* dst, const T* src, usize size) noexcept -> void {
+        if constexpr (meta::is_same<T, char>) {
+            return strcpy(dst, src);
+        }
+        else if constexpr (meta::is_same<T, wchar_t>) {
+            return wcscpy(dst, src);
+        }
+        else {
+            const auto dst_length = get_string_length(dst);
+            const auto src_length = get_string_length(src);
+            const auto length = min(dst_length, src_length);
+            memcpy(dst, src, (length + 1) * sizeof(T));
+        }
+    }
+
+    template<typename T>
     constexpr auto compare_string(const T* a, const T* b) noexcept -> i32 {
         if constexpr (meta::is_same<T, char>) {
             return strcmp(a, b);
         }
         else if constexpr (meta::is_same<T, wchar_t>) {
             return wcscmp(a, b);
-        }
-        else {
-            const auto a_length = get_string_length(a);
-            const auto b_length = get_string_length(b);
-
-            if (a_length != b_length) {
-                return static_cast<i32>(b_length - a_length); // Narrowing conversion -.-
-            }
-
-            return memcmp(a, b, a_length);
-        }
-    }
-
-    template<typename T>
-    constexpr auto compare_string(const T* a, const T* b, usize count) noexcept -> i32 {
-        if constexpr (meta::is_same<T, char>) {
-            return strncmp(a, b, count);
-        }
-        else if constexpr (meta::is_same<T, wchar_t>) {
-            return wcsncmp(a, b, count);
         }
         else {
             const auto a_length = get_string_length(a);

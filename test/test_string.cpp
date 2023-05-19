@@ -21,25 +21,28 @@
 #include <kstd/string.hpp>
 
 TEST(kstd_HeapString, TestAllocate) {
-
+    kstd::HeapString string;
 }
 
 TEST(kstd_HeapString, TestConcat) {
-
+    kstd::HeapString a;
+    kstd::HeapString b;
 }
 
 TEST(kstd_SmallString, TestAllocate) {
-
+    kstd::SmallString<128> string;
 }
 
 TEST(kstd_SmallString, TestConcat) {
-
+    kstd::SmallString<64> a;
+    kstd::SmallString<64> b;
 }
 
 TEST(kstd_String, TestAllocate) {
-
+    kstd::String string;
 }
 
 TEST(kstd_String, TestConcat) {
-
+    kstd::String a;
+    kstd::String b;
 }

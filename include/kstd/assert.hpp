@@ -36,7 +36,7 @@ namespace kstd {
                 const auto size = libc::strlen(data) + 1;
                 _data = static_cast<char*>(libc::malloc(size));
                 libc::memset(_data, 0, size);
-                libc::strcpy(_data, data); // Copy data to heap memory
+                libc::strncpy(_data, data, size); // Copy data to heap memory
             }
 
             inline AssertionMessage(const AssertionMessage& other) noexcept :
