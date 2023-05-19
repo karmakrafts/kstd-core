@@ -22,6 +22,22 @@
 #include "meta.hpp"
 
 namespace kstd {
+    namespace {
+        template<typename T, usize SIZE, usize INDEX>
+        constexpr auto _fill_array(T (& array)[SIZE], const T& value) noexcept -> void {
+            array[INDEX] = value;
+
+            if constexpr (INDEX < SIZE) {
+                _fill_array<T, SIZE, INDEX + 1>(array, value);
+            }
+        }
+    }
+
+    template<typename T, usize SIZE>
+    constexpr auto fill_array(T (& array)[SIZE], const T& value) noexcept -> void {
+        _fill_array<T, SIZE, 0>(array, value);
+    }
+
     template<typename T>
     [[nodiscard]] constexpr auto forward(T value) noexcept -> T {
         return value;

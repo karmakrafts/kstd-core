@@ -53,15 +53,16 @@ namespace kstd {
 
         using ValueType = T;
         using Self = Box<ValueType, def_if_ptr<ValueType>>;
+        using NakedValueType = meta::naked_type<ValueType>;
         using StoredValueType = ValueType;
-        using BorrowedValueType = ValueType;
-        using ConstBorrowedValueType = const ValueType;
-        using Pointer = ValueType;
-        using ConstPointer = const ValueType;
+        using ConstBorrowedValueType = const NakedValueType*;
+        using BorrowedValueType = meta::conditional<meta::is_const<ValueType>, ConstBorrowedValueType, NakedValueType*>;
+        using ConstPointer = const NakedValueType*;
+        using Pointer = meta::conditional<meta::is_const<ValueType>, ConstPointer, NakedValueType*>;
 
         private:
 
-        StoredValueType _value;
+        ValueType _value;
 
         public:
 
@@ -82,7 +83,7 @@ namespace kstd {
         constexpr auto drop() noexcept -> void {
         }
 
-        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto borrow_mut() noexcept -> BorrowedValueType {
             return _value;
         }
 
@@ -98,25 +99,28 @@ namespace kstd {
 
         constexpr auto operator =(Self&&) noexcept -> Self& = default;
 
-        constexpr auto operator =(ValueType value) noexcept -> Self& {
-            _value = value;
-            return *this;
-        }
-
-        [[nodiscard]] constexpr auto operator *() noexcept -> BorrowedValueType {
-            return borrow();
-        }
-
-        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstBorrowedValueType { // NOLINT
-            return borrow();
-        }
-
         [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
-            return borrow();
+            return _value;
         }
 
         [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer { // NOLINT
-            return borrow();
+            return _value;
+        }
+
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+            return _value == other._value;
+        }
+
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+            return _value != other._value;
+        }
+
+        [[nodiscard]] constexpr auto operator ==(ConstPointer pointer) const noexcept -> bool {
+            return _value == pointer;
+        }
+
+        [[nodiscard]] constexpr auto operator !=(ConstPointer pointer) const noexcept -> bool {
+            return _value != pointer;
         }
     };
 
@@ -132,10 +136,10 @@ namespace kstd {
         using Self = Box<T, def_if_ref<T>>;
         using ValueType = T;
         using NakedValueType = meta::naked_type<ValueType>;
-        using BorrowedValueType = ValueType;
-        using ConstBorrowedValueType = const ValueType;
-        using Pointer = NakedValueType*;
+        using ConstBorrowedValueType = const NakedValueType&;
+        using BorrowedValueType = meta::conditional<meta::is_const<ValueType>, ConstBorrowedValueType, NakedValueType&>;
         using ConstPointer = const NakedValueType*;
+        using Pointer = meta::conditional<meta::is_const<ValueType>, ConstPointer, NakedValueType*>;
         using StoredValueType = meta::conditional<meta::is_const<ValueType>, ConstPointer, Pointer>;
 
         private:
@@ -161,7 +165,7 @@ namespace kstd {
         constexpr auto drop() noexcept -> void {
         }
 
-        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto borrow_mut() noexcept -> BorrowedValueType {
             return *_value;
         }
 
@@ -177,25 +181,28 @@ namespace kstd {
 
         constexpr auto operator =(Self&&) noexcept -> Self& = default;
 
-        constexpr auto operator =(ValueType value) noexcept -> Self& {
-            _value = &value;
-            return *this;
-        }
-
-        [[nodiscard]] constexpr auto operator *() noexcept -> BorrowedValueType {
-            return *_value;
-        }
-
-        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstBorrowedValueType { // NOLINT
-            return *_value;
-        }
-
         [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return _value;
         }
 
         [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return _value;
+        }
+
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+            return _value == other._value;
+        }
+
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+            return _value != other._value;
+        }
+
+        [[nodiscard]] constexpr auto operator ==(ConstBorrowedValueType ref) const noexcept -> bool {
+            return _value == &ref;
+        }
+
+        [[nodiscard]] constexpr auto operator !=(ConstBorrowedValueType ref) const noexcept -> bool {
+            return _value != &ref;
         }
     };
 
@@ -214,10 +221,10 @@ namespace kstd {
 
         using Self = Box<T, def_if_val<T>>;
         using ValueType = T;
-        using BorrowedValueType = ValueType&;
         using ConstBorrowedValueType = const ValueType&;
-        using Pointer = ValueType*;
+        using BorrowedValueType = meta::conditional<meta::is_const<ValueType>, ConstBorrowedValueType, ValueType&>;
         using ConstPointer = const ValueType*;
+        using Pointer = meta::conditional<meta::is_const<ValueType>, ConstPointer, ValueType*>;
 
         private:
 
@@ -255,7 +262,7 @@ namespace kstd {
             }
         }
 
-        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto borrow_mut() noexcept -> BorrowedValueType {
             return _value;
         }
 
@@ -279,26 +286,28 @@ namespace kstd {
             return *this;
         }
 
-        constexpr auto operator =(ValueType value) noexcept -> Self& {
-            drop();
-            _value = move(value);
-            return *this;
-        }
-
-        [[nodiscard]] constexpr auto operator *() noexcept -> BorrowedValueType {
-            return _value;
-        }
-
-        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstBorrowedValueType {
-            return _value;
-        }
-
         [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return _value;
         }
 
         [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return _value;
+        }
+
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+            return _value == other._value;
+        }
+
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+            return _value != other._value;
+        }
+
+        [[nodiscard]] constexpr auto operator ==(const ValueType& value) const noexcept -> bool {
+            return _value == value;
+        }
+
+        [[nodiscard]] constexpr auto operator !=(const ValueType& value) const noexcept -> bool {
+            return _value != value;
         }
     };
 

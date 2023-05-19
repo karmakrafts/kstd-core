@@ -83,7 +83,7 @@ namespace kstd {
             template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
             [[nodiscard]] constexpr auto _get(TupleInner<HEAD, TAIL...>& inner) noexcept -> meta::lvalue_ref<meta::pack_element<INDEX, Types>> {
                 if constexpr (CURRENT == INDEX) {
-                    return *inner._head;
+                    return inner._head.borrow_mut();
                 }
                 else {
                     return _get<INDEX, CURRENT + 1, TAIL...>(inner._tail);
@@ -93,7 +93,7 @@ namespace kstd {
             template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
             [[nodiscard]] constexpr auto _get(const TupleInner<HEAD, TAIL...>& inner) const noexcept -> meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> { // NOLINT
                 if constexpr (CURRENT == INDEX) {
-                    return *inner._head;
+                    return inner._head.borrow();
                 }
                 else {
                     return _get<INDEX, CURRENT + 1, TAIL...>(inner._tail);
@@ -106,6 +106,34 @@ namespace kstd {
 
                 if constexpr (INDEX < (END - BEGIN)) {
                     _slice<BEGIN, END, INDEX + 1>(tuple);
+                }
+            }
+
+            template<usize CURRENT, typename HEAD, typename... TAIL>
+            constexpr auto _equals(const TupleInner<HEAD, TAIL...>& a, const TupleInner<HEAD, TAIL...>& b, bool& result) const noexcept -> void {
+                if constexpr (meta::has_equals_op<HEAD>) {
+                    result = result && (a._head == b._head);
+                }
+                else {
+                    result = result && !(a._head != b._head); // NOLINT
+                }
+
+                if constexpr (CURRENT < num_values - 1) {
+                    _equals<CURRENT + 1, TAIL...>(a._tail, b._tail, result);
+                }
+            }
+
+            template<usize CURRENT, typename HEAD, typename... TAIL>
+            constexpr auto _not_equals(const TupleInner<HEAD, TAIL...>& a, const TupleInner<HEAD, TAIL...>& b, bool& result) const noexcept -> void {
+                if constexpr (meta::has_not_equals_op<HEAD>) {
+                    result = result || (a._head != b._head);
+                }
+                else {
+                    result = result || !(a._head == b._head); // NOLINT
+                }
+
+                if constexpr (CURRENT < num_values - 1) {
+                    _equals<CURRENT + 1, TAIL...>(a._tail, b._tail, result);
                 }
             }
 
@@ -131,7 +159,7 @@ namespace kstd {
             }
 
             template<usize INDEX>
-            [[nodiscard]] constexpr auto get() const noexcept -> const meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> { // NOLINT
+            [[nodiscard]] constexpr auto get() const noexcept -> meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> {
                 return _get<INDEX, 0, TYPES...>(_inner);
             }
 
@@ -140,6 +168,18 @@ namespace kstd {
                 TupleImpl<meta::slice_pack<BEGIN, END, Types>> result;
                 _slice<BEGIN, END, 0>(result);
                 return result;
+            }
+
+            [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+                bool result = true;
+                _equals<0>(_inner, other._inner, result);
+                return result;
+            }
+
+            [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+                bool result = false;
+                _not_equals<0>(_inner, other._inner, result);
+                return !result;
             }
         };
     }

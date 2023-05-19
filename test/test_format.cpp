@@ -14,17 +14,12 @@
 
 /**
  * @author Alexander Hinze
- * @since 05/05/2023
+ * @since 19/05/2023
  */
 
-#pragma once
+#include <gtest/gtest.h>
+#include <kstd/format.hpp>
 
-#include "types.hpp"
-
-namespace kstd {
-    template<typename CHAR> //
-    struct BasicStringSlice;
-
-    template<typename CHAR, template<typename> typename ALLOCATOR> //
-    struct BasicString;
+TEST(kstd, TestFormat) {
+    const auto str = kstd::format("");
 }

@@ -23,11 +23,36 @@
 #include <cstring>
 #include <cstdio>
 #include <cwchar>
+
 #include "meta.hpp"
 #include "types.hpp"
 #include "math.hpp"
 
 namespace kstd::libc {
+    namespace iob {
+        // @formatter:off
+        #if defined(PLATFORM_LINUX)
+        inline auto out = stdout;
+        inline auto err = stderr;
+        inline auto in = stdin;
+        #elif defined(PLATFORM_WINDOWS)
+        inline auto out = ::__acrt_iob_func(1);
+        inline auto err = ::__acrt_iob_func(2);
+        inline auto in = ::__acrt_iob_func(0);
+        #else
+            #ifdef __DARWIN_UNIX03
+            inline auto out = ::__stdoutp;
+            inline auto err = ::__stderrp;
+            inline auto in = ::__stdinp;
+            #else
+            inline auto out = &::__sF[1];
+            inline auto err = &::__sF[2];
+            inline auto in = &::__sF[0];
+            #endif
+        #endif
+        // @formatter:on
+    }
+
     using std::exit;
 
     using std::malloc;
@@ -75,30 +100,6 @@ namespace kstd::libc {
     using std::fwprintf;
     using std::swprintf;
 
-    namespace iob {
-        // @formatter:off
-        #if defined(PLATFORM_LINUX)
-        inline auto out = ::stdout;
-        inline auto err = ::stderr;
-        inline auto in = ::stdin;
-        #elif defined(PLATFORM_WINDOWS)
-        inline auto out = ::__acrt_iob_func(1);
-        inline auto err = ::__acrt_iob_func(2);
-        inline auto in = ::__acrt_iob_func(0);
-        #else
-            #ifdef __DARWIN_UNIX03
-            inline auto out = ::__stdoutp;
-            inline auto err = ::__stderrp;
-            inline auto in = ::__stdinp;
-            #else
-            inline auto out = &::__sF[1];
-            inline auto err = &::__sF[2];
-            inline auto in = &::__sF[0];
-            #endif
-        #endif
-        // @formatter:on
-    }
-
     template<typename T>
     [[nodiscard]] constexpr auto get_string_length(const T* str) noexcept -> usize {
         if constexpr (meta::is_same<T, char>) {
@@ -135,12 +136,66 @@ namespace kstd::libc {
     }
 
     template<typename T>
+    constexpr auto compare_string(const T* a, const T* b) noexcept -> i32 {
+        if constexpr (meta::is_same<T, char>) {
+            return strcmp(a, b);
+        }
+        else if constexpr (meta::is_same<T, wchar_t>) {
+            return wcscmp(a, b);
+        }
+        else {
+            const auto a_length = get_string_length(a);
+            const auto b_length = get_string_length(b);
+
+            if (a_length != b_length) {
+                return static_cast<i32>(b_length - a_length); // Narrowing conversion -.-
+            }
+
+            return memcmp(a, b, a_length);
+        }
+    }
+
+    template<typename T>
+    constexpr auto compare_string(const T* a, const T* b, usize count) noexcept -> i32 {
+        if constexpr (meta::is_same<T, char>) {
+            return strncmp(a, b, count);
+        }
+        else if constexpr (meta::is_same<T, wchar_t>) {
+            return wcsncmp(a, b, count);
+        }
+        else {
+            const auto a_length = get_string_length(a);
+            const auto b_length = get_string_length(b);
+
+            if (a_length != b_length) {
+                return static_cast<i32>(b_length - a_length); // Narrowing conversion -.-
+            }
+
+            return memcmp(a, b, a_length);
+        }
+    }
+
+    template<typename T>
+    constexpr auto concat_string(T* dst, const T* src) noexcept -> T* {
+        if constexpr (meta::is_same<T, char>) {
+            return strcat(dst, src);
+        }
+        else if constexpr (meta::is_same<T, wchar_t>) {
+            return wcscat(dst, src);
+        }
+        else {
+            memcpy(dst + get_string_length(dst), src, get_string_length(src) + 1);
+            return dst;
+        }
+    }
+
+    template<typename T>
     constexpr auto zero(T* ptr) noexcept -> void {
-        libc::memset(ptr, 0, sizeof(T));
+        memset(ptr, 0, sizeof(T));
     }
 
     template<typename T>
     constexpr auto zero(T& ptr) noexcept -> void {
-        libc::memset(&ptr, 0, sizeof(T));
+        memset(&ptr, 0, sizeof(T));
     }
 }

@@ -205,15 +205,15 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto borrow_value() noexcept -> BorrowedValueType {
-            assert_true(!is_error(), "Result has no value");
+            assert_true(!is_error());
 
             if constexpr (!is_void) {
-                return _inner._value.borrow();
+                return _inner._value.borrow_mut();
             }
         }
 
-        [[nodiscard]] constexpr auto get_value() noexcept -> decltype(auto) {
-            assert_true(!is_error(), "Result has no value");
+        [[nodiscard]] constexpr auto unwrap() noexcept -> decltype(auto) {
+            assert_true(!is_error());
             _type = ResultType::EMPTY;
 
             if constexpr (!is_void) {
@@ -222,13 +222,13 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E {
-            assert_true(is_error(), "Result has no error");
+            assert_true(is_error());
             return _inner._error;
         }
 
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
-            assert_true(is_error(), "Result has no error");
+            assert_true(is_error());
             return Result<TT, E>(Error<E>(move_or_copy(_inner._error)));
         }
 

@@ -14,26 +14,20 @@
 
 /**
  * @author Alexander Hinze
- * @since 10/05/2023
+ * @since 19/05/2023
  */
 
-#include <gtest/gtest.h>
-#include <kstd/box.hpp>
+#pragma once
 
-TEST(kstd_Box, TestValue) {
-    kstd::i32 x = 1337;
-    kstd::Box<kstd::i32> val_box(x);
-    ASSERT_EQ(val_box.borrow(), x);
-}
+#include "meta.hpp"
+#include "string.hpp"
+#include "string_slice.hpp"
 
-TEST(kstd_Box, TestReference) {
-    kstd::i32 x = 1337;
-    kstd::Box<kstd::i32&> ref_box(x);
-    ASSERT_EQ(ref_box.borrow(), x);
-}
+namespace kstd {
+    template<typename ALLOCATOR = Allocator<char>, typename... ARGS>
+    [[nodiscard]] constexpr auto format(StringSlice format, ARGS&& ... args) noexcept -> String<ALLOCATOR> {
+        String<ALLOCATOR> result;
 
-TEST(kstd_Box, TestPointer) {
-    kstd::i32 x = 1337;
-    kstd::Box<kstd::i32*> ptr_box(&x);
-    ASSERT_EQ(*ptr_box.borrow(), x);
+        return result;
+    }
 }

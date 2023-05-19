@@ -19,3 +19,27 @@
 
 #include <gtest/gtest.h>
 #include <kstd/string.hpp>
+
+TEST(kstd_HeapString, TestAllocate) {
+
+}
+
+TEST(kstd_HeapString, TestConcat) {
+
+}
+
+TEST(kstd_SmallString, TestAllocate) {
+
+}
+
+TEST(kstd_SmallString, TestConcat) {
+
+}
+
+TEST(kstd_String, TestAllocate) {
+
+}
+
+TEST(kstd_String, TestConcat) {
+
+}

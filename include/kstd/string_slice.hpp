@@ -20,7 +20,6 @@
 #pragma once
 
 #include "libc.hpp"
-#include "string_fwd.hpp"
 #include "types.hpp"
 #include "allocator.hpp"
 #include "assert.hpp"
@@ -77,13 +76,13 @@ namespace kstd {
             return _size == 0;
         }
 
-        [[nodiscard]] constexpr auto sub_slice(SizeType begin, SizeType end) const noexcept -> Self {
-            assert_false(begin >= _size || end >= _size || end > begin, "Index out of bounds");
+        [[nodiscard]] constexpr auto slice(SizeType begin, SizeType end) const noexcept -> Self {
+            assert_false(begin >= _size || end >= _size || end > begin);
             return Self(_data + begin, _data + end);
         }
 
         [[nodiscard]] constexpr auto operator [](SizeType index) const noexcept -> ValueType {
-            assert_false(index >= _size, "Index out of bounds");
+            assert_false(index >= _size);
             return _data[index];
         }
 

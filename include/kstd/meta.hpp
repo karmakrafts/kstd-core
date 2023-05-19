@@ -40,11 +40,11 @@ namespace kstd::meta {
 
     struct False : public Constant<bool, false> {};
 
-    // uninitialized
+    // uneval
 
     template<typename T>
-    [[nodiscard]] constexpr auto uninitialized() noexcept -> T {
-        throw; // NOLINT: Terminate with exception
+    [[nodiscard]] constexpr auto uneval() noexcept -> T {
+        return *reinterpret_cast<T*>(nullptr);
     }
 
     // is_standard_layout
@@ -133,7 +133,7 @@ namespace kstd::meta {
     struct IsDestructible : public False {};
 
     template<typename T>
-    struct IsDestructible<T, decltype(uninitialized<T>().~T())> : public True {};
+    struct IsDestructible<T, decltype(uneval<T>().~T())> : public True {};
     #else
     template<typename T>
     struct IsDestructible final {
@@ -395,21 +395,6 @@ namespace kstd::meta {
         using Type = T;
     };
 
-    template<typename T>
-    struct RemoveRef<const T&> {
-        using Type = T;
-    };
-
-    template<typename T>
-    struct RemoveRef<T&&> {
-        using Type = T;
-    };
-
-    template<typename T>
-    struct RemoveRef<const T&&> {
-        using Type = T;
-    };
-
     template<typename T> //
     using remove_ref = typename RemoveRef<T>::Type;
 
@@ -421,22 +406,7 @@ namespace kstd::meta {
     };
 
     template<typename T>
-    struct RemovePtr<T*> {
-        using Type = T;
-    };
-
-    template<typename T>
-    struct RemovePtr<const T*> {
-        using Type = T;
-    };
-
-    template<typename T>
-    struct RemovePtr<volatile T*> {
-        using Type = T;
-    };
-
-    template<typename T>
-    struct RemovePtr<const volatile T*> {
+    struct RemovePtr<T*> : public RemovePtr<T> { // Recursively remove pointers
         using Type = T;
     };
 
@@ -527,7 +497,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct LValueRef final {
-        using Type = conditional<is_ptr<T> || is_lvalue_ref<T>, T, T&>;
+        using Type = conditional<is_ptr<T> || is_lvalue_ref<T>, T, naked_type<T>&>;
     };
 
     template<typename T> //
@@ -537,7 +507,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct ConstLValueRef final {
-        using Type = conditional<is_ptr<T> || is_lvalue_ref<T>, T, const T&>;
+        using Type = conditional<is_ptr<T>, T, const naked_type<T>&>;
     };
 
     template<typename T> //
@@ -547,7 +517,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct RValueRef final {
-        using Type = conditional<is_ptr<T> || is_rvalue_ref<T>, T, T&&>;
+        using Type = conditional<is_ptr<T>, T, naked_type<T>&&>;
     };
 
     template<typename T> //
@@ -582,6 +552,188 @@ namespace kstd::meta {
 
     template<typename T> //
     using add_ptr = typename AddPtr<T>::Type;
+
+    // has_add_op
+
+    template<typename T, typename = void>
+    struct HasAddOp : public False {};
+
+    template<typename T>
+    struct HasAddOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() + uneval<T>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_add_op = HasAddOp<T>::value;
+
+    static_assert(!has_add_op<void>);
+    static_assert(has_add_op<i32>);
+
+    // has_sub_op
+
+    template<typename T, typename = void>
+    struct HasSubOp : public False {};
+
+    template<typename T>
+    struct HasSubOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() - uneval<T>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_sub_op = HasSubOp<T>::value;
+
+    static_assert(!has_sub_op<void>);
+    static_assert(has_sub_op<i32>);
+
+    // has_mul_op
+
+    template<typename T, typename = void>
+    struct HasMulOp : public False {};
+
+    template<typename T>
+    struct HasMulOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() * uneval<T>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_mul_op = HasMulOp<T>::value;
+
+    static_assert(!has_mul_op<void>);
+    static_assert(has_mul_op<i32>);
+
+    // has_div_op
+
+    template<typename T, typename = void>
+    struct HasDivOp : public False {};
+
+    template<typename T>
+    struct HasDivOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() / uneval<T>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_div_op = HasDivOp<T>::value;
+
+    static_assert(!has_div_op<void>);
+    static_assert(has_div_op<i32>);
+
+    // has_mod_op
+
+    template<typename T, typename = void>
+    struct HasModOp : public False {};
+
+    template<typename T>
+    struct HasModOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() % uneval<T>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_mod_op = HasModOp<T>::value;
+
+    static_assert(!has_mod_op<void>);
+    static_assert(has_mod_op<i32>);
+
+    // has_shl_op
+
+    template<typename T, typename = void>
+    struct HasShlOp : public False {};
+
+    template<typename T>
+    struct HasShlOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() << uneval<i32>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_shl_op = HasShlOp<T>::value;
+
+    static_assert(!has_shl_op<void>);
+    static_assert(has_shl_op<i32>);
+
+    // has_shr_op
+
+    template<typename T, typename = void>
+    struct HasShrOp : public False {};
+
+    template<typename T>
+    struct HasShrOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() >> uneval<i32>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_shr_op = HasShrOp<T>::value;
+
+    static_assert(!has_shr_op<void>);
+    static_assert(has_shr_op<i32>);
+
+    // has_and_op
+
+    template<typename T, typename = void>
+    struct HasAndOp : public False {};
+
+    template<typename T>
+    struct HasAndOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() & uneval<T>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_and_op = HasAndOp<T>::value;
+
+    static_assert(!has_and_op<void>);
+    static_assert(has_and_op<i32>);
+
+    // has_or_op
+
+    template<typename T, typename = void>
+    struct HasOrOp : public False {};
+
+    template<typename T>
+    struct HasOrOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() | uneval<T>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_or_op = HasOrOp<T>::value;
+
+    static_assert(!has_or_op<void>);
+    static_assert(has_or_op<i32>);
+
+    // has_xor_op
+
+    template<typename T, typename = void>
+    struct HasXorOp : public False {};
+
+    template<typename T>
+    struct HasXorOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() ^ uneval<T>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_xor_op = HasXorOp<T>::value;
+
+    static_assert(!has_xor_op<void>);
+    static_assert(has_xor_op<i32>);
+
+    // has_inv_op
+
+    template<typename T, typename = void>
+    struct HasInvOp : public False {};
+
+    template<typename T>
+    struct HasInvOp<T, def_if<is_same<T, naked_type<decltype(~uneval<T>())>>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_inv_op = HasInvOp<T>::value;
+
+    static_assert(!has_inv_op<void>);
+    static_assert(has_inv_op<i32>);
+
+    // has_equals_op
+
+    template<typename T, typename = void>
+    struct HasEqualsOp : public False {};
+
+    template<typename T>
+    struct HasEqualsOp<T, def_if<is_same<naked_type<decltype(uneval<T>() == uneval<T>())>, bool>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_equals_op = HasEqualsOp<T>::value;
+
+    static_assert(!has_equals_op<void>);
+    static_assert(has_equals_op<i32>);
+
+    // has_not_equals_op
+
+    template<typename T, typename = void>
+    struct HasNotEqualsOp : public False {};
+
+    template<typename T>
+    struct HasNotEqualsOp<T, def_if<is_same<naked_type<decltype(uneval<T>() != uneval<T>())>, bool>>> : public True {};
+
+    template<typename T> //
+    constexpr bool has_not_equals_op = HasNotEqualsOp<T>::value;
+
+    static_assert(!has_not_equals_op<void>);
+    static_assert(has_not_equals_op<i32>);
 
     // Pack
 

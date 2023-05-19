@@ -42,15 +42,16 @@ namespace kstd {
     template<typename T, typename IMPL>
     struct BasicAllocator {
         using ValueType = T;
+        using Implementation = IMPL;
 
-        [[nodiscard]] constexpr auto get_self() noexcept -> IMPL& {
-            return static_cast<IMPL&>(*this);
+        [[nodiscard]] constexpr auto get_self() noexcept -> Implementation& {
+            return static_cast<Implementation&>(*this);
         }
 
         template<typename... ARGS>
         [[nodiscard]] constexpr auto construct(ARGS&& ... args) noexcept -> T* {
             auto* memory = get_self().allocate(1);
-            assert_true(memory != nullptr, "Could not allocate memory");
+            assert_true(memory != nullptr);
             new(memory) T(forward<ARGS>(args)...);
             return memory;
         }
@@ -73,8 +74,22 @@ namespace kstd {
             return reinterpret_cast<T*>(KSTD_MEMORY_ALLOC_FN(sizeof(ValueType) * count));
         }
 
+        [[nodiscard, maybe_unused]] constexpr auto allocate_zero(usize count) noexcept -> T* {
+            const auto size = sizeof(ValueType) * count;
+            auto* memory = reinterpret_cast<T*>(KSTD_MEMORY_ALLOC_FN(size));
+            libc::memset(memory, 0, size);
+            return memory;
+        }
+
         constexpr auto deallocate(T* ptr, [[maybe_unused]] usize count) noexcept -> void {
             return KSTD_MEMORY_FREE_FN(ptr);
+        }
+    };
+
+    template<typename T, typename ALLOCATOR = Allocator<T>>
+    struct Deleter final {
+        constexpr auto operator ()(T* memory) noexcept -> void {
+            ALLOCATOR().destroy(memory);
         }
     };
 }

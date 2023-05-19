@@ -23,7 +23,7 @@
 using namespace kstd;
 
 TEST(kstd, TestAssertSuccess) {
-    assert_true(false);
+    assert_true(true);
 }
 
 TEST(kstd, TestAssertFail) {

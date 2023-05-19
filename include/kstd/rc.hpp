@@ -21,6 +21,7 @@
 
 #include "types.hpp"
 #include "allocator.hpp"
+#include "assert.hpp"
 
 namespace kstd {
     namespace {
@@ -37,14 +38,26 @@ namespace kstd {
 
             ~RcInner() noexcept = default;
         };
+
+        template<typename T, typename COUNTER_TYPE>
+        struct NullableRcInner final {
+            T* value;
+            COUNTER_TYPE count;
+
+            explicit constexpr NullableRcInner(T* pointer) noexcept :
+                    value(pointer),
+                    count() {
+            }
+
+            ~NullableRcInner() noexcept = default;
+        };
     }
 
-    template<typename T, typename COUNTER_TYPE, template<typename> typename ALLOCATOR> //
+    template<typename T, typename COUNTER_TYPE, template<typename> typename ALLOCATOR = Allocator> //
     struct BasicRc final {
         using ElementType = T;
         using CounterType = COUNTER_TYPE;
         using InnerType = RcInner<ElementType, CounterType>;
-        using Allocator = ALLOCATOR<InnerType>;
         using Self = BasicRc<ElementType, CounterType, ALLOCATOR>;
 
         private:
@@ -55,7 +68,7 @@ namespace kstd {
 
         template<typename... ARGS>
         explicit constexpr BasicRc(ARGS&& ... args) noexcept :
-                _inner(Allocator().construct(forward<ARGS>(args)...)) {
+                _inner(ALLOCATOR<InnerType>().construct(forward<ARGS>(args)...)) {
         }
 
         constexpr BasicRc(const Self& other) noexcept :
@@ -69,18 +82,12 @@ namespace kstd {
         }
 
         ~BasicRc() noexcept {
-            drop();
-        }
-
-        constexpr auto drop() noexcept -> void {
-            if (_inner != nullptr) {
-                if (_inner->count > 0) {
-                    --_inner->count;
-                }
-                else {
-                    Allocator().destroy(_inner);
-                    _inner = nullptr; // Avoid dangling pointer
-                }
+            if (_inner->count > 0) {
+                --_inner->count;
+            }
+            else {
+                ALLOCATOR<InnerType>().destroy(_inner);
+                _inner = nullptr; // Avoid dangling pointer
             }
         }
 
@@ -89,22 +96,27 @@ namespace kstd {
         constexpr auto operator =(Self&& other) noexcept -> Self& = delete;
 
         [[nodiscard]] constexpr auto get_count() const noexcept -> usize {
+            assert_true(_inner != nullptr);
             return static_cast<usize>(_inner->count);
         }
 
         [[nodiscard]] constexpr auto operator *() noexcept -> T& {
+            assert_true(_inner != nullptr);
             return _inner->value;
         }
 
         [[nodiscard]] constexpr auto operator *() const noexcept -> const T& {
+            assert_true(_inner != nullptr);
             return _inner->value;
         }
 
         [[nodiscard]] constexpr auto operator ->() noexcept -> T* {
+            assert_true(_inner != nullptr);
             return &_inner->value;
         }
 
         [[nodiscard]] constexpr auto operator ->() const noexcept -> const T* {
+            assert_true(_inner != nullptr);
             return &_inner->value;
         }
 
@@ -117,11 +129,116 @@ namespace kstd {
         }
     };
 
+    template<typename T, typename COUNTER_TYPE, template<typename> typename ALLOCATOR = Allocator, typename DELETER = Deleter<T, ALLOCATOR<T>>> //
+    struct BasicNullableRc final {
+        using ElementType = T;
+        using CounterType = COUNTER_TYPE;
+        using InnerType = NullableRcInner<ElementType, CounterType>;
+        using Allocator = ALLOCATOR<ElementType>;
+        using Deleter = DELETER;
+        using Self = BasicNullableRc<ElementType, CounterType, ALLOCATOR>;
+
+        private:
+
+        InnerType* _inner;
+
+        public:
+
+        constexpr BasicNullableRc() noexcept :
+                _inner(nullptr) {
+        }
+
+        explicit constexpr BasicNullableRc(ElementType* pointer) noexcept :
+                _inner(pointer) {
+        }
+
+        constexpr BasicNullableRc(const Self& other) noexcept :
+                _inner(other._inner) {
+            ++_inner->count;
+        }
+
+        constexpr BasicNullableRc(Self&& other) noexcept :
+                _inner(other._inner) {
+            // Count stays the same
+        }
+
+        ~BasicNullableRc() noexcept {
+            drop();
+        }
+
+        constexpr auto operator =(const Self& other) noexcept -> Self& = delete;
+
+        constexpr auto operator =(Self&& other) noexcept -> Self& = delete;
+
+        constexpr auto drop() noexcept -> void {
+            if (_inner != nullptr) {
+                if (_inner->count > 0) {
+                    --_inner->count;
+                }
+                else {
+                    Deleter()(_inner->value);
+                    ALLOCATOR<InnerType>().destroy(_inner);
+                    _inner = nullptr; // Avoid dangling pointer
+                }
+            }
+        }
+
+        [[nodiscard]] constexpr auto get_count() const noexcept -> usize {
+            if (_inner == nullptr) {
+                return 0;
+            }
+
+            return static_cast<usize>(_inner->count);
+        }
+
+        [[nodiscard]] constexpr auto operator *() noexcept -> T& {
+            assert_true(_inner != nullptr);
+            return _inner->value;
+        }
+
+        [[nodiscard]] constexpr auto operator *() const noexcept -> const T& {
+            assert_true(_inner != nullptr);
+            return _inner->value;
+        }
+
+        [[nodiscard]] constexpr auto operator ->() noexcept -> T* {
+            assert_true(_inner != nullptr);
+            return &_inner->value;
+        }
+
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> const T* {
+            assert_true(_inner != nullptr);
+            return &_inner->value;
+        }
+
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+            return _inner == other._inner;
+        }
+
+        [[nodiscard]] constexpr auto operator ==(decltype(nullptr)) const noexcept -> bool {
+            return _inner == nullptr;
+        }
+
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+            return _inner != other._inner;
+        }
+
+        [[nodiscard]] constexpr auto operator !=(decltype(nullptr)) const noexcept -> bool {
+            return _inner != nullptr;
+        }
+    };
+
     template<typename T, template<typename> typename ALLOCATOR = Allocator> //
     using Rc = BasicRc<T, usize, ALLOCATOR>;
 
     template<typename T, template<typename> typename ALLOCATOR = Allocator> //
+    using NullableRc = BasicNullableRc<T, usize, ALLOCATOR>;
+
+    template<typename T, template<typename> typename ALLOCATOR = Allocator> //
     using Arc = BasicRc<T, Atomic<usize>, ALLOCATOR>;
+
+    template<typename T, template<typename> typename ALLOCATOR = Allocator> //
+    using NullableArc = BasicNullableRc<T, Atomic<usize>, ALLOCATOR>;
 
     template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
     [[nodiscard]] constexpr auto make_rc(ARGS&& ... args) noexcept -> Rc<T, ALLOCATOR> {
@@ -129,7 +246,17 @@ namespace kstd {
     }
 
     template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
+    [[nodiscard]] constexpr auto make_nullable_rc(ARGS&& ... args) noexcept -> NullableRc<T, ALLOCATOR> {
+        return NullableRc<T, ALLOCATOR>(ALLOCATOR<T>().construct(forward<ARGS>(args)...));
+    }
+
+    template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
     [[nodiscard]] constexpr auto make_arc(ARGS&& ... args) noexcept -> Arc<T, ALLOCATOR> {
         return Arc<T, ALLOCATOR>(forward<ARGS>(args)...);
+    }
+
+    template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
+    [[nodiscard]] constexpr auto make_nullable_arc(ARGS&& ... args) noexcept -> NullableArc<T, ALLOCATOR> {
+        return NullableArc<T, ALLOCATOR>(ALLOCATOR<T>().construct(forward<ARGS>(args)...));
     }
 }
