@@ -49,6 +49,20 @@ TEST(kstd_Tuple, TestValues) {
 
     kstd::Pair<kstd::i32, kstd::f32> pair3(13, 3.1F);
     ASSERT_TRUE(pair != pair3);
+
+    // Concat
+    const auto quad = pair + pair;
+    const auto& [qx, qy, qz, qw] = quad;
+
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(qx)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(qy)>, kstd::f32>);
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(qz)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(qw)>, kstd::f32>);
+
+    ASSERT_EQ(qx, 1337);
+    ASSERT_EQ(qy, 3.141F);
+    ASSERT_EQ(qz, 1337);
+    ASSERT_EQ(qw, 3.141F);
 }
 
 TEST(kstd_Tuple, TestReferences) {
@@ -84,6 +98,20 @@ TEST(kstd_Tuple, TestReferences) {
     kstd::f32 b2 = 3.1F;
     kstd::Pair<kstd::i32&, kstd::f32&> pair3(a2, b2);
     ASSERT_TRUE(pair != pair3);
+
+    // Concat
+    auto quad = pair + pair;
+    auto& [qx, qy, qz, qw] = quad;
+
+    static_assert(kstd::meta::is_same<decltype(qx), kstd::i32>);
+    static_assert(kstd::meta::is_same<decltype(qy), kstd::f32>);
+    static_assert(kstd::meta::is_same<decltype(qz), kstd::i32>);
+    static_assert(kstd::meta::is_same<decltype(qw), kstd::f32>);
+
+    ASSERT_EQ(qx, 1337);
+    ASSERT_EQ(qy, 3.141F);
+    ASSERT_EQ(qz, 1337);
+    ASSERT_EQ(qw, 3.141F);
 }
 
 TEST(kstd_Tuple, TestPointers) {
@@ -117,6 +145,20 @@ TEST(kstd_Tuple, TestPointers) {
 
     kstd::Pair<kstd::i32*, kstd::f32*> pair3(&a, nullptr);
     ASSERT_TRUE(pair != pair3);
+
+    // Concat
+    auto quad = pair + pair;
+    auto& [qx, qy, qz, qw] = quad;
+
+    static_assert(kstd::meta::is_same<decltype(qx), kstd::i32*>);
+    static_assert(kstd::meta::is_same<decltype(qy), kstd::f32*>);
+    static_assert(kstd::meta::is_same<decltype(qz), kstd::i32*>);
+    static_assert(kstd::meta::is_same<decltype(qw), kstd::f32*>);
+
+    ASSERT_EQ(*qx, 1337);
+    ASSERT_EQ(*qy, 3.141F);
+    ASSERT_EQ(*qz, 1337);
+    ASSERT_EQ(*qw, 3.141F);
 }
 
 TEST(kstd_Tuple, TestSlice) {

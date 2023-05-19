@@ -34,6 +34,10 @@ namespace kstd {
         using Self = Option<T>;
         using ValueType = T;
         using InnerType = Box<ValueType>;
+        using BorrowedValueType = typename InnerType::BorrowedValueType;
+        using ConstBorrowedValueType = typename InnerType::ConstBorrowedValueType;
+        using Pointer = typename InnerType::Pointer;
+        using ConstPointer = typename InnerType::ConstPointer;
 
         private:
 
@@ -115,7 +119,17 @@ namespace kstd {
             return _is_present;
         }
 
-        [[nodiscard]] constexpr auto borrow() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto borrow_mut() noexcept -> BorrowedValueType {
+            #ifdef BUILD_DEBUG
+            if (is_empty()) {
+                throw std::runtime_error("Result has no value");
+            }
+            #endif
+
+            return _inner.borrow_mut();
+        }
+
+        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
@@ -139,11 +153,19 @@ namespace kstd {
             return has_value();
         }
 
-        [[nodiscard]] constexpr auto operator *() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto operator *() noexcept -> BorrowedValueType {
             return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstBorrowedValueType {
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
+            return &borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return &borrow();
         }
     };

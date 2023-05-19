@@ -208,7 +208,7 @@ namespace kstd {
             assert_true(!is_error());
 
             if constexpr (!is_void) {
-                return _inner._value.borrow_mut();
+                return _inner._value.borrow();
             }
         }
 

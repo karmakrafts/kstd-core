@@ -406,7 +406,7 @@ namespace kstd::meta {
     };
 
     template<typename T>
-    struct RemovePtr<T*> : public RemovePtr<T> { // Recursively remove pointers
+    struct RemovePtr<T*> {
         using Type = T;
     };
 
@@ -497,7 +497,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct LValueRef final {
-        using Type = conditional<is_ptr<T> || is_lvalue_ref<T>, T, naked_type<T>&>;
+        using Type = T&;
     };
 
     template<typename T> //
@@ -507,7 +507,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct ConstLValueRef final {
-        using Type = conditional<is_ptr<T>, T, const naked_type<T>&>;
+        using Type = T const&;
     };
 
     template<typename T> //
@@ -517,7 +517,7 @@ namespace kstd::meta {
 
     template<typename T>
     struct RValueRef final {
-        using Type = conditional<is_ptr<T>, T, naked_type<T>&&>;
+        using Type = T&&;
     };
 
     template<typename T> //
@@ -876,29 +876,32 @@ namespace kstd::meta {
     static_assert(slice_pack<0, 1, Pack<i32, f32, u64, u32>>().get_size() == 2, "Pack size should be 2");
     static_assert(slice_pack<0, 0, Pack<i32, f32, u64, u32>>().get_size() == 1, "Pack size should be 1");
 
-    // join_packs
+    // concat_packs
 
     template<typename PACK_A, typename PACK_B>
-    struct JoinPacks;
+    struct ConcatPacks;
 
     template<typename... TYPES_A, typename... TYPES_B>
-    struct JoinPacks<Pack<TYPES_A...>, Pack<TYPES_B...>> {
+    struct ConcatPacks<Pack<TYPES_A...>, Pack<TYPES_B...>> {
         using Type = Pack<TYPES_A..., TYPES_B...>;
     };
 
     template<typename PACK_A, typename PACK_B> //
-    using join_packs = typename JoinPacks<PACK_A, PACK_B>::Type;
+    using concat_packs = typename ConcatPacks<PACK_A, PACK_B>::Type;
 
-    static_assert(is_same<join_packs<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<concat_packs<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<join_packs<Pack<>, Pack<i32, f32>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<join_packs<Pack<i32, f32>, Pack<>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<join_packs<Pack<i32, f32>, Pack<i32, f32>>, Pack<i32, f32, i32, f32>>, "Pack type should be Pack<i32, f32, i32, f32>");
+    static_assert(is_same<concat_packs<Pack<>, Pack<i32, f32>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<concat_packs<Pack<i32, f32>, Pack<>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<concat_packs<Pack<i32, f32>, Pack<i32, f32>>, Pack<i32, f32, i32, f32>>, "Pack type should be Pack<i32, f32, i32, f32>");
 
     // transform_pack
 
+    template<template<typename> typename TRANSFORM, typename PACK>
+    struct TransformPack;
+
     template<template<typename> typename TRANSFORM, typename... TYPES> //
-    struct TransformPack {
+    struct TransformPack<TRANSFORM, Pack<TYPES...>> {
         using Type = Pack<typename TRANSFORM<TYPES>::Type...>;
     };
 
