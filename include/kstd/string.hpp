@@ -46,7 +46,7 @@ namespace kstd {
         struct {
             [[maybe_unused]] ValueType _padding0[size - 1];
             ValueType _available : (sizeof(ValueType) << 3) - 1;
-            [[maybe_unused]] bool _is_on_heap : 1 = false;
+            [[maybe_unused]] bool _is_on_heap : 1;
         };
 
         public:
@@ -54,6 +54,7 @@ namespace kstd {
         constexpr BasicSmallString() noexcept {
             libc::zero(_data);
             _available = usable_size;
+            _is_on_heap = false;
         }
 
         ~BasicSmallString() noexcept = default;
@@ -88,20 +89,22 @@ namespace kstd {
         Pointer _data;
         usize _capacity;
         usize _size : (sizeof(usize) << 3) - 1;
-        bool _is_on_heap : 1 = true;
+        bool _is_on_heap : 1;
 
         public:
 
         constexpr BasicHeapString() noexcept :
                 _data(Allocator().allocate(1)),
                 _capacity(1),
-                _size(0) {
+                _size(0),
+                _is_on_heap(true) {
         }
 
         explicit constexpr BasicHeapString(const ValueType* value) noexcept :
                 _data(Allocator().allocate(libc::get_string_length(value))),
                 _capacity(libc::get_string_length(value)),
-                _size(_capacity) {
+                _size(_capacity),
+                _is_on_heap(true) {
         }
 
         ~BasicHeapString() noexcept = default;
