@@ -44,7 +44,7 @@ namespace kstd::meta {
 
     template<typename T>
     [[nodiscard]] constexpr auto uneval() noexcept -> T {
-        return *reinterpret_cast<T*>(nullptr);
+        throw; // NOLINT: if this is reached at runtime, terminate
     }
 
     // is_standard_layout
