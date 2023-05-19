@@ -75,6 +75,15 @@ TEST(kstd_Tuple, TestReferences) {
     static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(y)>, kstd::f32>);
     ASSERT_EQ(x, 1337);
     ASSERT_EQ(y, 3.141F);
+
+    // Equality
+    kstd::Pair<kstd::i32&, kstd::f32&> pair2(a, b);
+    ASSERT_TRUE(pair == pair2);
+
+    kstd::i32 a2 = 13;
+    kstd::f32 b2 = 3.1F;
+    kstd::Pair<kstd::i32&, kstd::f32&> pair3(a2, b2);
+    ASSERT_TRUE(pair != pair3);
 }
 
 TEST(kstd_Tuple, TestPointers) {
@@ -101,6 +110,13 @@ TEST(kstd_Tuple, TestPointers) {
     static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(y)>, kstd::f32>);
     ASSERT_EQ(*x, 1337);
     ASSERT_EQ(*y, 3.141F);
+
+    // Equality
+    kstd::Pair<kstd::i32*, kstd::f32*> pair2(&a, &b);
+    ASSERT_TRUE(pair == pair2);
+
+    kstd::Pair<kstd::i32*, kstd::f32*> pair3(&a, nullptr);
+    ASSERT_TRUE(pair != pair3);
 }
 
 TEST(kstd_Tuple, TestSlice) {
