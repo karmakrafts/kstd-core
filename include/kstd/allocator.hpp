@@ -52,7 +52,7 @@ namespace kstd {
         [[nodiscard]] constexpr auto construct(ARGS&& ... args) noexcept -> T* {
             auto* memory = get_self().allocate(1);
             assert_true(memory != nullptr);
-            new(memory) T(forward<ARGS>(args)...);
+            new(memory) T(utils::forward<ARGS>(args)...);
             return memory;
         }
 

@@ -34,7 +34,7 @@ namespace kstd {
         public:
 
         explicit Error(E error) noexcept :
-                _error(move_or_copy(error)) {
+                _error(utils::move_or_copy(error)) {
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E& {
@@ -107,7 +107,7 @@ namespace kstd {
         constexpr Result(Error<E> error) noexcept : // NOLINT
                 _inner(),
                 _type(ResultType::ERROR) {
-            _inner._error = move_or_copy(error.get_error());
+            _inner._error = utils::move_or_copy(error.get_error());
         }
 
         constexpr Result(const Self& other) noexcept :
@@ -175,12 +175,12 @@ namespace kstd {
                     _inner._value = other._inner._value;
                 }
                 else {
-                    _inner._value = move_or_copy(other._inner._value);
+                    _inner._value = utils::move_or_copy(other._inner._value);
                 }
             }
             else if (other.is_error()) {
                 drop();
-                _inner._error = move_or_copy(other._inner._error);
+                _inner._error = utils::move_or_copy(other._inner._error);
             }
 
             _type = other._type;
@@ -247,11 +247,11 @@ namespace kstd {
 
     template<typename T, typename E = StringSlice>
     [[nodiscard]] constexpr auto make_ok(T value) noexcept -> decltype(auto) {
-        return Result<T, E>(move_or_copy(value));
+        return Result<T, E>(utils::move_or_copy(value));
     }
 
     template<typename T, typename E>
     [[nodiscard]] constexpr auto make_error(E error) noexcept -> decltype(auto) {
-        return Result<T, E>(Error<E>(move_or_copy(error)));
+        return Result<T, E>(Error<E>(utils::move_or_copy(error)));
     }
 }

@@ -271,7 +271,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType&& {
-            return move(_value);
+            return utils::move(_value);
         }
 
         constexpr auto operator =(const Self& other) noexcept -> Self& {
@@ -282,7 +282,7 @@ namespace kstd {
 
         constexpr auto operator =(Self&& other) noexcept -> Self& {
             drop();
-            _value = move(other._value);
+            _value = utils::move(other._value);
             return *this;
         }
 

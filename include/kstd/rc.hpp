@@ -32,7 +32,7 @@ namespace kstd {
 
             template<typename... ARGS>
             explicit constexpr RcInner(ARGS&& ... args) noexcept :
-                    value(forward<ARGS>(args)...),
+                    value(utils::forward<ARGS>(args)...),
                     count() {
             }
 
@@ -68,7 +68,7 @@ namespace kstd {
 
         template<typename... ARGS>
         explicit constexpr BasicRc(ARGS&& ... args) noexcept :
-                _inner(ALLOCATOR<InnerType>().construct(forward<ARGS>(args)...)) {
+                _inner(ALLOCATOR<InnerType>().construct(utils::forward<ARGS>(args)...)) {
         }
 
         constexpr BasicRc(const Self& other) noexcept :
@@ -242,21 +242,21 @@ namespace kstd {
 
     template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
     [[nodiscard]] constexpr auto make_rc(ARGS&& ... args) noexcept -> Rc<T, ALLOCATOR> {
-        return Rc<T, ALLOCATOR>(forward<ARGS>(args)...);
+        return Rc<T, ALLOCATOR>(utils::forward<ARGS>(args)...);
     }
 
     template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
     [[nodiscard]] constexpr auto make_nullable_rc(ARGS&& ... args) noexcept -> NullableRc<T, ALLOCATOR> {
-        return NullableRc<T, ALLOCATOR>(ALLOCATOR<T>().construct(forward<ARGS>(args)...));
+        return NullableRc<T, ALLOCATOR>(ALLOCATOR<T>().construct(utils::forward<ARGS>(args)...));
     }
 
     template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
     [[nodiscard]] constexpr auto make_arc(ARGS&& ... args) noexcept -> Arc<T, ALLOCATOR> {
-        return Arc<T, ALLOCATOR>(forward<ARGS>(args)...);
+        return Arc<T, ALLOCATOR>(utils::forward<ARGS>(args)...);
     }
 
     template<typename T, template<typename> typename ALLOCATOR = Allocator, typename... ARGS>
     [[nodiscard]] constexpr auto make_nullable_arc(ARGS&& ... args) noexcept -> NullableArc<T, ALLOCATOR> {
-        return NullableArc<T, ALLOCATOR>(ALLOCATOR<T>().construct(forward<ARGS>(args)...));
+        return NullableArc<T, ALLOCATOR>(ALLOCATOR<T>().construct(utils::forward<ARGS>(args)...));
     }
 }

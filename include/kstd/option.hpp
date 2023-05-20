@@ -52,7 +52,7 @@ namespace kstd {
         }
 
         constexpr Option(ValueType value) noexcept : // NOLINT
-                _inner(move_or_copy(value)),
+                _inner(utils::move_or_copy(value)),
                 _is_present(true) {
         }
 
@@ -104,7 +104,7 @@ namespace kstd {
         constexpr auto operator =(Self&& other) noexcept -> Self& {
             if (other) {
                 drop();
-                _inner = move(other._inner);
+                _inner = utils::move(other._inner);
                 _is_present = true;
             }
 
@@ -177,6 +177,6 @@ namespace kstd {
 
     template<typename T>
     [[nodiscard]] constexpr auto make_value(T value) noexcept -> decltype(auto) {
-        return Option<T>(move_or_copy(value));
+        return Option<T>(utils::move_or_copy(value));
     }
 }

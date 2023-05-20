@@ -21,14 +21,23 @@
 
 #include "meta.hpp"
 
-namespace kstd {
+namespace kstd::utils {
     namespace {
-        template<typename T, usize SIZE, usize INDEX>
+        template<typename T, usize SIZE, usize CURRENT>
         constexpr auto _fill_array(T (& array)[SIZE], const T& value) noexcept -> void {
-            array[INDEX] = value;
+            array[CURRENT] = value;
 
-            if constexpr (INDEX < SIZE) {
-                _fill_array<T, SIZE, INDEX + 1>(array, value);
+            if constexpr (CURRENT < SIZE) {
+                _fill_array<T, SIZE, CURRENT + 1>(array, value);
+            }
+        }
+
+        template<usize SRC_OFFFSET, usize DST_OFFSET, usize SIZE, typename T, usize SRC_SIZE, usize DST_SIZE, usize CURRENT>
+        constexpr auto _copy_array(T (& dst)[DST_SIZE], T const (& src)[SRC_SIZE]) noexcept -> void {
+            dst[DST_OFFSET + CURRENT] = src[SRC_OFFFSET + CURRENT];
+
+            if constexpr (CURRENT < SIZE) {
+                _copy_array<SRC_OFFFSET, DST_OFFSET, SIZE, T, SRC_SIZE, DST_SIZE, CURRENT + 1>(dst, src);
             }
         }
     }
@@ -36,6 +45,11 @@ namespace kstd {
     template<typename T, usize SIZE>
     constexpr auto fill_array(T (& array)[SIZE], const T& value) noexcept -> void {
         _fill_array<T, SIZE, 0>(array, value);
+    }
+
+    template<usize SRC_OFFFSET, usize DST_OFFSET, usize SIZE, typename T, usize SRC_SIZE, usize DST_SIZE>
+    constexpr auto copy_array(T (& dst)[DST_SIZE], T const (& src)[SRC_SIZE]) noexcept -> void {
+        _copy_array<SRC_OFFFSET, DST_OFFSET, SIZE, T, SRC_SIZE, DST_SIZE, 0>(dst, src);
     }
 
     template<typename T>
@@ -66,5 +80,15 @@ namespace kstd {
         else {
             return move(value);
         }
+    }
+
+    template<typename R, typename T>
+    [[nodiscard]] constexpr auto transmute(T& value) noexcept -> R& {
+        return *reinterpret_cast<R*>(&value);
+    }
+
+    template<typename R, typename T>
+    [[nodiscard]] constexpr auto transmute(const T& value) noexcept -> const R& {
+        return *reinterpret_cast<const R*>(&value);
     }
 }

@@ -52,13 +52,13 @@ namespace kstd {
         public:
 
         constexpr BasicSmallString() noexcept {
-            libc::zero(_data);
+            utils::fill_array<CHAR, SIZE>(_data, 0);
             _available = usable_size;
             _is_on_heap = false;
         }
 
         constexpr BasicSmallString(const ValueType* data) noexcept { // NOLINT
-            libc::zero(_data);
+            utils::fill_array<CHAR, SIZE>(_data, 0);
             const auto length = libc::get_string_length(data);
             _available = usable_size - length;
             _is_on_heap = false;
@@ -190,7 +190,7 @@ namespace kstd {
         ~BasicString() noexcept = default;
 
         [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {
-            if(_is_on_heap) {
+            if (_is_on_heap) {
                 return _heap.get_capacity();
             }
 
@@ -198,7 +198,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> usize {
-            if(_is_on_heap) {
+            if (_is_on_heap) {
                 return _heap.get_capacity_in_bytes();
             }
 
