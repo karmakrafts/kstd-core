@@ -30,13 +30,13 @@ namespace kstd {
     template<typename P> // @formatter:off
     struct OutPtr final {
         using OwnerType = P;
-        using ValueType = typename OwnerType::ValueType;
+        using ElementType = typename OwnerType::ElementType;
         using Self = OutPtr<OwnerType>;
 
         private:
 
         OwnerType& _owner;
-        ValueType* _new_value;
+        ElementType* _new_value;
 
         public:
 
@@ -68,7 +68,7 @@ namespace kstd {
             return *this;
         }
 
-        [[nodiscard]] constexpr operator ValueType**() noexcept { // NOLINT
+        [[nodiscard]] constexpr operator ElementType**() noexcept { // NOLINT
             return &_new_value;
         }
     };

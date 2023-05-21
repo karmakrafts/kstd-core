@@ -18,9 +18,9 @@
  */
 
 #include <gtest/gtest.h>
+#include <kstd/rc.hpp>
 #include <kstd/out_ptr.hpp>
 #include <kstd/types.hpp>
-#include <cstring>
 
 // Define function with C-linkage for testing
 extern "C" auto the_c_function(kstd::i32** data_to_set) -> void {
@@ -29,7 +29,9 @@ extern "C" auto the_c_function(kstd::i32** data_to_set) -> void {
 }
 
 TEST(kstd_OutPtr, TestOutPtr) {
-    //auto the_data = std::unique_ptr<kstd::i32, kstd::FreeDeleter<kstd::i32>>(nullptr);
-    //the_c_function(make_out(the_data));
-    //ASSERT_EQ(*the_data, 420);
+    auto the_data = kstd::make_rc<kstd::i32, kstd::Allocator, kstd::FreeDeleter>(nullptr);
+    ASSERT_TRUE(the_data == nullptr);
+
+    the_c_function(kstd::make_out(the_data));
+    ASSERT_EQ(*the_data, 420);
 }

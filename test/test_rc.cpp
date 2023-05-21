@@ -23,10 +23,34 @@
 
 TEST(kstd_BasicRc, TestRc) {
     auto ptr = kstd::make_rc<kstd::StringSlice>("Hello World!");
+    ASSERT_EQ(ptr.get_count(), 1);
     ASSERT_EQ(*ptr, "Hello World!");
+
+    auto another_ptr = ptr;
+    ASSERT_EQ(another_ptr.get_count(), 2);
+    ASSERT_EQ(*another_ptr, "Hello World!");
+
+    ptr.drop();
+    ASSERT_EQ(ptr.get_count(), 0);
+
+    another_ptr.drop();
+    ASSERT_EQ(another_ptr.get_count(), 0);
+    ASSERT_TRUE(another_ptr == nullptr);
 }
 
 TEST(kstd_BasicRc, TestArc) {
     auto ptr = kstd::make_arc<kstd::StringSlice>("Hello World!");
+    ASSERT_EQ(ptr.get_count(), 1);
     ASSERT_EQ(*ptr, "Hello World!");
+
+    auto another_ptr = ptr;
+    ASSERT_EQ(another_ptr.get_count(), 2);
+    ASSERT_EQ(*another_ptr, "Hello World!");
+
+    ptr.drop();
+    ASSERT_EQ(ptr.get_count(), 0);
+
+    another_ptr.drop();
+    ASSERT_EQ(another_ptr.get_count(), 0);
+    ASSERT_TRUE(another_ptr == nullptr);
 }

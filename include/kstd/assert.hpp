@@ -63,7 +63,7 @@ namespace kstd {
         [[nodiscard]] inline auto get_default_assertion_message(const SourceLocation& location = current_location()) noexcept -> AssertionMessage {
             char buffer[KSTD_ASSERTION_BUFFER_SIZE]; // TODO: find a good size for this
             libc::memset(buffer, 0, KSTD_ASSERTION_BUFFER_SIZE);
-            libc::sprintf(buffer, "%s:%lu [%s]", location.get_file(), location.get_line(), location.get_function());
+            libc::sprintf(buffer, "%s:%zu [%s]", location.get_file(), location.get_line(), location.get_function());
             return AssertionMessage(buffer);
         }
     }

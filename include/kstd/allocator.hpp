@@ -86,10 +86,17 @@ namespace kstd {
         }
     };
 
-    template<typename T, typename ALLOCATOR = Allocator<T>>
+    template<typename T>
     struct Deleter final {
         constexpr auto operator ()(T* memory) noexcept -> void {
-            ALLOCATOR().destroy(memory);
+            Allocator<T>().destroy(memory);
+        }
+    };
+
+    template<typename T>
+    struct FreeDeleter final {
+        constexpr auto operator ()(T* memory) noexcept -> void {
+            Allocator<T>().deallocate(memory, 1);
         }
     };
 }

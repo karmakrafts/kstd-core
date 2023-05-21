@@ -119,14 +119,14 @@ namespace kstd {
             return _is_present;
         }
 
-        [[nodiscard]] constexpr auto borrow_mut() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
             #ifdef BUILD_DEBUG
             if (is_empty()) {
                 throw std::runtime_error("Result has no value");
             }
             #endif
 
-            return _inner.borrow_mut();
+            return _inner.borrow();
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
