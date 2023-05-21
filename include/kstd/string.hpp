@@ -52,13 +52,13 @@ namespace kstd {
         public:
 
         constexpr BasicSmallString() noexcept {
-            utils::fill_array<CHAR, SIZE>(_data, 0);
+            libc::memset(_data, 0, size * sizeof(ValueType));
             _available = usable_size;
             _is_on_heap = false;
         }
 
         constexpr BasicSmallString(const ValueType* data) noexcept { // NOLINT
-            utils::fill_array<CHAR, SIZE>(_data, 0);
+            libc::memset(_data, 0, size * sizeof(ValueType));
             const auto length = libc::get_string_length(data);
             _available = usable_size - length;
             _is_on_heap = false;
