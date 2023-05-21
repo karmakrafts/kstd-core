@@ -103,6 +103,11 @@ namespace kstd {
 
         constexpr auto operator =(Self&&) noexcept -> Self& = default;
 
+        constexpr auto operator =(ValueType value) noexcept -> Self& {
+            _value = value;
+            return *this;
+        }
+
         [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return _value;
         }
@@ -188,6 +193,11 @@ namespace kstd {
         constexpr auto operator =(const Self& other) noexcept -> Self& = default;
 
         constexpr auto operator =(Self&&) noexcept -> Self& = default;
+
+        constexpr auto operator =(ValueType value) noexcept -> Self& {
+            _value = &value;
+            return *this;
+        }
 
         [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return _value;
@@ -301,6 +311,18 @@ namespace kstd {
         constexpr auto operator =(Self&& other) noexcept -> Self& {
             drop();
             _value = utils::move(other._value);
+            return *this;
+        }
+
+        constexpr auto operator =(const ValueType& value) noexcept -> Self& {
+            drop();
+            _value = value;
+            return *this;
+        }
+
+        constexpr auto operator =(ValueType&& value) noexcept -> Self& {
+            drop();
+            _value = utils::move(value);
             return *this;
         }
 

@@ -81,32 +81,22 @@ namespace kstd {
             TupleInner<TYPES...> _inner;
 
             template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
-            constexpr auto _reset(TupleInner<HEAD, TAIL...>& inner, meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> value) noexcept -> void {
+            constexpr auto _get_head(TupleInner<HEAD, TAIL...>& inner) noexcept -> Box<meta::pack_element<INDEX, Types>>& {
                 if constexpr (CURRENT == INDEX) {
-                    inner._head.reset(value);
+                    return inner._head;
                 }
                 else {
-                    _reset<INDEX, CURRENT + 1, TAIL...>(inner._tail, value);
+                    return _get_head<INDEX, CURRENT + 1, TAIL...>(inner._tail);
                 }
             }
 
             template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
-            [[nodiscard]] constexpr auto _get(TupleInner<HEAD, TAIL...>& inner) noexcept -> meta::lvalue_ref<meta::pack_element<INDEX, Types>> {
+            constexpr auto _get_head(const TupleInner<HEAD, TAIL...>& inner) const noexcept -> const Box<meta::pack_element<INDEX, Types>>& {
                 if constexpr (CURRENT == INDEX) {
-                    return inner._head.borrow();
+                    return inner._head;
                 }
                 else {
-                    return _get<INDEX, CURRENT + 1, TAIL...>(inner._tail);
-                }
-            }
-
-            template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
-            [[nodiscard]] constexpr auto _get(const TupleInner<HEAD, TAIL...>& inner) const noexcept -> meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> {
-                if constexpr (CURRENT == INDEX) {
-                    return inner._head.borrow();
-                }
-                else {
-                    return _get<INDEX, CURRENT + 1, TAIL...>(inner._tail);
+                    return _get_head<INDEX, CURRENT + 1, TAIL...>(inner._tail);
                 }
             }
 
@@ -179,18 +169,18 @@ namespace kstd {
             }
 
             template<usize INDEX>
-            constexpr auto reset(meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> value) noexcept -> void {
-                _reset<INDEX, 0, TYPES...>(_inner, value);
+            constexpr auto reset(meta::pack_element<INDEX, Types> value) noexcept -> void {
+                _get_head<INDEX, 0, TYPES...>(_inner) = utils::move_or_copy(value);
             }
 
             template<usize INDEX>
             [[nodiscard]] constexpr auto get() noexcept -> meta::lvalue_ref<meta::pack_element<INDEX, Types>> {
-                return _get<INDEX, 0, TYPES...>(_inner);
+                return _get_head<INDEX, 0, TYPES...>(_inner).borrow();
             }
 
             template<usize INDEX>
             [[nodiscard]] constexpr auto get() const noexcept -> meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> {
-                return _get<INDEX, 0, TYPES...>(_inner);
+                return _get_head<INDEX, 0, TYPES...>(_inner).borrow();
             }
 
             template<usize BEGIN, usize END>
