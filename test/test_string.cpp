@@ -30,12 +30,15 @@ TEST(kstd_HeapString, TestConcat) {
 }
 
 TEST(kstd_SmallString, TestAllocate) {
-    kstd::SmallString<128> string;
+    kstd::SmallString<64> string;
+    ASSERT_EQ(string.get_size(), 0);
 }
 
 TEST(kstd_SmallString, TestConcat) {
     kstd::SmallString<64> a;
     kstd::SmallString<64> b;
+    ASSERT_EQ(a.get_size(), 0);
+    ASSERT_EQ(b.get_size(), 0);
 }
 
 TEST(kstd_String, TestAllocate) {

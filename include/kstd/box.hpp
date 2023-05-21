@@ -83,6 +83,10 @@ namespace kstd {
         constexpr auto drop() noexcept -> void {
         }
 
+        constexpr auto reset(ValueType value) noexcept -> void {
+            _value = value;
+        }
+
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
             return _value;
         }
@@ -163,6 +167,10 @@ namespace kstd {
         ~Box() noexcept = default;
 
         constexpr auto drop() noexcept -> void {
+        }
+
+        constexpr auto reset(ValueType value) noexcept -> void {
+            _value = &value;
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
@@ -260,6 +268,16 @@ namespace kstd {
             if constexpr (meta::is_destructible<T>) {
                 _value.~ValueType();
             }
+        }
+
+        constexpr auto reset(const ValueType& value) noexcept -> void {
+            drop();
+            _value = value;
+        }
+
+        constexpr auto reset(ValueType&& value) noexcept -> void {
+            drop();
+            _value = move(value);
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {

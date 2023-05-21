@@ -81,6 +81,16 @@ namespace kstd {
             TupleInner<TYPES...> _inner;
 
             template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
+            constexpr auto _reset(TupleInner<HEAD, TAIL...>& inner, meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> value) noexcept -> void {
+                if constexpr (CURRENT == INDEX) {
+                    inner._head.reset(value);
+                }
+                else {
+                    _reset<INDEX, CURRENT + 1, TAIL...>(inner._tail, value);
+                }
+            }
+
+            template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
             [[nodiscard]] constexpr auto _get(TupleInner<HEAD, TAIL...>& inner) noexcept -> meta::lvalue_ref<meta::pack_element<INDEX, Types>> {
                 if constexpr (CURRENT == INDEX) {
                     return inner._head.borrow();
@@ -139,12 +149,12 @@ namespace kstd {
 
             template<usize NEW_SIZE, usize CURRENT, typename... OTHER_TYPES> // @formatter:off
             constexpr auto _concat(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other,
-                    TupleImpl<meta::transform_pack<meta::RemoveRef, meta::Pack<TYPES..., OTHER_TYPES...>>>& result) const noexcept -> void { // @formatter:on
+                    TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>>& result) const noexcept -> void { // @formatter:on
                 if constexpr (CURRENT < num_values) {
-                    result.template get<CURRENT>() = get<CURRENT>();
+                    result.template reset<CURRENT>(get<CURRENT>());
                 }
                 else {
-                    result.template get<CURRENT>() = other.template get<CURRENT - num_values>();
+                    result.template reset<CURRENT>(other.template get<CURRENT - num_values>());
                 }
 
                 if constexpr (CURRENT < NEW_SIZE - 1) {
@@ -169,6 +179,11 @@ namespace kstd {
             }
 
             template<usize INDEX>
+            constexpr auto reset(meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> value) noexcept -> void {
+                _reset<INDEX, 0, TYPES...>(_inner, value);
+            }
+
+            template<usize INDEX>
             [[nodiscard]] constexpr auto get() noexcept -> meta::lvalue_ref<meta::pack_element<INDEX, Types>> {
                 return _get<INDEX, 0, TYPES...>(_inner);
             }
@@ -187,15 +202,15 @@ namespace kstd {
 
             template<typename... OTHER_TYPES> // @formatter:off
             [[nodiscard]] constexpr auto concat(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept ->
-                    TupleImpl<meta::transform_pack<meta::RemoveRef, meta::Pack<TYPES..., OTHER_TYPES...>>> { // @formatter:on
-                TupleImpl<meta::transform_pack<meta::RemoveRef, meta::Pack<TYPES..., OTHER_TYPES...>>> result;
+                    TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> { // @formatter:on
+                TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> result;
                 _concat<num_values + sizeof...(OTHER_TYPES), 0, OTHER_TYPES...>(other, result);
                 return result;
             }
 
             template<typename... OTHER_TYPES> // @formatter:off
             [[nodiscard]] constexpr auto operator +(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept ->
-                    TupleImpl<meta::transform_pack<meta::RemoveRef, meta::Pack<TYPES..., OTHER_TYPES...>>> { // @formatter:on
+                    TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> { // @formatter:on
                 return concat<OTHER_TYPES...>(other);
             }
 

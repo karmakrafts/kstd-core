@@ -103,10 +103,10 @@ TEST(kstd_Tuple, TestReferences) {
     auto quad = pair + pair;
     auto& [qx, qy, qz, qw] = quad;
 
-    static_assert(kstd::meta::is_same<decltype(qx), kstd::i32>);
-    static_assert(kstd::meta::is_same<decltype(qy), kstd::f32>);
-    static_assert(kstd::meta::is_same<decltype(qz), kstd::i32>);
-    static_assert(kstd::meta::is_same<decltype(qw), kstd::f32>);
+    static_assert(kstd::meta::is_same<decltype(qx), kstd::i32&>);
+    static_assert(kstd::meta::is_same<decltype(qy), kstd::f32&>);
+    static_assert(kstd::meta::is_same<decltype(qz), kstd::i32&>);
+    static_assert(kstd::meta::is_same<decltype(qw), kstd::f32&>);
 
     ASSERT_EQ(qx, 1337);
     ASSERT_EQ(qy, 3.141F);
