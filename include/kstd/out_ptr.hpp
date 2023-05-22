@@ -74,7 +74,7 @@ namespace kstd {
     };
 
     template<typename P>
-    [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> decltype(auto) {
+    [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> OutPtr<P> {
         return OutPtr<P>(pointer);
     }
 }

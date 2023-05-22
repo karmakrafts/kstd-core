@@ -14,32 +14,30 @@
 
 /**
  * @author Alexander Hinze
- * @since 17/05/2023
+ * @since 21/05/2023
  */
 
 #include <gtest/gtest.h>
-#include <kstd/string.hpp>
+#include <kstd/small_string.hpp>
 
-TEST(kstd_HeapString, TestAllocate) {
-    kstd::HeapString string;
-    ASSERT_EQ(string.get_size(), 0);
+TEST(kstd_SmallString, TestEmpty) {
+    kstd::SmallString<16> str;
+    static_assert(str.get_capacity() == 16);
+    ASSERT_EQ(str.get_size(), 0);
+    ASSERT_EQ(str, "");
 }
 
-TEST(kstd_HeapString, TestConcat) {
-    kstd::HeapString a;
-    kstd::HeapString b;
-    ASSERT_EQ(a.get_size(), 0);
-    ASSERT_EQ(b.get_size(), 0);
-}
+TEST(kstd_SmallString, TestConcat) {
+    kstd::SmallString<16> a("Hello ");
+    ASSERT_EQ(a.get_size(), 6);
+    ASSERT_EQ(a, "Hello ");
 
-TEST(kstd_String, TestAllocate) {
-    kstd::String string;
-    ASSERT_EQ(string.get_size(), 0);
-}
+    kstd::SmallString<16> b("World!");
+    ASSERT_EQ(b.get_size(), 6);
+    ASSERT_EQ(b, "World!");
 
-TEST(kstd_String, TestConcat) {
-    kstd::String a;
-    kstd::String b;
-    ASSERT_EQ(a.get_size(), 0);
-    ASSERT_EQ(b.get_size(), 0);
+    auto x = a + b;
+    static_assert(x.get_capacity() == 32);
+    ASSERT_EQ(x.get_size(), 12);
+    ASSERT_EQ(x, "Hello World!");
 }

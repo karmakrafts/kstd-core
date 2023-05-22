@@ -21,6 +21,13 @@
 
 #include "types.hpp"
 
+#define KSTD_SFINAE_TRAIT(t, n, c) template<typename T, typename = void>    \
+struct t : public kstd::meta::False {};                                     \
+template<typename T>                                                        \
+struct t<T, kstd::meta::def_if<(c)>> : public kstd::meta::True {};          \
+template<typename T>                                                        \
+constexpr bool n = t<T>::value; // NOLINT
+
 namespace kstd::meta {
     // Constant
 
@@ -117,44 +124,6 @@ namespace kstd::meta {
     template<typename LHS, typename RHS> //
     constexpr bool is_assignable = IsAssignable<LHS, RHS>::value;
 
-    // is_destructible
-
-    /*
-     * Quick note: on GCC and Clang we need to implement this ourselves.
-     * We simply do this using SFINAE; We obtain the type of an unevaluated destructor call expression over T.
-     * If the destructor call expression is valid, the surrounding decltype expression will just give us void,
-     * since a destructor is just a void function.
-     * Otherwise, if it is ill-formed, the surrounding decltype expression will prevent the specialization from matching
-     * because it itself will become ill-formed.
-     */
-
-    #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
-    template<typename T, typename = void>
-    struct IsDestructible : public False {};
-
-    template<typename T>
-    struct IsDestructible<T, decltype(uneval<T>().~T())> : public True {};
-    #else
-    template<typename T>
-    struct IsDestructible final {
-        static constexpr bool value = __is_destructible(T);
-    };
-    #endif // defined(COMPILER_GCC) || defined(COMPILER_CLANG)
-
-    template<typename T> //
-    constexpr bool is_destructible = IsDestructible<T>::value;
-
-    namespace {
-        struct Destructible final {};
-
-        struct NonDestructible final {
-            ~NonDestructible() noexcept = delete;
-        };
-
-        static_assert(is_destructible<Destructible>, "Type is destructible, trait should return true");
-        static_assert(!is_destructible<NonDestructible>, "Type is non-destructible, trait should return false");
-    }
-
     // is_same
 
     template<typename A, typename B>
@@ -216,6 +185,40 @@ namespace kstd::meta {
 
     template<bool CONDITION, typename IF_TRUE, typename IF_FALSE> //
     using conditional = typename Conditional<CONDITION, IF_TRUE, IF_FALSE>::Type;
+
+    // is_destructible
+
+    /*
+     * Quick note: on GCC and Clang we need to implement this ourselves.
+     * We simply do this using SFINAE; We obtain the type of an unevaluated destructor call expression over T.
+     * If the destructor call expression is valid, the surrounding decltype expression will just give us void,
+     * since a destructor is just a void function.
+     * Otherwise, if it is ill-formed, the surrounding decltype expression will prevent the specialization from matching
+     * because it itself will become ill-formed.
+     */
+
+    #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+    KSTD_SFINAE_TRAIT(IsDestructible, is_destructible, is_void<decltype(uneval<T>().~T())>)
+    #else
+    template<typename T>
+    struct IsDestructible final {
+        static constexpr bool value = __is_destructible(T);
+    };
+
+    template<typename T> //
+    constexpr bool is_destructible = IsDestructible<T>::value;
+    #endif // defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+
+    namespace {
+        struct Destructible final {};
+
+        struct NonDestructible final {
+            ~NonDestructible() noexcept = delete;
+        };
+
+        static_assert(is_destructible<Destructible>, "Type is destructible, trait should return true");
+        static_assert(!is_destructible<NonDestructible>, "Type is non-destructible, trait should return false");
+    }
 
     // is_ptr
 
@@ -383,6 +386,28 @@ namespace kstd::meta {
     template<typename T> //
     constexpr bool is_cv = IsCV<T>::value;
 
+    static_assert(!is_cv<void>);
+    static_assert(is_cv<const i32*>);
+    static_assert(is_cv<const i32&>);
+    static_assert(is_cv<volatile i32*>);
+    static_assert(is_cv<volatile i32&>);
+    static_assert(is_cv<const volatile i32*>);
+    static_assert(is_cv<const volatile i32&>);
+
+    // is_value
+
+    template<typename T>
+    struct IsValue final {
+        static constexpr bool value = !is_ptr<T> && !is_ref<T>;
+    };
+
+    template<typename T> //
+    constexpr bool is_value = IsValue<T>::value;
+
+    static_assert(is_value<i32>);
+    static_assert(!is_value<i32*>);
+    static_assert(!is_value<i32&>);
+
     // remove_ref
 
     template<typename T>
@@ -427,21 +452,26 @@ namespace kstd::meta {
 
     template<typename T>
     struct RemoveConst<const T*> {
-        using Type = T;
+        using Type = T*;
     };
 
     template<typename T>
     struct RemoveConst<const T&> {
-        using Type = T;
+        using Type = T&;
     };
 
     template<typename T>
     struct RemoveConst<const T&&> {
-        using Type = T;
+        using Type = T&&;
     };
 
     template<typename T> //
     using remove_const = typename RemoveConst<T>::Type;
+
+    static_assert(is_same<remove_const<i32>, i32>);
+    static_assert(is_same<remove_const<const i32*>, i32*>);
+    static_assert(is_same<remove_const<const i32&>, i32&>);
+    static_assert(is_same<remove_const<const i32&&>, i32&&>);
 
     // remove_volatile
 
@@ -451,27 +481,32 @@ namespace kstd::meta {
     };
 
     template<typename T>
-    struct RemoveVolatile<const T> {
+    struct RemoveVolatile<volatile T> {
         using Type = T;
     };
 
     template<typename T>
-    struct RemoveVolatile<const T*> {
-        using Type = T;
+    struct RemoveVolatile<volatile T*> {
+        using Type = T*;
     };
 
     template<typename T>
-    struct RemoveVolatile<const T&> {
-        using Type = T;
+    struct RemoveVolatile<volatile T&> {
+        using Type = T&;
     };
 
     template<typename T>
-    struct RemoveVolatile<const T&&> {
-        using Type = T;
+    struct RemoveVolatile<volatile T&&> {
+        using Type = T&&;
     };
 
     template<typename T> //
     using remove_volatile = typename RemoveVolatile<T>::Type;
+
+    static_assert(is_same<remove_volatile<i32>, i32>);
+    static_assert(is_same<remove_volatile<volatile i32*>, i32*>);
+    static_assert(is_same<remove_volatile<volatile i32&>, i32&>);
+    static_assert(is_same<remove_volatile<volatile i32&&>, i32&&>);
 
     // remove_cv
 
@@ -483,6 +518,10 @@ namespace kstd::meta {
     template<typename T> //
     using remove_cv = typename RemoveCV<T>::Type;
 
+    static_assert(is_same<remove_cv<const i32*>, i32*>);
+    static_assert(is_same<remove_cv<volatile i32*>, i32*>);
+    static_assert(is_same<remove_cv<const volatile i32*>, i32*>);
+
     // naked_type
 
     template<typename T>
@@ -492,6 +531,12 @@ namespace kstd::meta {
 
     template<typename T> //
     using naked_type = typename NakedType<T>::Type;
+
+    static_assert(is_same<naked_type<i32>, i32>);
+    static_assert(is_same<naked_type<i32*>, i32>);
+    static_assert(is_same<naked_type<const i32*>, i32>);
+    static_assert(is_same<naked_type<i32&>, i32>);
+    static_assert(is_same<naked_type<const i32&>, i32>);
 
     // lvalue_ref
 
@@ -503,6 +548,8 @@ namespace kstd::meta {
     template<typename T> //
     using lvalue_ref = typename LValueRef<T>::Type;
 
+    static_assert(is_same<lvalue_ref<i32>, i32&>);
+
     // const_lvalue_ref
 
     template<typename T>
@@ -512,6 +559,8 @@ namespace kstd::meta {
 
     template<typename T> //
     using const_lvalue_ref = typename ConstLValueRef<T>::Type;
+
+    static_assert(is_same<const_lvalue_ref<i32>, const i32&>);
 
     // rvalue_ref
 
@@ -523,6 +572,8 @@ namespace kstd::meta {
     template<typename T> //
     using rvalue_ref = typename RValueRef<T>::Type;
 
+    static_assert(is_same<rvalue_ref<i32>, i32&&>);
+
     // add_const
 
     template<typename T>
@@ -530,8 +581,27 @@ namespace kstd::meta {
         using Type = const T;
     };
 
+    template<typename T>
+    struct AddConst<T*> final {
+        using Type = const T*;
+    };
+
+    template<typename T>
+    struct AddConst<T&> final {
+        using Type = const T&;
+    };
+
+    template<typename T>
+    struct AddConst<T&&> final {
+        using Type = const T&&;
+    };
+
     template<typename T> //
     using add_const = typename AddConst<T>::Type;
+
+    static_assert(is_same<add_const<i32*>, const i32*>);
+    static_assert(is_same<add_const<i32&>, const i32&>);
+    static_assert(is_same<add_const<i32&&>, const i32&&>);
 
     // add_volatile
 
@@ -540,8 +610,22 @@ namespace kstd::meta {
         using Type = volatile T;
     };
 
+    template<typename T>
+    struct AddVolatile<T*> final {
+        using Type = volatile T*;
+    };
+
+    template<typename T>
+    struct AddVolatile<T&> final {
+        using Type = volatile T&;
+    };
+
     template<typename T> //
     using add_volatile = typename AddVolatile<T>::Type;
+
+    static_assert(is_same<add_volatile<i32>, volatile i32>);
+    static_assert(is_same<add_volatile<i32*>, volatile i32*>);
+    static_assert(is_same<add_volatile<i32&>, volatile i32&>);
 
     // add_ptr
 
@@ -553,185 +637,84 @@ namespace kstd::meta {
     template<typename T> //
     using add_ptr = typename AddPtr<T>::Type;
 
+    static_assert(is_same<add_ptr<void>, void*>);
+    static_assert(is_same<add_ptr<void*>, void**>);
+
     // has_add_op
 
-    template<typename T, typename = void>
-    struct HasAddOp : public False {};
-
-    template<typename T>
-    struct HasAddOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() + uneval<T>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_add_op = HasAddOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasAddOp, has_add_op, (is_same<T, naked_type<decltype(uneval<T>() + uneval<T>())>>))
     static_assert(!has_add_op<void>);
     static_assert(has_add_op<i32>);
 
     // has_sub_op
 
-    template<typename T, typename = void>
-    struct HasSubOp : public False {};
-
-    template<typename T>
-    struct HasSubOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() - uneval<T>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_sub_op = HasSubOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasSubOp, has_sub_op, (is_same<T, naked_type<decltype(uneval<T>() - uneval<T>())>>))
     static_assert(!has_sub_op<void>);
     static_assert(has_sub_op<i32>);
 
     // has_mul_op
 
-    template<typename T, typename = void>
-    struct HasMulOp : public False {};
-
-    template<typename T>
-    struct HasMulOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() * uneval<T>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_mul_op = HasMulOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasMulOp, has_mul_op, (is_same<T, naked_type<decltype(uneval<T>() * uneval<T>())>>))
     static_assert(!has_mul_op<void>);
     static_assert(has_mul_op<i32>);
 
     // has_div_op
 
-    template<typename T, typename = void>
-    struct HasDivOp : public False {};
-
-    template<typename T>
-    struct HasDivOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() / uneval<T>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_div_op = HasDivOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasDivOp, has_div_op, (is_same<T, naked_type<decltype(uneval<T>() / uneval<T>())>>));
     static_assert(!has_div_op<void>);
     static_assert(has_div_op<i32>);
 
     // has_mod_op
 
-    template<typename T, typename = void>
-    struct HasModOp : public False {};
-
-    template<typename T>
-    struct HasModOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() % uneval<T>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_mod_op = HasModOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasModOp, has_mod_op, (is_same<T, naked_type<decltype(uneval<T>() % uneval<T>())>>))
     static_assert(!has_mod_op<void>);
     static_assert(has_mod_op<i32>);
 
     // has_shl_op
 
-    template<typename T, typename = void>
-    struct HasShlOp : public False {};
-
-    template<typename T>
-    struct HasShlOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() << uneval<i32>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_shl_op = HasShlOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasShlOp, has_shl_op, (is_same<T, naked_type<decltype(uneval<T>() << uneval<i32>())>>))
     static_assert(!has_shl_op<void>);
     static_assert(has_shl_op<i32>);
 
     // has_shr_op
 
-    template<typename T, typename = void>
-    struct HasShrOp : public False {};
-
-    template<typename T>
-    struct HasShrOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() >> uneval<i32>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_shr_op = HasShrOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasShrOp, has_shr_op, (is_same<T, naked_type<decltype(uneval<T>() >> uneval<i32>())>>))
     static_assert(!has_shr_op<void>);
     static_assert(has_shr_op<i32>);
 
     // has_and_op
 
-    template<typename T, typename = void>
-    struct HasAndOp : public False {};
-
-    template<typename T>
-    struct HasAndOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() & uneval<T>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_and_op = HasAndOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasAndOp, has_and_op, (is_same<T, naked_type<decltype(uneval<T>() & uneval<T>())>>))
     static_assert(!has_and_op<void>);
     static_assert(has_and_op<i32>);
 
     // has_or_op
 
-    template<typename T, typename = void>
-    struct HasOrOp : public False {};
-
-    template<typename T>
-    struct HasOrOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() | uneval<T>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_or_op = HasOrOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasOrOp, has_or_op, (is_same<T, naked_type<decltype(uneval<T>() | uneval<T>())>>))
     static_assert(!has_or_op<void>);
     static_assert(has_or_op<i32>);
 
     // has_xor_op
 
-    template<typename T, typename = void>
-    struct HasXorOp : public False {};
-
-    template<typename T>
-    struct HasXorOp<T, def_if<is_same<T, naked_type<decltype(uneval<T>() ^ uneval<T>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_xor_op = HasXorOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasXorOp, has_xor_op, (is_same<T, naked_type<decltype(uneval<T>() ^ uneval<T>())>>))
     static_assert(!has_xor_op<void>);
     static_assert(has_xor_op<i32>);
 
     // has_inv_op
 
-    template<typename T, typename = void>
-    struct HasInvOp : public False {};
-
-    template<typename T>
-    struct HasInvOp<T, def_if<is_same<T, naked_type<decltype(~uneval<T>())>>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_inv_op = HasInvOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasInvOp, has_inv_op, (is_same<T, naked_type<decltype(~uneval<T>())>>))
     static_assert(!has_inv_op<void>);
     static_assert(has_inv_op<i32>);
 
     // has_equals_op
 
-    template<typename T, typename = void>
-    struct HasEqualsOp : public False {};
-
-    template<typename T>
-    struct HasEqualsOp<T, def_if<is_same<naked_type<decltype(uneval<T>() == uneval<T>())>, bool>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_equals_op = HasEqualsOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasEqualsOp, has_equals_op, (is_same<naked_type<decltype(uneval<T>() == uneval<T>())>, bool>))
     static_assert(!has_equals_op<void>);
     static_assert(has_equals_op<i32>);
 
     // has_not_equals_op
 
-    template<typename T, typename = void>
-    struct HasNotEqualsOp : public False {};
-
-    template<typename T>
-    struct HasNotEqualsOp<T, def_if<is_same<naked_type<decltype(uneval<T>() != uneval<T>())>, bool>>> : public True {};
-
-    template<typename T> //
-    constexpr bool has_not_equals_op = HasNotEqualsOp<T>::value;
-
+    KSTD_SFINAE_TRAIT(HasNotEqualsOp, has_not_equals_op, (is_same<naked_type<decltype(uneval<T>() != uneval<T>())>, bool>))
     static_assert(!has_not_equals_op<void>);
     static_assert(has_not_equals_op<i32>);
 

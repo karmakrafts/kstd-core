@@ -53,12 +53,11 @@ namespace kstd {
 
         using ValueType = T;
         using Self = Box<ValueType, def_if_ptr<ValueType>>;
-        using NakedValueType = meta::naked_type<ValueType>;
         using StoredValueType = ValueType;
         using BorrowedValueType = ValueType&;
         using ConstBorrowedValueType = ValueType const&;
-        using Pointer = NakedValueType*;
-        using ConstPointer = const NakedValueType*;
+        using Pointer = ValueType;
+        using ConstPointer = const ValueType;
 
         private:
 
@@ -327,11 +326,11 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
-            return _value;
+            return &_value;
         }
 
         [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
-            return _value;
+            return &_value;
         }
 
         [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
@@ -352,7 +351,7 @@ namespace kstd {
     };
 
     template<typename T>
-    [[nodiscard]] constexpr auto make_box(T value) noexcept -> decltype(auto) {
+    [[nodiscard]] constexpr auto make_box(T value) noexcept -> Box<T> {
         return Box<T>(move_or_copy(value));
     }
 }

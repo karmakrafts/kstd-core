@@ -184,14 +184,4 @@ namespace kstd::libc {
             return dst;
         }
     }
-
-    template<typename T>
-    constexpr auto zero(T* ptr) noexcept -> void {
-        memset(ptr, 0, sizeof(T));
-    }
-
-    template<typename T>
-    constexpr auto zero(T& ptr) noexcept -> void {
-        memset(&ptr, 0, sizeof(T));
-    }
 }

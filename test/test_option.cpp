@@ -76,3 +76,12 @@ TEST(kstd_Option, TestReference) {
     ASSERT_TRUE(opt);
     ASSERT_EQ(opt.get(), str);
 }
+
+TEST(kstd_Option, TestNonZero) {
+    using namespace kstd::string_literals;
+    constexpr auto str = "Hello World!"_str;
+
+    auto opt = kstd::make_value(kstd::make_non_zero(&str));
+    ASSERT_TRUE(opt);
+    ASSERT_EQ(opt.borrow(), &str);
+}

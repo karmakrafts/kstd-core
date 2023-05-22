@@ -21,7 +21,17 @@
 #include <kstd/rc.hpp>
 #include <kstd/string_slice.hpp>
 
-TEST(kstd_BasicRc, TestRc) {
+TEST(kstd_BasicRc, TestEmptyRc) {
+    kstd::Rc<kstd::i32> pointer;
+    ASSERT_EQ(pointer.get_count(), 0);
+    ASSERT_TRUE(pointer == nullptr);
+
+    pointer = kstd::make_rc<kstd::i32>(1337);
+    ASSERT_EQ(pointer.get_count(), 1);
+    ASSERT_TRUE(pointer != nullptr);
+}
+
+TEST(kstd_BasicRc, TestShareRc) {
     auto ptr = kstd::make_rc<kstd::StringSlice>("Hello World!");
     ASSERT_EQ(ptr.get_count(), 1);
     ASSERT_EQ(*ptr, "Hello World!");
@@ -38,7 +48,17 @@ TEST(kstd_BasicRc, TestRc) {
     ASSERT_TRUE(another_ptr == nullptr);
 }
 
-TEST(kstd_BasicRc, TestArc) {
+TEST(kstd_BasicRc, TestEmptyArc) {
+    kstd::Arc<kstd::i32> pointer;
+    ASSERT_EQ(pointer.get_count(), 0);
+    ASSERT_TRUE(pointer == nullptr);
+
+    pointer = kstd::make_arc<kstd::i32>(1337);
+    ASSERT_EQ(pointer.get_count(), 1);
+    ASSERT_TRUE(pointer != nullptr);
+}
+
+TEST(kstd_BasicRc, TestShareArc) {
     auto ptr = kstd::make_arc<kstd::StringSlice>("Hello World!");
     ASSERT_EQ(ptr.get_count(), 1);
     ASSERT_EQ(*ptr, "Hello World!");

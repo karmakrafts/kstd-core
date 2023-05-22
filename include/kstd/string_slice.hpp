@@ -23,6 +23,7 @@
 #include "types.hpp"
 #include "allocator.hpp"
 #include "assert.hpp"
+#include "string_fwd.hpp"
 
 namespace kstd {
     template<typename CHAR> //

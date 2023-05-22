@@ -246,12 +246,12 @@ namespace kstd {
     };
 
     template<typename T, typename E = StringSlice>
-    [[nodiscard]] constexpr auto make_ok(T value) noexcept -> decltype(auto) {
+    [[nodiscard]] constexpr auto make_ok(T value) noexcept -> Result<T, E> {
         return Result<T, E>(utils::move_or_copy(value));
     }
 
     template<typename T, typename E>
-    [[nodiscard]] constexpr auto make_error(E error) noexcept -> decltype(auto) {
+    [[nodiscard]] constexpr auto make_error(E error) noexcept -> Result<T, E> {
         return Result<T, E>(Error<E>(utils::move_or_copy(error)));
     }
 }

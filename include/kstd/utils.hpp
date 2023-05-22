@@ -22,36 +22,6 @@
 #include "meta.hpp"
 
 namespace kstd::utils {
-    namespace {
-        template<typename T, usize SIZE, usize CURRENT>
-        constexpr auto _fill_array(T (& array)[SIZE], const T& value) noexcept -> void {
-            array[CURRENT] = value;
-
-            if constexpr (CURRENT < SIZE) {
-                _fill_array<T, SIZE, CURRENT + 1>(array, value);
-            }
-        }
-
-        template<usize SRC_OFFFSET, usize DST_OFFSET, usize SIZE, typename T, usize SRC_SIZE, usize DST_SIZE, usize CURRENT>
-        constexpr auto _copy_array(T (& dst)[DST_SIZE], T const (& src)[SRC_SIZE]) noexcept -> void {
-            dst[DST_OFFSET + CURRENT] = src[SRC_OFFFSET + CURRENT];
-
-            if constexpr (CURRENT < SIZE) {
-                _copy_array<SRC_OFFFSET, DST_OFFSET, SIZE, T, SRC_SIZE, DST_SIZE, CURRENT + 1>(dst, src);
-            }
-        }
-    }
-
-    template<typename T, usize SIZE>
-    constexpr auto fill_array(T (& array)[SIZE], const T& value) noexcept -> void {
-        _fill_array<T, SIZE, 0>(array, value);
-    }
-
-    template<usize SRC_OFFFSET, usize DST_OFFSET, usize SIZE, typename T, usize SRC_SIZE, usize DST_SIZE>
-    constexpr auto copy_array(T (& dst)[DST_SIZE], T const (& src)[SRC_SIZE]) noexcept -> void {
-        _copy_array<SRC_OFFFSET, DST_OFFSET, SIZE, T, SRC_SIZE, DST_SIZE, 0>(dst, src);
-    }
-
     template<typename T>
     [[nodiscard]] constexpr auto forward(T value) noexcept -> T {
         return value;

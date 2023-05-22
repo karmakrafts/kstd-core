@@ -14,32 +14,20 @@
 
 /**
  * @author Alexander Hinze
- * @since 17/05/2023
+ * @since 21/05/2023
  */
 
-#include <gtest/gtest.h>
-#include <kstd/string.hpp>
+#pragma once
 
-TEST(kstd_HeapString, TestAllocate) {
-    kstd::HeapString string;
-    ASSERT_EQ(string.get_size(), 0);
-}
+#include "allocator.hpp"
 
-TEST(kstd_HeapString, TestConcat) {
-    kstd::HeapString a;
-    kstd::HeapString b;
-    ASSERT_EQ(a.get_size(), 0);
-    ASSERT_EQ(b.get_size(), 0);
-}
+namespace kstd {
+    template<typename CHAR> //
+    struct BasicStringSlice;
 
-TEST(kstd_String, TestAllocate) {
-    kstd::String string;
-    ASSERT_EQ(string.get_size(), 0);
-}
+    template<typename CHAR, typename ALLOCATOR = Allocator<CHAR>>
+    struct BasicHeapString;
 
-TEST(kstd_String, TestConcat) {
-    kstd::String a;
-    kstd::String b;
-    ASSERT_EQ(a.get_size(), 0);
-    ASSERT_EQ(b.get_size(), 0);
+    template<typename CHAR, usize SIZE = sizeof(BasicHeapString<CHAR, Allocator<CHAR>>) / sizeof(CHAR)>
+    union BasicSmallString;
 }

@@ -24,95 +24,10 @@
 #include "libc.hpp"
 #include "meta.hpp"
 #include "utils.hpp"
+#include "string_fwd.hpp"
+#include "small_string.hpp"
 
 namespace kstd {
-    template<typename CHAR, typename ALLOCATOR = Allocator<CHAR>>
-    struct BasicHeapString;
-
-    template<typename CHAR, usize SIZE = sizeof(BasicHeapString<CHAR, Allocator<CHAR>>) / sizeof(CHAR)>
-    union BasicSmallString final {
-        static constexpr usize capacity = SIZE;
-        static constexpr usize usable_capacity = capacity - 1;
-        [[maybe_unused]] static constexpr usize byte_capacity = capacity * sizeof(CHAR);
-
-        using ValueType = CHAR;
-        using Self = BasicSmallString<ValueType, capacity>;
-        using Pointer = ValueType*;
-        using ConstPointer = const ValueType*;
-
-        private:
-
-        ValueType _data[capacity];
-
-        struct {
-            [[maybe_unused]] ValueType _padding0[capacity - 1];
-            ValueType _available_capacity : (sizeof(ValueType) << 3) - 1;
-            [[maybe_unused]] bool _is_on_heap : 1;
-        };
-
-        public:
-
-        constexpr BasicSmallString() noexcept {
-            libc::memset(_data, 0, byte_capacity);
-            _available_capacity = usable_capacity;
-            _is_on_heap = false;
-        }
-
-        constexpr BasicSmallString(const ValueType* data) noexcept { // NOLINT
-            libc::memset(_data, 0, byte_capacity);
-            const auto length = libc::get_string_length(data);
-            _available_capacity = usable_capacity - length;
-            _is_on_heap = false;
-            libc::copy_string(_data, data, length);
-        }
-
-        constexpr BasicSmallString(const Self& other) noexcept {
-            libc::memset(_data, 0, byte_capacity);
-            const auto length = other.get_size();
-            _available_capacity = usable_capacity - length;
-            _is_on_heap = false;
-            libc::copy_string(_data, other._data, length);
-        }
-
-        constexpr BasicSmallString(Self&& other) noexcept {
-            libc::memset(_data, 0, byte_capacity);
-            const auto length = other.get_size();
-            _available_capacity = usable_capacity - length;
-            _is_on_heap = false;
-            libc::copy_string(_data, other._data, length);
-        }
-
-        ~BasicSmallString() noexcept = default;
-
-        [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {
-            return usable_capacity;
-        }
-
-        [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> usize {
-            return usable_capacity * sizeof(ValueType);
-        }
-
-        [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
-            return usable_capacity - _available_capacity;
-        }
-
-        [[nodiscard]] constexpr auto get_size_in_bytes() const noexcept -> usize {
-            return (usable_capacity - _available_capacity) * sizeof(ValueType);
-        }
-
-        [[nodiscard]] constexpr auto get_data() noexcept -> Pointer {
-            return _data;
-        }
-
-        [[nodiscard]] constexpr auto get_data() const noexcept -> ConstPointer {
-            return _data;
-        }
-
-        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            return get_size() == 0;
-        }
-    };
-
     template<typename CHAR, typename ALLOCATOR>
     struct BasicHeapString final {
         using ValueType = CHAR;
@@ -126,7 +41,7 @@ namespace kstd {
         Pointer _data;
         usize _capacity;
         usize _size : (sizeof(usize) << 3) - 1;
-        bool _is_on_heap : 1;
+        [[maybe_unused]] bool _is_on_heap : 1;
 
         public:
 
@@ -161,7 +76,9 @@ namespace kstd {
             libc::copy_string(_data, other._data, other.get_size_in_bytes());
         }
 
-        ~BasicHeapString() noexcept = default;
+        ~BasicHeapString() noexcept {
+            Allocator().deallocate(_data, _capacity);
+        }
 
         [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {
             return _capacity;
@@ -240,7 +157,14 @@ namespace kstd {
             }
         }
 
-        ~BasicString() noexcept = default;
+        ~BasicString() noexcept {
+            if (_is_on_heap) {
+                _heap.~HeapType();
+            }
+            else {
+                _small.~SmallType();
+            }
+        }
 
         [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {
             if (_is_on_heap) {
@@ -294,12 +218,6 @@ namespace kstd {
             return get_size() == 0;
         }
     };
-
-    template<usize SIZE> //
-    using SmallString = BasicSmallString<char, SIZE>;
-
-    template<usize SIZE> //
-    using WSmallString = BasicSmallString<wchar_t, SIZE>;
 
     using HeapString = BasicHeapString<char>;
     using WHeapString = BasicHeapString<wchar_t>;

@@ -60,6 +60,10 @@ namespace kstd {
 
         public:
 
+        explicit constexpr BasicRc() noexcept :
+                _inner(nullptr) {
+        }
+
         explicit constexpr BasicRc(decltype(nullptr)) noexcept :
                 _inner(nullptr) {
         }
@@ -87,9 +91,31 @@ namespace kstd {
             drop();
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& = delete;
+        constexpr auto operator =(const Self& other) noexcept -> Self& {
+            if (this == &other) {
+                return *this;
+            }
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& = delete;
+            drop();
+            _inner = other._inner;
+
+            if (_inner != nullptr) {
+                ++_inner->_count;
+            }
+
+            return *this;
+        }
+
+        constexpr auto operator =(Self&& other) noexcept -> Self& {
+            drop();
+            _inner = other._inner;
+
+            if (_inner != nullptr) {
+                ++_inner->_count;
+            }
+
+            return *this;
+        }
 
         constexpr auto reset(ElementType* pointer) noexcept -> void {
             if (pointer == nullptr) {
@@ -122,6 +148,16 @@ namespace kstd {
             }
 
             return static_cast<usize>(_inner->_count);
+        }
+
+        [[nodiscard]] constexpr operator ElementType*() noexcept { // NOLINT
+            assert_true(_inner != nullptr);
+            return &_inner->_value;
+        }
+
+        [[nodiscard]] constexpr operator const ElementType*() const noexcept { // NOLINT
+            assert_true(_inner != nullptr);
+            return &_inner->_value;
         }
 
         [[nodiscard]] constexpr auto operator *() noexcept -> T& {

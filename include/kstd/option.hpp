@@ -24,16 +24,112 @@
 #include "utils.hpp"
 #include "meta.hpp"
 #include "box.hpp"
+#include "assert.hpp"
+#include "non_zero.hpp"
 
 namespace kstd {
+    namespace {
+        template<typename T>
+        struct OptionInner {
+            using ValueType = T;
+            using Self = OptionInner<ValueType>;
+            using BoxType = Box<ValueType>;
+            using BorrowedValueType = typename BoxType::BorrowedValueType;
+            using ConstBorrowedValueType = typename BoxType::ConstBorrowedValueType;
+            using Pointer = typename BoxType::Pointer;
+            using ConstPointer = typename BoxType::ConstPointer;
+
+            BoxType _value;
+            bool _is_present;
+
+            constexpr OptionInner() noexcept :
+                    _value(),
+                    _is_present(false) {
+            }
+
+            constexpr OptionInner(ValueType value) noexcept :
+                    _value(utils::move_or_copy(value)),
+                    _is_present(true) {
+            }
+
+            constexpr OptionInner(const Self& other) noexcept = default;
+
+            constexpr OptionInner(Self&& other) noexcept = default;
+
+            constexpr auto operator =(const Self& other) noexcept -> Self& = default;
+
+            constexpr auto operator =(Self&& other) noexcept -> Self& = default;
+
+            [[nodiscard]] constexpr auto is_present() const noexcept -> bool {
+                return _is_present;
+            }
+
+            [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
+                return _value.get(); // Forward rvalue so we can move
+            }
+
+            [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+                return _value.borrow();
+            }
+
+            [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+                return _value.borrow();
+            }
+        };
+
+        template<typename T>
+        struct OptionInner<NonZero<T>> {
+            using ValueType = T;
+            using Self = OptionInner<NonZero<T>>;
+            using BorrowedValueType = ValueType&;
+            using ConstBorrowedValueType = const ValueType&;
+            using Pointer = ValueType*;
+            using ConstPointer = const ValueType*;
+
+            NonZero<ValueType> _value;
+
+            constexpr OptionInner() noexcept :
+                    _value() {
+            }
+
+            constexpr OptionInner(NonZero<ValueType> value) noexcept :
+                    _value(value) {
+            }
+
+            constexpr OptionInner(const Self& other) noexcept = default;
+
+            constexpr OptionInner(Self&& other) noexcept = default;
+
+            constexpr auto operator =(const Self& other) noexcept -> Self& = default;
+
+            constexpr auto operator =(Self&& other) noexcept -> Self& = default;
+
+            [[nodiscard]] constexpr auto is_present() const noexcept -> bool {
+                return !_value.is_empty();
+            }
+
+            [[nodiscard]] constexpr auto get() noexcept -> ValueType {
+                return _value; // Copy and pass as rvalue to move automatically
+            }
+
+            [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+                return _value.borrow();
+            }
+
+            [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+                return _value.borrow();
+            }
+        };
+    }
+
     template<typename T> //
-    struct Option final {
+    struct Option {
         static constexpr bool is_pointer = meta::is_ptr<T>;
         static constexpr bool is_reference = meta::is_ref<T>;
 
-        using Self = Option<T>;
         using ValueType = T;
-        using InnerType = Box<ValueType>;
+        using Self = Option<ValueType>;
+        using InnerType = OptionInner<ValueType>;
         using BorrowedValueType = typename InnerType::BorrowedValueType;
         using ConstBorrowedValueType = typename InnerType::ConstBorrowedValueType;
         using Pointer = typename InnerType::Pointer;
@@ -120,32 +216,17 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
-            #ifdef BUILD_DEBUG
-            if (is_empty()) {
-                throw std::runtime_error("Result has no value");
-            }
-            #endif
-
+            assert_false(is_empty());
             return _inner.borrow();
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-            #ifdef BUILD_DEBUG
-            if (is_empty()) {
-                throw std::runtime_error("Result has no value");
-            }
-            #endif
-
+            assert_false(is_empty());
             return _inner.borrow();
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
-            #ifdef BUILD_DEBUG
-            if (is_empty()) {
-                throw std::runtime_error("Result has no value");
-            }
-            #endif
-
+            assert_false(is_empty());
             return _inner.get();
         }
 
@@ -171,12 +252,12 @@ namespace kstd {
     };
 
     template<typename T>
-    [[nodiscard]] constexpr auto make_empty() noexcept -> decltype(auto) {
+    [[nodiscard]] constexpr auto make_empty() noexcept -> Option<T> {
         return Option<T>();
     }
 
     template<typename T>
-    [[nodiscard]] constexpr auto make_value(T value) noexcept -> decltype(auto) {
+    [[nodiscard]] constexpr auto make_value(T value) noexcept -> Option<T> {
         return Option<T>(utils::move_or_copy(value));
     }
 }
