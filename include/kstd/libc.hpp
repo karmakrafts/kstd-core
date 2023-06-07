@@ -52,7 +52,7 @@ namespace kstd::libc {
 #endif
     }// namespace iob
 
-    using File = FILE;
+    using File = ::FILE;
 
     using ::exit;
 
