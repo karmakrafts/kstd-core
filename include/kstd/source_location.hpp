@@ -31,7 +31,7 @@ namespace kstd {
         public:
         KSTD_DEFAULT_MOVE_COPY(SourceLocation)
 
-        constexpr SourceLocation(const char* file, const char* function, usize line) noexcept :
+        constexpr SourceLocation(const char* file, const char* function, usize line) noexcept :// NOLINT
                 _file(file),
                 _function(function),
                 _line(line) {

@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cwchar>
+#include "stdio.h" // NOLINT
+#include "stdlib.h"// NOLINT
+#include "string.h"// NOLINT
+#include "wchar.h" // NOLINT
 
 #include "math.hpp"
 #include "meta.hpp"
@@ -52,85 +52,79 @@ namespace kstd::libc {
 #endif
     }// namespace iob
 
-#if defined(PLATFORM_LINUX)
-#elif defined(PLATFORM_WINDOWS)
-#else
-#ifdef __DARWIN_UNIX03
-#else
-#endif
-#endif
+    using File = FILE;
 
-    using std::exit;
+    using ::exit;
 
-    using std::calloc;
-    using std::free;
-    using std::malloc;
-    using std::realloc;
+    using ::calloc;
+    using ::free;
+    using ::malloc;
+    using ::realloc;
 
-    using std::memchr;
-    using std::memcmp;
-    using std::memcpy;
-    using std::memmove;
-    using std::memset;
+    using ::memchr;
+    using ::memcmp;
+    using ::memcpy;
+    using ::memmove;
+    using ::memset;
 
-    using std::strcat;
-    using std::strchr;
-    using std::strcmp;
-    using std::strcpy;
-    using std::strlen;
-    using std::strncmp;
-    using std::strncpy;
-    using std::strrchr;
-    using std::strstr;
-    using std::strtok;
-    using std::strxfrm;
+    using ::strcat;
+    using ::strchr;
+    using ::strcmp;
+    using ::strcpy;
+    using ::strlen;
+    using ::strncmp;
+    using ::strncpy;
+    using ::strrchr;
+    using ::strstr;
+    using ::strtok;
+    using ::strxfrm;
 
-    using std::wcscat;
-    using std::wcschr;
-    using std::wcscmp;
-    using std::wcscpy;
-    using std::wcslen;
-    using std::wcsncmp;
-    using std::wcsncpy;
-    using std::wcsrchr;
-    using std::wcsstr;
-    using std::wcstok;
-    using std::wcsxfrm;
+    using ::wcscat;
+    using ::wcschr;
+    using ::wcscmp;
+    using ::wcscpy;
+    using ::wcslen;
+    using ::wcsncmp;
+    using ::wcsncpy;
+    using ::wcsrchr;
+    using ::wcsstr;
+    using ::wcstok;
+    using ::wcsxfrm;
 
     // Formatting
-    using std::scanf;
+    using ::scanf;
 
     template<typename... ARGS>
-    constexpr auto fprintf(auto file, const char* format, ARGS&&... args) noexcept {
-        std::fprintf(file, format, utils::forward<ARGS>(args)...);// NOLINT
+    constexpr auto fprintf(File* file, const char* format, ARGS&&... args) noexcept {
+        ::fprintf(file, format, utils::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto printf(const char* format, ARGS&&... args) noexcept {
-        std::printf(format, utils::forward<ARGS>(args)...);// NOLINT
+        ::printf(format, utils::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto sprintf(char* buffer, const char* format, ARGS&&... args) noexcept {
-        std::sprintf(buffer, format, utils::forward<ARGS>(args)...);// NOLINT
+        ::sprintf(buffer, format, utils::forward<ARGS>(args)...);// NOLINT
     }
 
     // Wide formatting
-    using std::swprintf;
+    using ::swprintf;
 
     template<typename... ARGS>
-    constexpr auto fwprintf(auto file, const wchar_t* format, ARGS&&... args) noexcept {
-        std::fwprintf(file, format, utils::forward<ARGS>(args)...);// NOLINT
+    constexpr auto fwprintf(File* file, const wchar_t* format, ARGS&&... args) noexcept {
+        ::fwprintf(file, format, utils::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto wprintf(const wchar_t* format, ARGS&&... args) noexcept {
-        std::wprintf(format, utils::forward<ARGS>(args)...);// NOLINT
+        ::wprintf(format, utils::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto wscanf(wchar_t* buffer, const wchar_t* format, ARGS&&... args) noexcept {
-        std::wscanf(buffer, format, utils::forward<ARGS>(args)...);// NOLINT
+        ::wscanf(buffer, format, utils::forward<ARGS>(args)...);// NOLINT
     }
 
     // Strings
