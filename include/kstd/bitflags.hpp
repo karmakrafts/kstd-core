@@ -19,7 +19,8 @@
 
 #pragma once
 
-#define KSTD_BITFLAGS(t, n, ...) enum class n : t {                  \
+// clang-format off
+#define KSTD_BITFLAGS(t, n, ...) enum class n : t { /* NOLINT */     \
     NONE = 0,                                                        \
     __VA_ARGS__                                                      \
 };                                                                   \
@@ -47,3 +48,4 @@ constexpr auto operator ^=(n& a, n b) noexcept -> n& {               \
     a = a ^ b;                                                       \
     return a;                                                        \
 }
+// clang-format on

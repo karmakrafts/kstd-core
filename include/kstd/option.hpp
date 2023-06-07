@@ -19,13 +19,14 @@
 
 #pragma once
 
+#include "assert.hpp"
+#include "box.hpp"
+#include "defaults.hpp"
 #include "libc.hpp"
+#include "meta.hpp"
+#include "non_zero.hpp"
 #include "types.hpp"
 #include "utils.hpp"
-#include "meta.hpp"
-#include "box.hpp"
-#include "assert.hpp"
-#include "non_zero.hpp"
 
 namespace kstd {
     namespace {
@@ -42,30 +43,26 @@ namespace kstd {
             BoxType _value;
             bool _is_present;
 
+            KSTD_DEFAULT_MOVE_COPY(OptionInner)
+
             constexpr OptionInner() noexcept :
                     _value(),
                     _is_present(false) {
             }
 
-            constexpr OptionInner(ValueType value) noexcept :
+            constexpr OptionInner(ValueType value) noexcept :// NOLINT
                     _value(utils::move_or_copy(value)),
                     _is_present(true) {
             }
 
-            constexpr OptionInner(const Self& other) noexcept = default;
-
-            constexpr OptionInner(Self&& other) noexcept = default;
-
-            constexpr auto operator =(const Self& other) noexcept -> Self& = default;
-
-            constexpr auto operator =(Self&& other) noexcept -> Self& = default;
+            ~OptionInner() noexcept = default;
 
             [[nodiscard]] constexpr auto is_present() const noexcept -> bool {
                 return _is_present;
             }
 
             [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
-                return _value.get(); // Forward rvalue so we can move
+                return _value.get();// Forward rvalue so we can move
             }
 
             [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
@@ -88,28 +85,24 @@ namespace kstd {
 
             NonZero<ValueType> _value;
 
+            KSTD_DEFAULT_MOVE_COPY(OptionInner)
+
             constexpr OptionInner() noexcept :
                     _value() {
             }
 
-            constexpr OptionInner(NonZero<ValueType> value) noexcept :
+            constexpr OptionInner(NonZero<ValueType> value) noexcept :// NOLINT
                     _value(value) {
             }
 
-            constexpr OptionInner(const Self& other) noexcept = default;
-
-            constexpr OptionInner(Self&& other) noexcept = default;
-
-            constexpr auto operator =(const Self& other) noexcept -> Self& = default;
-
-            constexpr auto operator =(Self&& other) noexcept -> Self& = default;
+            ~OptionInner() noexcept = default;
 
             [[nodiscard]] constexpr auto is_present() const noexcept -> bool {
                 return !_value.is_empty();
             }
 
             [[nodiscard]] constexpr auto get() noexcept -> ValueType {
-                return _value; // Copy and pass as rvalue to move automatically
+                return _value;// Copy and pass as rvalue to move automatically
             }
 
             [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
@@ -120,9 +113,9 @@ namespace kstd {
                 return _value.borrow();
             }
         };
-    }
+    }// namespace
 
-    template<typename T> //
+    template<typename T>
     struct Option {
         static constexpr bool is_pointer = meta::is_ptr<T>;
         static constexpr bool is_reference = meta::is_ref<T>;
@@ -136,18 +129,16 @@ namespace kstd {
         using ConstPointer = typename InnerType::ConstPointer;
 
         private:
-
         InnerType _inner;
         bool _is_present;
 
         public:
-
         constexpr Option() noexcept :
                 _inner(),
                 _is_present(false) {
         }
 
-        constexpr Option(ValueType value) noexcept : // NOLINT
+        constexpr Option(ValueType value) noexcept :// NOLINT
                 _inner(utils::move_or_copy(value)),
                 _is_present(true) {
         }
@@ -155,7 +146,7 @@ namespace kstd {
         constexpr Option(const Self& other) noexcept :
                 _inner(),
                 _is_present(other._is_present) {
-            if (other) {
+            if(other) {
                 drop();
                 _inner = other._inner.borrow();
             }
@@ -164,7 +155,7 @@ namespace kstd {
         constexpr Option(Self&& other) noexcept :
                 _inner(),
                 _is_present(other._is_present) {
-            if (other) {
+            if(other) {
                 drop();
                 _inner = other._inner.get();
             }
@@ -180,15 +171,13 @@ namespace kstd {
 
         constexpr auto drop() noexcept -> void {
             _inner.~InnerType();
-            _is_present = false; // Mark this option as empty after releasing ownership
+            _is_present = false;// Mark this option as empty after releasing ownership
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& {
-            if (this == &other) {
-                return *this;
-            }
+        constexpr auto operator=(const Self& other) noexcept -> Self& {
+            if(this == &other) { return *this; }
 
-            if (other) {
+            if(other) {
                 drop();
                 _inner = other._inner;
                 _is_present = true;
@@ -197,8 +186,8 @@ namespace kstd {
             return *this;
         }
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& {
-            if (other) {
+        constexpr auto operator=(Self&& other) noexcept -> Self& {
+            if(other) {
                 drop();
                 _inner = utils::move(other._inner);
                 _is_present = true;
@@ -230,23 +219,23 @@ namespace kstd {
             return _inner.get();
         }
 
-        [[nodiscard]] constexpr operator bool() const noexcept { // NOLINT
+        [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
             return has_value();
         }
 
-        [[nodiscard]] constexpr auto operator *() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
             return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstBorrowedValueType {
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
             return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
             return &borrow();
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return &borrow();
         }
     };
@@ -260,4 +249,4 @@ namespace kstd {
     [[nodiscard]] constexpr auto make_value(T value) noexcept -> Option<T> {
         return Option<T>(utils::move_or_copy(value));
     }
-}
+}// namespace kstd

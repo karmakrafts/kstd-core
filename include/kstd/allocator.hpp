@@ -19,23 +19,23 @@
 
 #pragma once
 
-#include "libc.hpp"
-#include "types.hpp"
-#include "meta.hpp"
-#include "utils.hpp"
 #include "assert.hpp"
+#include "libc.hpp"
+#include "meta.hpp"
+#include "types.hpp"
+#include "utils.hpp"
 
-/*
- * Allows for the easy customization of the default memory allocator used by the kstd library.
- * Simple define your own versions of these macros before including any kstd headers, and they'll
- * automatically use your custom memory allocator implementation.
+/**
+ * @brief Allows for the easy customization of the default memory allocator used by the kstd library.
+ *   Simple define your own versions of these macros before including any kstd headers, and they'll
+ *   automatically use your custom memory allocator implementation.
  */
 #ifndef KSTD_MEMORY_ALLOC_FN
-    #define KSTD_MEMORY_ALLOC_FN(s) kstd::libc::malloc(s)
+#define KSTD_MEMORY_ALLOC_FN(s) kstd::libc::malloc(s)// NOLINT
 #endif
 
 #ifndef KSTD_MEMORY_FREE_FN
-    #define KSTD_MEMORY_FREE_FN(p) kstd::libc::free(p)
+#define KSTD_MEMORY_FREE_FN(p) kstd::libc::free(p)// NOLINT
 #endif
 
 namespace kstd {
@@ -49,7 +49,7 @@ namespace kstd {
         }
 
         template<typename... ARGS>
-        [[nodiscard]] constexpr auto construct(ARGS&& ... args) noexcept -> T* {
+        [[nodiscard]] constexpr auto construct(ARGS&&... args) noexcept -> T* {
             auto* memory = get_self().allocate(1);
             assert_true(memory != nullptr);
             new(memory) T(utils::forward<ARGS>(args)...);
@@ -57,10 +57,7 @@ namespace kstd {
         }
 
         constexpr auto destroy(T* object) noexcept -> void {
-            if (object == nullptr) {
-                return;
-            }
-
+            if(object == nullptr) { return; }
             object->~T();
             get_self().deallocate(object, 1);
         }
@@ -71,12 +68,12 @@ namespace kstd {
         using ValueType = T;
 
         [[nodiscard]] constexpr auto allocate(usize count) noexcept -> T* {
-            return reinterpret_cast<T*>(KSTD_MEMORY_ALLOC_FN(sizeof(ValueType) * count));
+            return static_cast<T*>(KSTD_MEMORY_ALLOC_FN(sizeof(ValueType) * count));
         }
 
         [[nodiscard, maybe_unused]] constexpr auto allocate_zero(usize count) noexcept -> T* {
             const auto size = sizeof(ValueType) * count;
-            auto* memory = reinterpret_cast<T*>(KSTD_MEMORY_ALLOC_FN(size));
+            auto* memory = static_cast<T*>(KSTD_MEMORY_ALLOC_FN(size));
             libc::memset(memory, 0, size);
             return memory;
         }
@@ -88,15 +85,15 @@ namespace kstd {
 
     template<typename T>
     struct Deleter final {
-        constexpr auto operator ()(T* memory) noexcept -> void {
+        constexpr auto operator()(T* memory) noexcept -> void {
             Allocator<T>().destroy(memory);
         }
     };
 
     template<typename T>
     struct FreeDeleter final {
-        constexpr auto operator ()(T* memory) noexcept -> void {
+        constexpr auto operator()(T* memory) noexcept -> void {
             Allocator<T>().deallocate(memory, 1);
         }
     };
-}
+}// namespace kstd

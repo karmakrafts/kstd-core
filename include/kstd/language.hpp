@@ -20,17 +20,17 @@
 #pragma once
 
 #if __cplusplus >= 202002L
-    #define KSTD_CPP_20
+#define KSTD_CPP_20
 #endif
 
 #if __cplusplus >= 201703L
-    #define KSTD_CPP_17
+#define KSTD_CPP_17
 #endif
 
 #if __cplusplus >= 201402L
-    #define KSTD_CPP_14
+#define KSTD_CPP_14
 #endif
 
 #if __cplusplus >= 201103L
-    #define KSTD_CPP_11
+#define KSTD_CPP_11
 #endif

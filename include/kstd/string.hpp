@@ -19,13 +19,14 @@
 
 #pragma once
 
-#include "types.hpp"
 #include "allocator.hpp"
+#include "array.hpp"
 #include "libc.hpp"
 #include "meta.hpp"
-#include "utils.hpp"
-#include "string_fwd.hpp"
 #include "small_string.hpp"
+#include "string_fwd.hpp"
+#include "types.hpp"
+#include "utils.hpp"
 
 namespace kstd {
     template<typename CHAR, typename ALLOCATOR>
@@ -37,14 +38,12 @@ namespace kstd {
         using ConstPointer = const ValueType*;
 
         private:
-
         Pointer _data;
         usize _capacity;
         usize _size : (sizeof(usize) << 3) - 1;
         [[maybe_unused]] bool _is_on_heap : 1;
 
         public:
-
         constexpr BasicHeapString() noexcept :
                 _data(Allocator().allocate_zero(1)),
                 _capacity(1),
@@ -52,7 +51,7 @@ namespace kstd {
                 _is_on_heap(true) {
         }
 
-        constexpr BasicHeapString(const ValueType* data) noexcept : // NOLINT
+        constexpr BasicHeapString(const ValueType* data) noexcept :// NOLINT
                 _capacity(libc::get_string_length(data) + 1),
                 _data(Allocator().allocate_zero(_capacity)),
                 _size(_capacity - 1),
@@ -78,6 +77,14 @@ namespace kstd {
 
         ~BasicHeapString() noexcept {
             Allocator().deallocate(_data, _capacity);
+        }
+
+        constexpr auto operator=(const Self& other) noexcept -> Self& {
+            reserve(other.get_size());
+            return *this;
+        }
+
+        constexpr auto reserve(usize count) noexcept -> void {
         }
 
         [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {
@@ -109,6 +116,9 @@ namespace kstd {
         }
     };
 
+    using HeapString = BasicHeapString<char>;
+    using WHeapString = BasicHeapString<wchar_t>;
+
     template<typename CHAR, typename ALLOCATOR = Allocator<CHAR>>
     union BasicString final {
         using ValueType = CHAR;
@@ -120,96 +130,72 @@ namespace kstd {
         using ConstPointer = const ValueType*;
 
         private:
-
         SmallType _small;
         HeapType _heap;
 
         struct {
-            [[maybe_unused]] ValueType _padding0[SmallType::capacity - 1];
+            [[maybe_unused]] Array<ValueType, SmallType::capacity - 1> _padding0;
             [[maybe_unused]] ValueType _padding1 : (sizeof(ValueType) << 3) - 1;
             bool _is_on_heap : 1;
         };
 
         public:
-
         constexpr BasicString() noexcept :
                 _small() {
-            _is_on_heap = false; // Make clang-tidy shut up..
+            _is_on_heap = false;// Make clang-tidy shut up..
         }
 
-        constexpr BasicString(const Self& other) noexcept :
-                _small() {
-            if (other._is_on_heap) {
-                new(&_heap) HeapType(other._heap);
-            }
-            else {
-                new(&_small) SmallType(other._small);
-            }
+        constexpr BasicString(const Self& other) noexcept {// NOLINT: we DO initialize them, conditionally..
+            if(other._is_on_heap) { new(&_heap) HeapType(other._heap); }
+            else { new(&_small) SmallType(other._small); }
         }
 
-        constexpr BasicString(Self&& other) noexcept :
-                _small() {
-            if (other._is_on_heap) {
-                new(&_heap) HeapType(other._heap);
-            }
-            else {
-                new(&_small) SmallType(other._small);
-            }
+        constexpr BasicString(Self&& other) noexcept {// NOLINT: we DO initialize them, conditionally..
+            if(other._is_on_heap) { new(&_heap) HeapType(other._heap); }
+            else { new(&_small) SmallType(other._small); }
         }
 
         ~BasicString() noexcept {
-            if (_is_on_heap) {
+            if(_is_on_heap) {
                 _heap.~HeapType();
+                return;
             }
-            else {
-                _small.~SmallType();
-            }
+
+            _small.~SmallType();
         }
 
         [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {
-            if (_is_on_heap) {
-                return _heap.get_capacity();
-            }
+            if(_is_on_heap) { return _heap.get_capacity(); }
 
             return _small.get_capacity();
         }
 
         [[nodiscard]] constexpr auto get_capacity_in_bytes() const noexcept -> usize {
-            if (_is_on_heap) {
-                return _heap.get_capacity_in_bytes();
-            }
+            if(_is_on_heap) { return _heap.get_capacity_in_bytes(); }
 
             return _small.get_capacity_in_bytes();
         }
 
         [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
-            if (_is_on_heap) {
-                return _heap.get_size();
-            }
+            if(_is_on_heap) { return _heap.get_size(); }
 
             return _small.get_size();
         }
 
         [[nodiscard]] constexpr auto get_size_in_bytes() const noexcept -> usize {
-            if (_is_on_heap) {
-                return _heap.get_size_in_bytes();
-            }
+            if(_is_on_heap) { return _heap.get_size_in_bytes(); }
 
             return _small.get_size_in_bytes();
         }
 
         [[nodiscard]] constexpr auto get_data() noexcept -> Pointer {
-            if (_is_on_heap) {
-                return _heap.get_data();
-            }
+            if(_is_on_heap) { return _heap.get_data(); }
 
             return _small.get_data();
         }
 
         [[nodiscard]] constexpr auto get_data() const noexcept -> ConstPointer {
-            if (_is_on_heap) {
-                return _heap.get_data();
-            }
+            if(_is_on_heap) { return _heap.get_data(); }
 
             return _small.get_data();
         }
@@ -219,9 +205,6 @@ namespace kstd {
         }
     };
 
-    using HeapString = BasicHeapString<char>;
-    using WHeapString = BasicHeapString<wchar_t>;
-
     using String = BasicString<char>;
     using WString = BasicString<wchar_t>;
-}
+}// namespace kstd

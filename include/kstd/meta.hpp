@@ -21,12 +21,13 @@
 
 #include "types.hpp"
 
-#define KSTD_SFINAE_TRAIT(t, n, c) template<typename T, typename = void>    \
-struct t : public kstd::meta::False {};                                     \
-template<typename T>                                                        \
-struct t<T, kstd::meta::def_if<(c)>> : public kstd::meta::True {};          \
-template<typename T>                                                        \
-constexpr bool n = t<T>::value; // NOLINT
+#define KSTD_SFINAE_TRAIT(t, n, c)                                                                                     \
+    template<typename T, typename = void> /* NOLINT */                                                                 \
+    struct t : public kstd::meta::False {};                                                                            \
+    template<typename T>                                                                                               \
+    struct t<T, kstd::meta::def_if<(c)>> : public kstd::meta::True {};                                                 \
+    template<typename T>                                                                                               \
+    constexpr bool n = t<T>::value;// NOLINT
 
 namespace kstd::meta {
     // Constant
@@ -36,7 +37,7 @@ namespace kstd::meta {
         static constexpr T value = VALUE;
         using ValueType = T;
 
-        [[nodiscard]] constexpr auto operator ()() const noexcept -> ValueType {
+        [[nodiscard]] constexpr auto operator()() const noexcept -> ValueType {
             return value;
         }
     };
@@ -51,7 +52,7 @@ namespace kstd::meta {
 
     template<typename T>
     [[nodiscard]] constexpr auto uneval() noexcept -> T {
-        throw; // NOLINT: if this is reached at runtime, terminate
+        throw;// NOLINT: if this is reached at runtime, terminate
     }
 
     // is_standard_layout
@@ -61,7 +62,7 @@ namespace kstd::meta {
         static constexpr bool value = __is_standard_layout(T);
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_standard_layout = IsStandardLayout<T>::value;
 
     // is_trivial
@@ -71,7 +72,7 @@ namespace kstd::meta {
         static constexpr bool value = __is_trivial(T);
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_trivial = IsTrivial<T>::value;
 
     // is_trivially_copyable
@@ -81,7 +82,7 @@ namespace kstd::meta {
         static constexpr bool value = __is_trivially_copyable(T);
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_trivially_copyable = IsTriviallyCopyable<T>::value;
 
     // is_base_of
@@ -91,7 +92,7 @@ namespace kstd::meta {
         static constexpr bool value = __is_base_of(BASE, DERIVED);
     };
 
-    template<typename BASE, typename DERIVED> //
+    template<typename BASE, typename DERIVED>//
     constexpr bool is_base_of = IsBaseOf<BASE, DERIVED>::value;
 
     // is_constructible
@@ -101,7 +102,7 @@ namespace kstd::meta {
         static constexpr bool value = __is_constructible(T, ARGS...);
     };
 
-    template<typename T, typename... ARGS> //
+    template<typename T, typename... ARGS>//
     constexpr bool is_constructible = IsConstructible<T, ARGS...>::value;
 
     // is_default_constructible
@@ -111,7 +112,7 @@ namespace kstd::meta {
         static constexpr bool value = __is_constructible(T);
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_default_constructible = IsDefaultConstructible<T>::value;
 
     // is_assignable
@@ -121,7 +122,7 @@ namespace kstd::meta {
         static constexpr bool value = __is_assignable(LHS, RHS);
     };
 
-    template<typename LHS, typename RHS> //
+    template<typename LHS, typename RHS>//
     constexpr bool is_assignable = IsAssignable<LHS, RHS>::value;
 
     // is_same
@@ -132,7 +133,7 @@ namespace kstd::meta {
     template<typename T>
     struct IsSame<T, T> : public True {};
 
-    template<typename A, typename B> //
+    template<typename A, typename B>//
     constexpr bool is_same = IsSame<A, B>::value;
 
     static_assert(is_same<i32, i32>, "Types are matching, trait should return true");
@@ -146,7 +147,7 @@ namespace kstd::meta {
     template<>
     struct IsVoid<void> : public True {};
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_void = IsVoid<T>::value;
 
     static_assert(is_void<void>, "Type is void, trait should return true");
@@ -165,7 +166,7 @@ namespace kstd::meta {
     template<typename T>
     struct DefIf<false, T> {};
 
-    template<bool CONDITION, typename T = void> //
+    template<bool CONDITION, typename T = void>//
     using def_if = typename DefIf<CONDITION, T>::Type;
 
     // conditional
@@ -183,7 +184,7 @@ namespace kstd::meta {
         using Type = IF_FALSE;
     };
 
-    template<bool CONDITION, typename IF_TRUE, typename IF_FALSE> //
+    template<bool CONDITION, typename IF_TRUE, typename IF_FALSE>//
     using conditional = typename Conditional<CONDITION, IF_TRUE, IF_FALSE>::Type;
 
     // is_destructible
@@ -197,28 +198,28 @@ namespace kstd::meta {
      * because it itself will become ill-formed.
      */
 
-    #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+#if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
     KSTD_SFINAE_TRAIT(IsDestructible, is_destructible, is_void<decltype(uneval<T>().~T())>)
-    #else
+#else
     template<typename T>
     struct IsDestructible final {
         static constexpr bool value = __is_destructible(T);
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_destructible = IsDestructible<T>::value;
-    #endif // defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+#endif// defined(COMPILER_GCC) || defined(COMPILER_CLANG)
 
     namespace {
         struct Destructible final {};
 
-        struct NonDestructible final {
+        struct NonDestructible final {// NOLINT
             ~NonDestructible() noexcept = delete;
         };
 
         static_assert(is_destructible<Destructible>, "Type is destructible, trait should return true");
         static_assert(!is_destructible<NonDestructible>, "Type is non-destructible, trait should return false");
-    }
+    }// namespace
 
     // is_ptr
 
@@ -228,7 +229,8 @@ namespace kstd::meta {
     template<typename T>
     struct IsPtr<T*> : public True {};
 
-    template<typename T> constexpr bool is_ptr = IsPtr<T>::value;
+    template<typename T>
+    constexpr bool is_ptr = IsPtr<T>::value;
 
     static_assert(is_ptr<i32*>, "Type is pointer, trait should return true");
     static_assert(is_ptr<const i32*>, "Type is pointer, trait should return true");
@@ -242,7 +244,7 @@ namespace kstd::meta {
     template<typename T>
     struct IsLValueRef<T&> : public True {};
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_lvalue_ref = IsLValueRef<T>::value;
 
     static_assert(is_lvalue_ref<i32&>, "Type is an lvalue reference, trait should return true");
@@ -258,7 +260,7 @@ namespace kstd::meta {
     template<typename T>
     struct IsRValueRef<T&&> : public True {};
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_rvalue_ref = IsRValueRef<T>::value;
 
     static_assert(!is_rvalue_ref<i32&>, "Type is not an rvalue reference, trait should return true");
@@ -273,7 +275,7 @@ namespace kstd::meta {
         static constexpr bool value = is_lvalue_ref<T> || is_rvalue_ref<T>;
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_ref = IsRef<T>::value;
 
     // is_move_assignable
@@ -283,7 +285,7 @@ namespace kstd::meta {
         static constexpr bool value = is_assignable<T&, T&&>;
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_move_assignable = IsMoveAssignable<T>::value;
 
     // is_move_constructible
@@ -293,7 +295,7 @@ namespace kstd::meta {
         static constexpr bool value = is_constructible<T, T&&>;
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_move_constructible = IsMoveConstructible<T>::value;
 
     // is_movable
@@ -303,7 +305,7 @@ namespace kstd::meta {
         static constexpr bool value = is_move_assignable<T> || is_move_constructible<T>;
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_movable = IsMovable<T>::value;
 
     // is_copy_assignable
@@ -313,7 +315,7 @@ namespace kstd::meta {
         static constexpr bool value = is_assignable<T&, const T&>;
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_copy_assignable = IsCopyAssignable<T>::value;
 
     // is_copy_constructible
@@ -323,7 +325,7 @@ namespace kstd::meta {
         static constexpr bool value = is_constructible<T, const T&>;
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_copy_constructible = IsCopyConstructible<T>::value;
 
     // is_copyable
@@ -333,7 +335,7 @@ namespace kstd::meta {
         static constexpr bool value = is_copy_assignable<T> || is_copy_constructible<T>;
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_copyable = IsCopyable<T>::value;
 
     // is_const
@@ -353,7 +355,7 @@ namespace kstd::meta {
     template<typename T>
     struct IsConst<const T&&> : public True {};
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_const = IsConst<T>::value;
 
     // is_volatile
@@ -373,7 +375,7 @@ namespace kstd::meta {
     template<typename T>
     struct IsVolatile<volatile T&&> : public True {};
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_volatile = IsVolatile<T>::value;
 
     // is_cv
@@ -383,7 +385,7 @@ namespace kstd::meta {
         static constexpr bool value = is_const<T> || is_volatile<T>;
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_cv = IsCV<T>::value;
 
     static_assert(!is_cv<void>);
@@ -401,7 +403,7 @@ namespace kstd::meta {
         static constexpr bool value = !is_ptr<T> && !is_ref<T>;
     };
 
-    template<typename T> //
+    template<typename T>//
     constexpr bool is_value = IsValue<T>::value;
 
     static_assert(is_value<i32>);
@@ -420,7 +422,7 @@ namespace kstd::meta {
         using Type = T;
     };
 
-    template<typename T> //
+    template<typename T>//
     using remove_ref = typename RemoveRef<T>::Type;
 
     // remove_ptr
@@ -435,7 +437,7 @@ namespace kstd::meta {
         using Type = T;
     };
 
-    template<typename T> //
+    template<typename T>//
     using remove_ptr = typename RemovePtr<T>::Type;
 
     // remove_const
@@ -465,7 +467,7 @@ namespace kstd::meta {
         using Type = T&&;
     };
 
-    template<typename T> //
+    template<typename T>//
     using remove_const = typename RemoveConst<T>::Type;
 
     static_assert(is_same<remove_const<i32>, i32>);
@@ -500,7 +502,7 @@ namespace kstd::meta {
         using Type = T&&;
     };
 
-    template<typename T> //
+    template<typename T>//
     using remove_volatile = typename RemoveVolatile<T>::Type;
 
     static_assert(is_same<remove_volatile<i32>, i32>);
@@ -515,7 +517,7 @@ namespace kstd::meta {
         using Type = remove_const<remove_volatile<T>>;
     };
 
-    template<typename T> //
+    template<typename T>//
     using remove_cv = typename RemoveCV<T>::Type;
 
     static_assert(is_same<remove_cv<const i32*>, i32*>);
@@ -529,7 +531,7 @@ namespace kstd::meta {
         using Type = remove_ref<remove_ptr<remove_cv<T>>>;
     };
 
-    template<typename T> //
+    template<typename T>//
     using naked_type = typename NakedType<T>::Type;
 
     static_assert(is_same<naked_type<i32>, i32>);
@@ -545,7 +547,7 @@ namespace kstd::meta {
         using Type = T&;
     };
 
-    template<typename T> //
+    template<typename T>//
     using lvalue_ref = typename LValueRef<T>::Type;
 
     static_assert(is_same<lvalue_ref<i32>, i32&>);
@@ -557,7 +559,7 @@ namespace kstd::meta {
         using Type = T const&;
     };
 
-    template<typename T> //
+    template<typename T>//
     using const_lvalue_ref = typename ConstLValueRef<T>::Type;
 
     static_assert(is_same<const_lvalue_ref<i32>, const i32&>);
@@ -569,7 +571,7 @@ namespace kstd::meta {
         using Type = T&&;
     };
 
-    template<typename T> //
+    template<typename T>//
     using rvalue_ref = typename RValueRef<T>::Type;
 
     static_assert(is_same<rvalue_ref<i32>, i32&&>);
@@ -596,7 +598,7 @@ namespace kstd::meta {
         using Type = const T&&;
     };
 
-    template<typename T> //
+    template<typename T>//
     using add_const = typename AddConst<T>::Type;
 
     static_assert(is_same<add_const<i32*>, const i32*>);
@@ -620,7 +622,7 @@ namespace kstd::meta {
         using Type = volatile T&;
     };
 
-    template<typename T> //
+    template<typename T>//
     using add_volatile = typename AddVolatile<T>::Type;
 
     static_assert(is_same<add_volatile<i32>, volatile i32>);
@@ -634,7 +636,7 @@ namespace kstd::meta {
         using Type = T*;
     };
 
-    template<typename T> //
+    template<typename T>//
     using add_ptr = typename AddPtr<T>::Type;
 
     static_assert(is_same<add_ptr<void>, void*>);
@@ -642,79 +644,80 @@ namespace kstd::meta {
 
     // has_add_op
 
-    KSTD_SFINAE_TRAIT(HasAddOp, has_add_op, (is_same<T, naked_type<decltype(uneval<T>() + uneval<T>())>>))
+    KSTD_SFINAE_TRAIT(HasAddOp, has_add_op, (is_same<T, naked_type<decltype(uneval<T>() + uneval<T>())>>) )
     static_assert(!has_add_op<void>);
     static_assert(has_add_op<i32>);
 
     // has_sub_op
 
-    KSTD_SFINAE_TRAIT(HasSubOp, has_sub_op, (is_same<T, naked_type<decltype(uneval<T>() - uneval<T>())>>))
+    KSTD_SFINAE_TRAIT(HasSubOp, has_sub_op, (is_same<T, naked_type<decltype(uneval<T>() - uneval<T>())>>) )
     static_assert(!has_sub_op<void>);
     static_assert(has_sub_op<i32>);
 
     // has_mul_op
 
-    KSTD_SFINAE_TRAIT(HasMulOp, has_mul_op, (is_same<T, naked_type<decltype(uneval<T>() * uneval<T>())>>))
+    KSTD_SFINAE_TRAIT(HasMulOp, has_mul_op, (is_same<T, naked_type<decltype(uneval<T>() * uneval<T>())>>) )
     static_assert(!has_mul_op<void>);
     static_assert(has_mul_op<i32>);
 
     // has_div_op
 
-    KSTD_SFINAE_TRAIT(HasDivOp, has_div_op, (is_same<T, naked_type<decltype(uneval<T>() / uneval<T>())>>));
+    KSTD_SFINAE_TRAIT(HasDivOp, has_div_op, (is_same<T, naked_type<decltype(uneval<T>() / uneval<T>())>>) );
     static_assert(!has_div_op<void>);
     static_assert(has_div_op<i32>);
 
     // has_mod_op
 
-    KSTD_SFINAE_TRAIT(HasModOp, has_mod_op, (is_same<T, naked_type<decltype(uneval<T>() % uneval<T>())>>))
+    KSTD_SFINAE_TRAIT(HasModOp, has_mod_op, (is_same<T, naked_type<decltype(uneval<T>() % uneval<T>())>>) )
     static_assert(!has_mod_op<void>);
     static_assert(has_mod_op<i32>);
 
     // has_shl_op
 
-    KSTD_SFINAE_TRAIT(HasShlOp, has_shl_op, (is_same<T, naked_type<decltype(uneval<T>() << uneval<i32>())>>))
+    KSTD_SFINAE_TRAIT(HasShlOp, has_shl_op, (is_same<T, naked_type<decltype(uneval<T>() << uneval<i32>())>>) )
     static_assert(!has_shl_op<void>);
     static_assert(has_shl_op<i32>);
 
     // has_shr_op
 
-    KSTD_SFINAE_TRAIT(HasShrOp, has_shr_op, (is_same<T, naked_type<decltype(uneval<T>() >> uneval<i32>())>>))
+    KSTD_SFINAE_TRAIT(HasShrOp, has_shr_op, (is_same<T, naked_type<decltype(uneval<T>() >> uneval<i32>())>>) )
     static_assert(!has_shr_op<void>);
     static_assert(has_shr_op<i32>);
 
     // has_and_op
 
-    KSTD_SFINAE_TRAIT(HasAndOp, has_and_op, (is_same<T, naked_type<decltype(uneval<T>() & uneval<T>())>>))
+    KSTD_SFINAE_TRAIT(HasAndOp, has_and_op, (is_same<T, naked_type<decltype(uneval<T>() & uneval<T>())>>) )
     static_assert(!has_and_op<void>);
     static_assert(has_and_op<i32>);
 
     // has_or_op
 
-    KSTD_SFINAE_TRAIT(HasOrOp, has_or_op, (is_same<T, naked_type<decltype(uneval<T>() | uneval<T>())>>))
+    KSTD_SFINAE_TRAIT(HasOrOp, has_or_op, (is_same<T, naked_type<decltype(uneval<T>() | uneval<T>())>>) )
     static_assert(!has_or_op<void>);
     static_assert(has_or_op<i32>);
 
     // has_xor_op
 
-    KSTD_SFINAE_TRAIT(HasXorOp, has_xor_op, (is_same<T, naked_type<decltype(uneval<T>() ^ uneval<T>())>>))
+    KSTD_SFINAE_TRAIT(HasXorOp, has_xor_op, (is_same<T, naked_type<decltype(uneval<T>() ^ uneval<T>())>>) )
     static_assert(!has_xor_op<void>);
     static_assert(has_xor_op<i32>);
 
     // has_inv_op
 
-    KSTD_SFINAE_TRAIT(HasInvOp, has_inv_op, (is_same<T, naked_type<decltype(~uneval<T>())>>))
+    KSTD_SFINAE_TRAIT(HasInvOp, has_inv_op, (is_same<T, naked_type<decltype(~uneval<T>())>>) )
     static_assert(!has_inv_op<void>);
     static_assert(has_inv_op<i32>);
 
     // has_equals_op
 
-    KSTD_SFINAE_TRAIT(HasEqualsOp, has_equals_op, (is_same<naked_type<decltype(uneval<T>() == uneval<T>())>, bool>))
+    KSTD_SFINAE_TRAIT(HasEqualsOp, has_equals_op, (is_same<naked_type<decltype(uneval<T>() == uneval<T>())>, bool>) )
     static_assert(!has_equals_op<void>);
     static_assert(has_equals_op<i32>);
 
     // has_not_equals_op
 
-    KSTD_SFINAE_TRAIT(HasNotEqualsOp, has_not_equals_op, (is_same<naked_type<decltype(uneval<T>() != uneval<T>())>, bool>))
+    KSTD_SFINAE_TRAIT(HasNotEqualsOp, has_not_equals_op,
+                      (is_same<naked_type<decltype(uneval<T>() != uneval<T>())>, bool>) )
     static_assert(!has_not_equals_op<void>);
     static_assert(has_not_equals_op<i32>);
 
@@ -742,7 +745,7 @@ namespace kstd::meta {
         using Type = HEAD;
     };
 
-    template<usize INDEX, typename PACK> //
+    template<usize INDEX, typename PACK>//
     using pack_element = typename PackElement<INDEX, PACK>::Type;
 
     static_assert(is_same<pack_element<0, Pack<i32, f32, u32>>, i32>, "Type should be i32");
@@ -757,7 +760,8 @@ namespace kstd::meta {
     };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... SKIPPED>
-    struct SkipElements<COUNT, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> : public SkipElements<COUNT - 1, Pack<TAIL...>, Pack<SKIPPED..., HEAD>> {};
+    struct SkipElements<COUNT, Pack<HEAD, TAIL...>, Pack<SKIPPED...>>
+            : public SkipElements<COUNT - 1, Pack<TAIL...>, Pack<SKIPPED..., HEAD>> {};
 
     template<typename HEAD, typename... TAIL, typename... SKIPPED>
     struct SkipElements<0, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> {
@@ -769,13 +773,14 @@ namespace kstd::meta {
         using Type = Pack<>;
     };
 
-    template<usize COUNT, typename PACK> //
+    template<usize COUNT, typename PACK>//
     using skip_elements = typename SkipElements<COUNT, PACK>::Type;
 
     static_assert(is_same<skip_elements<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
     static_assert(is_same<skip_elements<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<skip_elements<0, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>, "Pack type should be Pack<i32, f32, u64>");
+    static_assert(is_same<skip_elements<0, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
+                  "Pack type should be Pack<i32, f32, u64>");
     static_assert(is_same<skip_elements<1, Pack<i32, f32, u64>>, Pack<f32, u64>>, "Pack type should be Pack<f32, u64>");
     static_assert(is_same<skip_elements<2, Pack<i32, f32, u64>>, Pack<u64>>, "Pack type should be Pack<u64>");
     static_assert(is_same<skip_elements<3, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
@@ -793,7 +798,8 @@ namespace kstd::meta {
     };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... ACCUMULATED>
-    struct TrimElements<COUNT, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> : public TrimElements<COUNT - 1, Pack<TAIL...>, Pack<ACCUMULATED..., HEAD>> {};
+    struct TrimElements<COUNT, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>>
+            : public TrimElements<COUNT - 1, Pack<TAIL...>, Pack<ACCUMULATED..., HEAD>> {};
 
     template<typename HEAD, typename... TAIL, typename... ACCUMULATED>
     struct TrimElements<0, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> {
@@ -805,13 +811,14 @@ namespace kstd::meta {
         using Type = Pack<ACCUMULATED...>;
     };
 
-    template<usize COUNT, typename PACK> //
+    template<usize COUNT, typename PACK>//
     using trim_elements = typename TrimElements<COUNT, PACK>::Type;
 
     static_assert(is_same<trim_elements<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
     static_assert(is_same<trim_elements<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<trim_elements<3, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>, "Pack type should be Pack<i32, f32, u64>");
+    static_assert(is_same<trim_elements<3, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
+                  "Pack type should be Pack<i32, f32, u64>");
     static_assert(is_same<trim_elements<2, Pack<i32, f32, u64>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
     static_assert(is_same<trim_elements<1, Pack<i32, f32, u64>>, Pack<i32>>, "Pack type should be Pack<i32>");
     static_assert(is_same<trim_elements<0, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
@@ -837,21 +844,27 @@ namespace kstd::meta {
         using Type = Pack<>;
     };
 
-    template<usize BEGIN, usize END, typename PACK> //
+    template<usize BEGIN, usize END, typename PACK>//
     using slice_pack = typename SlicePack<BEGIN, END, PACK>::Type;
 
     static_assert(is_same<slice_pack<0, 0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
     static_assert(is_same<slice_pack<0, 1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
     static_assert(is_same<slice_pack<1, 2, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<slice_pack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>, "Pack type should be Pack<i32, f32, u64, u32>");
-    static_assert(is_same<slice_pack<0, 2, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64>>, "Pack type should be Pack<i32, f32, u64>");
-    static_assert(is_same<slice_pack<0, 1, Pack<i32, f32, u64, u32>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<slice_pack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
+                  "Pack type should be Pack<i32, f32, u64, u32>");
+    static_assert(is_same<slice_pack<0, 2, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64>>,
+                  "Pack type should be Pack<i32, f32, u64>");
+    static_assert(is_same<slice_pack<0, 1, Pack<i32, f32, u64, u32>>, Pack<i32, f32>>,
+                  "Pack type should be Pack<i32, f32>");
     static_assert(is_same<slice_pack<0, 0, Pack<i32, f32, u64, u32>>, Pack<i32>>, "Pack type should be Pack<i32>");
 
-    static_assert(is_same<slice_pack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>, "Pack type should be Pack<i32, f32, u64, u32>");
-    static_assert(is_same<slice_pack<1, 3, Pack<i32, f32, u64, u32>>, Pack<f32, u64, u32>>, "Pack type should be Pack<f32, u64, u32>");
-    static_assert(is_same<slice_pack<2, 3, Pack<i32, f32, u64, u32>>, Pack<u64, u32>>, "Pack type should be Pack<u64, u32>");
+    static_assert(is_same<slice_pack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
+                  "Pack type should be Pack<i32, f32, u64, u32>");
+    static_assert(is_same<slice_pack<1, 3, Pack<i32, f32, u64, u32>>, Pack<f32, u64, u32>>,
+                  "Pack type should be Pack<f32, u64, u32>");
+    static_assert(is_same<slice_pack<2, 3, Pack<i32, f32, u64, u32>>, Pack<u64, u32>>,
+                  "Pack type should be Pack<u64, u32>");
     static_assert(is_same<slice_pack<3, 3, Pack<i32, f32, u64, u32>>, Pack<u32>>, "Pack type should be Pack<u32>");
 
     static_assert(slice_pack<0, 3, Pack<i32, f32, u64, u32>>().get_size() == 4, "Pack size should be 4");
@@ -869,30 +882,31 @@ namespace kstd::meta {
         using Type = Pack<TYPES_A..., TYPES_B...>;
     };
 
-    template<typename PACK_A, typename PACK_B> //
+    template<typename PACK_A, typename PACK_B>//
     using concat_packs = typename ConcatPacks<PACK_A, PACK_B>::Type;
 
     static_assert(is_same<concat_packs<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
     static_assert(is_same<concat_packs<Pack<>, Pack<i32, f32>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
     static_assert(is_same<concat_packs<Pack<i32, f32>, Pack<>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<concat_packs<Pack<i32, f32>, Pack<i32, f32>>, Pack<i32, f32, i32, f32>>, "Pack type should be Pack<i32, f32, i32, f32>");
+    static_assert(is_same<concat_packs<Pack<i32, f32>, Pack<i32, f32>>, Pack<i32, f32, i32, f32>>,
+                  "Pack type should be Pack<i32, f32, i32, f32>");
 
     // transform_pack
 
     template<template<typename> typename TRANSFORM, typename PACK>
     struct TransformPack;
 
-    template<template<typename> typename TRANSFORM, typename... TYPES> //
+    template<template<typename> typename TRANSFORM, typename... TYPES>//
     struct TransformPack<TRANSFORM, Pack<TYPES...>> {
         using Type = Pack<typename TRANSFORM<TYPES>::Type...>;
     };
 
-    template<template<typename> typename TRANSFORM, typename... TYPES> //
+    template<template<typename> typename TRANSFORM, typename... TYPES>//
     using transform_pack = typename TransformPack<TRANSFORM, TYPES...>::Type;
 
     // substitute_void
 
-    template<typename T, typename SUBSTITUTE> //
+    template<typename T, typename SUBSTITUTE>//
     using substitute_void = conditional<is_void<T>, SUBSTITUTE, T>;
-}
+}// namespace kstd::meta

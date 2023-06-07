@@ -44,21 +44,17 @@ namespace kstd::utils {
 
     template<typename T>
     [[nodiscard]] constexpr auto move_or_copy(T&& value) noexcept -> decltype(auto) {
-        if constexpr ((meta::is_ref<T> || meta::is_ptr<T>) || !meta::is_move_constructible<T>) {
-            return value;
-        }
-        else {
-            return move(value);
-        }
+        if constexpr((meta::is_ref<T> || meta::is_ptr<T>) || !meta::is_move_constructible<T>) { return value; }
+        else { return move(value); }
     }
 
     template<typename R, typename T>
     [[nodiscard]] constexpr auto transmute(T& value) noexcept -> R& {
-        return *reinterpret_cast<R*>(&value);
+        return *reinterpret_cast<R*>(&value);// NOLINT
     }
 
     template<typename R, typename T>
     [[nodiscard]] constexpr auto transmute(const T& value) noexcept -> const R& {
-        return *reinterpret_cast<const R*>(&value);
+        return *reinterpret_cast<const R*>(&value);// NOLINT
     }
-}
+}// namespace kstd::utils

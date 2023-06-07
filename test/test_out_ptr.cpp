@@ -18,13 +18,13 @@
  */
 
 #include <gtest/gtest.h>
-#include <kstd/rc.hpp>
 #include <kstd/out_ptr.hpp>
+#include <kstd/rc.hpp>
 #include <kstd/types.hpp>
 
 // Define function with C-linkage for testing
 extern "C" auto the_c_function(kstd::i32** data_to_set) -> void {
-    *data_to_set = reinterpret_cast<kstd::i32*>(::malloc(sizeof(kstd::i32)));
+    *data_to_set = reinterpret_cast<kstd::i32*>(::malloc(sizeof(kstd::i32)));// NOLINT
     *(*data_to_set) = 420;
 }
 

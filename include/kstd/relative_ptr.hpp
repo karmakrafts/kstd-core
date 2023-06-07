@@ -22,7 +22,7 @@
 #include "types.hpp"
 
 namespace kstd {
-    template<typename T, typename OFFSET = u32> //
+    template<typename T, typename OFFSET = u32>
     struct RelativePtr final {
         using Self = RelativePtr<T, OFFSET>;
         using ElementType = T;
@@ -34,11 +34,9 @@ namespace kstd {
         using SizeType = usize;
 
         private:
-
         OffsetType _offset;
 
         public:
-
         constexpr RelativePtr() noexcept :
                 _offset(0) {
         }
@@ -49,61 +47,61 @@ namespace kstd {
 
         ~RelativePtr() noexcept = default;
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& = delete;
+        constexpr auto operator=(const Self& other) noexcept -> Self& = delete;
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& = delete;
+        constexpr auto operator=(Self&& other) noexcept -> Self& = delete;
 
-        constexpr auto operator =(Pointer value) noexcept -> Self& {
+        constexpr auto operator=(Pointer value) noexcept -> Self& {
             set(value);
             return *this;
         }
 
         constexpr auto set(T* value) noexcept -> void {
-            _offset = static_cast<OffsetType>(reinterpret_cast<u8*>(value) - reinterpret_cast<u8*>(this));
+            _offset = static_cast<OffsetType>(reinterpret_cast<u8*>(value) - reinterpret_cast<u8*>(this));// NOLINT
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> Pointer {
-            return reinterpret_cast<T*>(reinterpret_cast<u8*>(this) + _offset);
+            return reinterpret_cast<T*>(reinterpret_cast<u8*>(this) + _offset);// NOLINT
         }
 
         [[nodiscard]] constexpr auto get() const noexcept -> ConstPointer {
-            return reinterpret_cast<T*>(reinterpret_cast<u8*>(this) + _offset);
+            return reinterpret_cast<T*>(reinterpret_cast<u8*>(this) + _offset);// NOLINT
         }
 
-        [[nodiscard]] constexpr operator Pointer() noexcept { // NOLINT
+        [[nodiscard]] constexpr operator Pointer() noexcept {// NOLINT
             return get();
         }
 
-        [[nodiscard]] constexpr operator ConstPointer() const noexcept { // NOLINT
+        [[nodiscard]] constexpr operator ConstPointer() const noexcept {// NOLINT
             return get();
         }
 
-        [[nodiscard]] constexpr operator bool() const noexcept { // NOLINT
+        [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
             return _offset != 0;
         }
 
-        [[nodiscard]] constexpr auto operator *() noexcept -> Reference {
+        [[nodiscard]] constexpr auto operator*() noexcept -> Reference {
             return *get();
         }
 
-        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstReference {
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstReference {
             return *get();
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator [](SizeType index) noexcept -> Reference {
+        [[nodiscard]] constexpr auto operator[](SizeType index) noexcept -> Reference {
             return get()[index];
         }
 
-        [[nodiscard]] constexpr auto operator [](SizeType index) const noexcept -> ConstReference {
+        [[nodiscard]] constexpr auto operator[](SizeType index) const noexcept -> ConstReference {
             return get()[index];
         }
     };
-}
+}// namespace kstd

@@ -32,16 +32,14 @@ namespace kstd {
         using ConstPointer = const ValueType*;
 
         private:
-
         ValueType _value;
 
         public:
-
         constexpr NonZero() noexcept :
                 _value(static_cast<ValueType>(0)) {
         }
 
-        constexpr NonZero(ValueType value) noexcept : // NOLINT
+        constexpr NonZero(ValueType value) noexcept :// NOLINT
                 _value(value) {
             assert_true(value != static_cast<ValueType>(0));
         }
@@ -52,9 +50,9 @@ namespace kstd {
 
         ~NonZero() noexcept = default;
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& = default;
+        constexpr auto operator=(const Self& other) noexcept -> Self& = default;
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& = default;
+        constexpr auto operator=(Self&& other) noexcept -> Self& = default;
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
             return _value == static_cast<ValueType>(0);
@@ -76,11 +74,11 @@ namespace kstd {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
             return &_value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return &_value;
         }
     };
@@ -89,4 +87,4 @@ namespace kstd {
     [[nodiscard]] constexpr auto make_non_zero(T value) noexcept -> NonZero<T> {
         return NonZero<T>(value);
     }
-}
+}// namespace kstd

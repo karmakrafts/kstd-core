@@ -25,9 +25,9 @@
 
 namespace kstd {
     template<typename ALLOCATOR = Allocator<char>, typename... ARGS>
-    [[nodiscard]] constexpr auto format(StringSlice format, ARGS&& ... args) noexcept -> BasicString<char, ALLOCATOR> {
+    [[nodiscard]] constexpr auto format(StringSlice format, ARGS&&... args) noexcept -> BasicString<char, ALLOCATOR> {
         BasicString<char, ALLOCATOR> result;
 
         return result;
     }
-}
+}// namespace kstd

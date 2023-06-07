@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "defaults.hpp"
 #include "types.hpp"
 
 namespace kstd {
@@ -28,6 +29,7 @@ namespace kstd {
         usize _line;
 
         public:
+        KSTD_DEFAULT_MOVE_COPY(SourceLocation)
 
         constexpr SourceLocation(const char* file, const char* function, usize line) noexcept :
                 _file(file),
@@ -57,4 +59,4 @@ namespace kstd {
         return {file, function, line};
     }
     // @formatter:on
-}
+}// namespace kstd

@@ -19,20 +19,21 @@
 
 #pragma once
 
+#include "defaults.hpp"
 #include "meta.hpp"
 #include "utils.hpp"
 
 namespace kstd {
     namespace {
-        template<typename T> //
+        template<typename T>
         using def_if_ptr = meta::def_if<meta::is_ptr<T>>;
 
-        template<typename T> //
+        template<typename T>
         using def_if_ref = meta::def_if<meta::is_ref<T>>;
 
-        template<typename T> //
+        template<typename T>
         using def_if_val = meta::def_if<!meta::is_ref<T> && !meta::is_ptr<T>>;
-    }
+    }// namespace
 
     /*
      * A Box is a union-friendly way to store a pointer, reference or owned value.
@@ -45,7 +46,7 @@ namespace kstd {
     /*
      * Specialization for pointers, always pass-by-value
      */
-    template<typename T> //
+    template<typename T>
     struct Box<T, def_if_ptr<T>> final {
         [[maybe_unused]] static constexpr bool is_pointer = true;
         [[maybe_unused]] static constexpr bool is_reference = false;
@@ -60,22 +61,18 @@ namespace kstd {
         using ConstPointer = const ValueType;
 
         private:
-
         ValueType _value;
 
         public:
+        KSTD_DEFAULT_MOVE_COPY(Box)
 
         constexpr Box() noexcept :
                 _value(nullptr) {
         }
 
-        constexpr Box(ValueType value) noexcept : // NOLINT
+        constexpr Box(ValueType value) noexcept :// NOLINT
                 _value(value) {
         }
-
-        constexpr Box(const Self& other) noexcept = default;
-
-        constexpr Box(Self&& other) noexcept = default;
 
         ~Box() noexcept = default;
 
@@ -98,36 +95,32 @@ namespace kstd {
             return _value;
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& = default;
-
-        constexpr auto operator =(Self&&) noexcept -> Self& = default;
-
-        constexpr auto operator =(ValueType value) noexcept -> Self& {
+        constexpr auto operator=(ValueType value) noexcept -> Self& {
             _value = value;
             return *this;
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer { // NOLINT
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {// NOLINT
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
             return _value == other._value;
         }
 
-        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
             return _value != other._value;
         }
 
-        [[nodiscard]] constexpr auto operator ==(ConstPointer pointer) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(ConstPointer pointer) const noexcept -> bool {
             return _value == pointer;
         }
 
-        [[nodiscard]] constexpr auto operator !=(ConstPointer pointer) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(ConstPointer pointer) const noexcept -> bool {
             return _value != pointer;
         }
     };
@@ -135,7 +128,7 @@ namespace kstd {
     /*
      * Specialization for references, stores a pointer
      */
-    template<typename T> //
+    template<typename T>
     struct Box<T, def_if_ref<T>> final {
         [[maybe_unused]] static constexpr bool is_pointer = false;
         [[maybe_unused]] static constexpr bool is_reference = true;
@@ -151,16 +144,14 @@ namespace kstd {
         using StoredValueType = meta::conditional<meta::is_const<ValueType>, ConstPointer, Pointer>;
 
         private:
-
         StoredValueType _value;
 
         public:
-
         constexpr Box() noexcept :
                 _value(nullptr) {
         }
 
-        constexpr Box(ValueType value) noexcept : // NOLINT
+        constexpr Box(ValueType value) noexcept :// NOLINT
                 _value(&value) {
         }
 
@@ -181,7 +172,7 @@ namespace kstd {
             return *_value;
         }
 
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType { // NOLINT
+        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {// NOLINT
             return *_value;
         }
 
@@ -189,36 +180,36 @@ namespace kstd {
             return *_value;
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& = default;
+        constexpr auto operator=(const Self& other) noexcept -> Self& = default;
 
-        constexpr auto operator =(Self&&) noexcept -> Self& = default;
+        constexpr auto operator=(Self&&) noexcept -> Self& = default;
 
-        constexpr auto operator =(ValueType value) noexcept -> Self& {
+        constexpr auto operator=(ValueType value) noexcept -> Self& {
             _value = &value;
             return *this;
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
             return _value == other._value;
         }
 
-        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
             return _value != other._value;
         }
 
-        [[nodiscard]] constexpr auto operator ==(ValueType ref) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(ValueType ref) const noexcept -> bool {
             return _value == &ref;
         }
 
-        [[nodiscard]] constexpr auto operator !=(ValueType ref) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(ValueType ref) const noexcept -> bool {
             return _value != &ref;
         }
     };
@@ -226,7 +217,7 @@ namespace kstd {
     /*
      * Specialization for owned values, uses move semantics
      */
-    template<typename T>  //
+    template<typename T>
     struct Box<T, def_if_val<T>> final {
         static_assert(meta::is_move_assignable<T>, "Box type is not move assignable");
         static_assert(meta::is_move_constructible<T>, "Box type is not move constructible");
@@ -244,20 +235,18 @@ namespace kstd {
         using ConstPointer = const ValueType*;
 
         private:
-
         ValueType _value;
 
         public:
-
         constexpr Box() noexcept :
                 _value(ValueType()) {
         }
 
-        constexpr Box(const ValueType& value) noexcept : // NOLINT
+        constexpr Box(const ValueType& value) noexcept :// NOLINT
                 _value(value) {
         }
 
-        constexpr Box(ValueType&& value) noexcept : // NOLINT
+        constexpr Box(ValueType&& value) noexcept :// NOLINT
                 _value(move(value)) {
         }
 
@@ -266,7 +255,7 @@ namespace kstd {
         }
 
         constexpr Box(Self&& other) noexcept :
-                _value(move(other._value)) {
+                _value(utils::move(other._value)) {
         }
 
         ~Box() noexcept {
@@ -274,9 +263,7 @@ namespace kstd {
         }
 
         constexpr auto drop() noexcept -> void {
-            if constexpr (meta::is_destructible<T>) {
-                _value.~ValueType();
-            }
+            if constexpr(meta::is_destructible<T>) { _value.~ValueType(); }
         }
 
         constexpr auto reset(const ValueType& value) noexcept -> void {
@@ -286,7 +273,7 @@ namespace kstd {
 
         constexpr auto reset(ValueType&& value) noexcept -> void {
             drop();
-            _value = move(value);
+            _value = utils::move(value);
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
@@ -301,51 +288,51 @@ namespace kstd {
             return utils::move(_value);
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& {
+        constexpr auto operator=(const Self& other) noexcept -> Self& {
             drop();
             _value = other._value;
             return *this;
         }
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& {
+        constexpr auto operator=(Self&& other) noexcept -> Self& {
             drop();
             _value = utils::move(other._value);
             return *this;
         }
 
-        constexpr auto operator =(const ValueType& value) noexcept -> Self& {
+        constexpr auto operator=(const ValueType& value) noexcept -> Self& {
             drop();
             _value = value;
             return *this;
         }
 
-        constexpr auto operator =(ValueType&& value) noexcept -> Self& {
+        constexpr auto operator=(ValueType&& value) noexcept -> Self& {
             drop();
             _value = utils::move(value);
             return *this;
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
             return &_value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return &_value;
         }
 
-        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
             return _value == other._value;
         }
 
-        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
             return _value != other._value;
         }
 
-        [[nodiscard]] constexpr auto operator ==(const ValueType& value) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(const ValueType& value) const noexcept -> bool {
             return _value == value;
         }
 
-        [[nodiscard]] constexpr auto operator !=(const ValueType& value) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(const ValueType& value) const noexcept -> bool {
             return _value != value;
         }
     };
@@ -354,4 +341,4 @@ namespace kstd {
     [[nodiscard]] constexpr auto make_box(T value) noexcept -> Box<T> {
         return Box<T>(move_or_copy(value));
     }
-}
+}// namespace kstd

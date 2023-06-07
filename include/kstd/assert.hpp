@@ -19,24 +19,24 @@
 
 #pragma once
 
+#include "array.hpp"
 #include "libc.hpp"
 #include "source_location.hpp"
 
-#define KSTD_ASSERTION_BUFFER_SIZE 1024
-
 namespace kstd {
     namespace {
+        constexpr usize BUFFER_SIZE = 1024;
+
         class AssertionMessage final {
             char* _data;
 
             public:
-
             explicit inline AssertionMessage(const char* data) noexcept :
                     _data() {
                 const auto size = libc::strlen(data) + 1;
-                _data = static_cast<char*>(libc::malloc(size));
+                _data = static_cast<char*>(libc::malloc(size));// NOLINT
                 libc::memset(_data, 0, size);
-                libc::strncpy(_data, data, size); // Copy data to heap memory
+                libc::strncpy(_data, data, size);// Copy data to heap memory
             }
 
             inline AssertionMessage(const AssertionMessage& other) noexcept :
@@ -47,12 +47,12 @@ namespace kstd {
                     AssertionMessage(other._data) {
             }
 
-            inline auto operator =(const AssertionMessage& other) noexcept -> AssertionMessage& = delete;
+            inline auto operator=(const AssertionMessage& other) noexcept -> AssertionMessage& = delete;
 
-            inline auto operator =(AssertionMessage&& other) noexcept -> AssertionMessage& = delete;
+            inline auto operator=(AssertionMessage&& other) noexcept -> AssertionMessage& = delete;
 
             ~AssertionMessage() noexcept {
-                libc::free(_data); // Free heap memory when object is destroyed
+                libc::free(_data);// NOLINT: Free heap memory when object is destroyed
             }
 
             [[nodiscard]] constexpr auto get_data() const noexcept -> const char* {
@@ -60,29 +60,34 @@ namespace kstd {
             }
         };
 
-        [[nodiscard]] inline auto get_default_assertion_message(const SourceLocation& location = current_location()) noexcept -> AssertionMessage {
-            char buffer[KSTD_ASSERTION_BUFFER_SIZE]; // TODO: find a good size for this
-            libc::memset(buffer, 0, KSTD_ASSERTION_BUFFER_SIZE);
-            libc::sprintf(buffer, "%s:%zu [%s]", location.get_file(), location.get_line(), location.get_function());
-            return AssertionMessage(buffer);
+        [[nodiscard]] inline auto
+        get_default_assertion_message(const SourceLocation& location = current_location()) noexcept
+                -> AssertionMessage {
+            Array<char, BUFFER_SIZE> buffer;
+            auto* buffer_data = buffer.get_data();
+            libc::sprintf(buffer_data, "%s:%zu [%s]", location.get_file(), location.get_line(),
+                          location.get_function());
+            return AssertionMessage(buffer_data);
         }
-    }
+    }// namespace
 
-    inline auto assert_true(bool condition, const char* message = get_default_assertion_message().get_data()) noexcept -> void {
-        #ifdef BUILD_DEBUG
-        if (!condition) {
+    inline auto assert_true(bool condition, const char* message = get_default_assertion_message().get_data()) noexcept
+            -> void {
+#ifdef BUILD_DEBUG
+        if(!condition) {
             libc::fprintf(libc::iob::err, "Assertion failed in %s\n", message);
             libc::exit(4);
         }
-        #endif
+#endif
     }
 
-    inline auto assert_false(bool condition, const char* message = get_default_assertion_message().get_data()) noexcept -> void {
-        #ifdef BUILD_DEBUG
-        if (condition) {
+    inline auto assert_false(bool condition, const char* message = get_default_assertion_message().get_data()) noexcept
+            -> void {
+#ifdef BUILD_DEBUG
+        if(condition) {
             libc::fprintf(libc::iob::err, "Assertion failed in %s\n", message);
             libc::exit(4);
         }
-        #endif
+#endif
     }
-}
+}// namespace kstd

@@ -27,28 +27,24 @@ namespace kstd {
      * of a mechanism identical to std::out_ptr as described here:
      * https://en.cppreference.com/w/cpp/memory/out_ptr_t/out_ptr
      */
-    template<typename P> // @formatter:off
+    template<typename P>// @formatter:off
     struct OutPtr final {
         using OwnerType = P;
         using ElementType = typename OwnerType::ElementType;
         using Self = OutPtr<OwnerType>;
 
         private:
-
-        OwnerType& _owner;
+        OwnerType& _owner;// NOLINT
         ElementType* _new_value;
 
         public:
-
         explicit constexpr OutPtr(OwnerType& owner) noexcept :
                 _owner(owner),
                 _new_value() {
         }
 
         ~OutPtr() noexcept {
-            if (_new_value == nullptr) {
-                return;
-            }
+            if(_new_value == nullptr) { return; }
 
             _owner.reset(_new_value);
         }
@@ -60,15 +56,15 @@ namespace kstd {
                 _new_value(other._new_value) {
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& = delete;
+        constexpr auto operator=(const Self& other) noexcept -> Self& = delete;
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& {
+        constexpr auto operator=(Self&& other) noexcept -> Self& {
             _owner = other._owner;
             _new_value = other._new_value;
             return *this;
         }
 
-        [[nodiscard]] constexpr operator ElementType**() noexcept { // NOLINT
+        [[nodiscard]] constexpr operator ElementType**() noexcept {// NOLINT
             return &_new_value;
         }
     };
@@ -77,4 +73,4 @@ namespace kstd {
     [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> OutPtr<P> {
         return OutPtr<P>(pointer);
     }
-}
+}// namespace kstd

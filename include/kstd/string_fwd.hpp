@@ -22,12 +22,12 @@
 #include "allocator.hpp"
 
 namespace kstd {
-    template<typename CHAR> //
+    template<typename CHAR>
     struct BasicStringSlice;
 
     template<typename CHAR, typename ALLOCATOR = Allocator<CHAR>>
     struct BasicHeapString;
 
     template<typename CHAR, usize SIZE = sizeof(BasicHeapString<CHAR, Allocator<CHAR>>) / sizeof(CHAR)>
-    union BasicSmallString;
-}
+    struct BasicSmallString;
+}// namespace kstd

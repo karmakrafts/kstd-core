@@ -28,16 +28,23 @@ TEST(kstd_SmallString, TestEmpty) {
 }
 
 TEST(kstd_SmallString, TestConcat) {
-    kstd::SmallString<16> a("Hello ");
-    ASSERT_EQ(a.get_size(), 6);
-    ASSERT_EQ(a, "Hello ");
+    kstd::SmallString<16> hello("Hello ");
+    ASSERT_EQ(hello.get_size(), 6);
+    ASSERT_EQ(hello, "Hello ");
 
-    kstd::SmallString<16> b("World!");
-    ASSERT_EQ(b.get_size(), 6);
-    ASSERT_EQ(b, "World!");
+    kstd::SmallString<16> world("World!");
+    ASSERT_EQ(world.get_size(), 6);
+    ASSERT_EQ(world, "World!");
 
-    auto x = a + b;
+    auto x = hello + world;
     static_assert(x.get_capacity() == 32);
     ASSERT_EQ(x.get_size(), 12);
     ASSERT_EQ(x, "Hello World!");
+}
+
+TEST(kstd_SmallString, TestMaxSize) {
+    kstd::SmallString<24> str("ABCDEFGIHJKLMNOPQRSTUVW");
+    static_assert(str.get_capacity() == 24);
+    ASSERT_EQ(str.get_size(), 23);
+    ASSERT_EQ(str, "ABCDEFGIHJKLMNOPQRSTUVW");
 }
