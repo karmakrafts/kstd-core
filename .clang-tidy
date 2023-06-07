@@ -8,7 +8,10 @@ modernize-*,
 cppcoreguidelines-*,
 -cppcoreguidelines-owning-memory,
 -cppcoreguidelines-use-default-member-init,
--cppcoreguidelines-avoid-magic-numbers
+-cppcoreguidelines-avoid-magic-numbers,
+bugprone-*,
+-bugprone-assert-side-effect
+-bugprone-assignment-in-if-condition
 '
 WarningsAsErrors: true
 HeaderFilterRegex: ''

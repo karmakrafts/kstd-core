@@ -52,6 +52,14 @@ namespace kstd::libc {
 #endif
     }// namespace iob
 
+#if defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_WINDOWS)
+#else
+#ifdef __DARWIN_UNIX03
+#else
+#endif
+#endif
+
     using std::exit;
 
     using std::calloc;

@@ -25,10 +25,10 @@
 #include "types.hpp"
 #include "utils.hpp"
 
-/**
- * @brief Allows for the easy customization of the default memory allocator used by the kstd library.
- *   Simple define your own versions of these macros before including any kstd headers, and they'll
- *   automatically use your custom memory allocator implementation.
+/*
+ * Allows for the easy customization of the default memory allocator used by the kstd library.
+ * Simple define your own versions of these macros before including any kstd headers, and they'll
+ * automatically use your custom memory allocator implementation.
  */
 #ifndef KSTD_MEMORY_ALLOC_FN
 #define KSTD_MEMORY_ALLOC_FN(s) kstd::libc::malloc(s)// NOLINT
