@@ -10,28 +10,6 @@ env:
   BUILD_TYPE: Debug
 
 jobs:
-  build-ubuntu-18:
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Initialize submodules
-        run: git submodule update --init
-      - name: Configure CMake (C++20)
-        run: cmake -B ${{github.workspace}}/build-linux -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-      - name: Build (C++20)
-        run: cmake --build ${{github.workspace}}/build-linux --config ${{env.BUILD_TYPE}}
-      - name: Test (C++20)
-        working-directory: ${{github.workspace}}/build-linux
-        run: ctest -C ${{env.BUILD_TYPE}}
-      # C++17
-      - name: Configure CMake (C++17)
-        run: cmake -B ${{github.workspace}}/build-linux -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=17
-      - name: Build (C++17)
-        run: cmake --build ${{github.workspace}}/build-linux --config ${{env.BUILD_TYPE}} --clean-first
-      - name: Test (C++17)
-        working-directory: ${{github.workspace}}/build-linux
-        run: ctest -C ${{env.BUILD_TYPE}}
-
   build-ubuntu-20:
     runs-on: ubuntu-20.04
     steps:
