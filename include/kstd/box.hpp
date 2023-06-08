@@ -84,32 +84,32 @@ namespace kstd {
             return _value;
         }
 
-        constexpr auto operator=(ValueType value) noexcept -> Self& {
+        constexpr auto operator =(ValueType value) noexcept -> Self& {
             _value = value;
             return *this;
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {// NOLINT
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {// NOLINT
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
             return _value == other._value;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
             return _value != other._value;
         }
 
-        [[nodiscard]] constexpr auto operator==(ConstPointer pointer) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(ConstPointer pointer) const noexcept -> bool {
             return _value == pointer;
         }
 
-        [[nodiscard]] constexpr auto operator!=(ConstPointer pointer) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(ConstPointer pointer) const noexcept -> bool {
             return _value != pointer;
         }
     };
@@ -169,36 +169,36 @@ namespace kstd {
             return *_value;
         }
 
-        constexpr auto operator=(const Self& other) noexcept -> Self& = default;
+        constexpr auto operator =(const Self& other) noexcept -> Self& = default;
 
-        constexpr auto operator=(Self&&) noexcept -> Self& = default;
+        constexpr auto operator =(Self&&) noexcept -> Self& = default;
 
-        constexpr auto operator=(ValueType value) noexcept -> Self& {
+        constexpr auto operator =(ValueType value) noexcept -> Self& {
             _value = &value;
             return *this;
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
             return _value == other._value;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
             return _value != other._value;
         }
 
-        [[nodiscard]] constexpr auto operator==(ValueType ref) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(ValueType ref) const noexcept -> bool {
             return _value == &ref;
         }
 
-        [[nodiscard]] constexpr auto operator!=(ValueType ref) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(ValueType ref) const noexcept -> bool {
             return _value != &ref;
         }
     };
@@ -277,51 +277,51 @@ namespace kstd {
             return utils::move(_value);
         }
 
-        constexpr auto operator=(const Self& other) noexcept -> Self& {
+        constexpr auto operator =(const Self& other) noexcept -> Self& {
             drop();
             _value = other._value;
             return *this;
         }
 
-        constexpr auto operator=(Self&& other) noexcept -> Self& {
+        constexpr auto operator =(Self&& other) noexcept -> Self& {
             drop();
             _value = utils::move(other._value);
             return *this;
         }
 
-        constexpr auto operator=(const ValueType& value) noexcept -> Self& {
+        constexpr auto operator =(const ValueType& value) noexcept -> Self& {
             drop();
             _value = value;
             return *this;
         }
 
-        constexpr auto operator=(ValueType&& value) noexcept -> Self& {
+        constexpr auto operator =(ValueType&& value) noexcept -> Self& {
             drop();
             _value = utils::move(value);
             return *this;
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return &_value;
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return &_value;
         }
 
-        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
             return _value == other._value;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
             return _value != other._value;
         }
 
-        [[nodiscard]] constexpr auto operator==(const ValueType& value) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(const ValueType& value) const noexcept -> bool {
             return _value == value;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const ValueType& value) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(const ValueType& value) const noexcept -> bool {
             return _value != value;
         }
     };

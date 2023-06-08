@@ -139,7 +139,7 @@ namespace kstd {
             if(is_error()) { _inner._error.~ErrorType(); }
         }
 
-        constexpr auto operator=(const Self& other) noexcept -> Self& {
+        constexpr auto operator =(const Self& other) noexcept -> Self& {
             if(this == &other) { return *this; }
 
             if(other.is_ok()) {
@@ -155,7 +155,7 @@ namespace kstd {
             return *this;
         }
 
-        constexpr auto operator=(Self&& other) noexcept -> Self& {
+        constexpr auto operator =(Self&& other) noexcept -> Self& {
             if(other.is_ok()) {
                 drop();
 
@@ -212,11 +212,11 @@ namespace kstd {
             return !is_empty();
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> NakedValueType* {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> NakedValueType* {
             return &borrow_value();
         }
 
-        [[nodiscard]] constexpr auto operator*() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto operator *() noexcept -> decltype(auto) {
             return borrow_value();
         }
     };

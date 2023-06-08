@@ -131,7 +131,6 @@ namespace kstd {
                               TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>>& result) const noexcept -> void {
             if constexpr(CURRENT < num_values) { result.template reset<CURRENT>(get<CURRENT>()); }
             else { result.template reset<CURRENT>(other.template get<CURRENT - num_values>()); }
-
             if constexpr(CURRENT < NEW_SIZE - 1) { concat<NEW_SIZE, CURRENT + 1, OTHER_TYPES...>(other, result); }
         }
 
@@ -183,18 +182,18 @@ namespace kstd {
         }
 
         template<typename... OTHER_TYPES>
-        [[nodiscard]] constexpr auto operator+(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept
+        [[nodiscard]] constexpr auto operator +(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept
                 -> TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> {
             return concat<OTHER_TYPES...>(other);
         }
 
-        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
             bool result = true;
             equals<0>(_inner, other._inner, result);
             return result;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
             bool result = false;
             not_equals<0>(_inner, other._inner, result);
             return !result;
@@ -218,11 +217,11 @@ namespace kstd {
 namespace std {// @formatter:off
     template<typename... ARGS>
     struct tuple_size<kstd::Tuple<ARGS...>> {// NOLINT
-        using value_type = kstd::usize;
+        using value_type = kstd::usize;      // NOLINT: style mismatch
         static constexpr value_type value = sizeof...(ARGS);
-        using type = kstd::meta::Constant<value_type, value>;
+        using type = kstd::meta::Constant<value_type, value>;// NOLINT: style mismatch
 
-        [[nodiscard]] constexpr auto operator()() const noexcept -> value_type {
+        [[nodiscard]] constexpr auto operator ()() const noexcept -> value_type {
             return value;
         }
 
@@ -237,6 +236,6 @@ namespace std {// @formatter:off
 
     template<typename HEAD, typename... TAIL>
     struct tuple_element<0, kstd::Tuple<HEAD, TAIL...>> {// NOLINT
-        using type = HEAD;
+        using type = HEAD;                               // NOLINT: style mismatch
     };
 }// namespace std

@@ -164,18 +164,18 @@ namespace kstd::libc {
     }
 
     template<typename T>
-    constexpr auto compare_string(const T* a, const T* b) noexcept -> i32 {
-        if constexpr(meta::is_same<T, char>) { return strcmp(a, b); }
-        else if constexpr(meta::is_same<T, wchar_t>) { return wcscmp(a, b); }
+    constexpr auto compare_string(const T* lhs, const T* rhs) noexcept -> i32 {
+        if constexpr(meta::is_same<T, char>) { return strcmp(lhs, rhs); }
+        else if constexpr(meta::is_same<T, wchar_t>) { return wcscmp(lhs, rhs); }
         else {
-            const auto a_length = get_string_length(a);
-            const auto b_length = get_string_length(b);
+            const auto a_length = get_string_length(lhs);
+            const auto b_length = get_string_length(rhs);
 
             if(a_length != b_length) {
                 return static_cast<i32>(b_length - a_length);// Narrowing conversion -.-
             }
 
-            return memcmp(a, b, a_length);
+            return memcmp(lhs, rhs, a_length);
         }
     }
 

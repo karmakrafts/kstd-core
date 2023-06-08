@@ -69,11 +69,11 @@ namespace kstd {
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return &_value;
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return &_value;
         }
     };

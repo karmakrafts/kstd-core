@@ -174,7 +174,7 @@ namespace kstd {
             _is_present = false;// Mark this option as empty after releasing ownership
         }
 
-        constexpr auto operator=(const Self& other) noexcept -> Self& {
+        constexpr auto operator =(const Self& other) noexcept -> Self& {
             if(this == &other) { return *this; }
 
             if(other) {
@@ -186,7 +186,7 @@ namespace kstd {
             return *this;
         }
 
-        constexpr auto operator=(Self&& other) noexcept -> Self& {
+        constexpr auto operator =(Self&& other) noexcept -> Self& {
             if(other) {
                 drop();
                 _inner = utils::move(other._inner);
@@ -223,19 +223,19 @@ namespace kstd {
             return has_value();
         }
 
-        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto operator *() noexcept -> BorrowedValueType {
             return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
+        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstBorrowedValueType {
             return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return &borrow();
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return &borrow();
         }
     };

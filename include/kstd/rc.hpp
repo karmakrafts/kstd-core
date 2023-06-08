@@ -88,7 +88,7 @@ namespace kstd {
             drop();
         }
 
-        constexpr auto operator=(const Self& other) noexcept -> Self& {
+        constexpr auto operator =(const Self& other) noexcept -> Self& {
             if(this == &other) { return *this; }
 
             drop();
@@ -99,7 +99,7 @@ namespace kstd {
             return *this;
         }
 
-        constexpr auto operator=(Self&& other) noexcept -> Self& {
+        constexpr auto operator =(Self&& other) noexcept -> Self& {
             drop();
             _inner = other._inner;
 
@@ -141,39 +141,39 @@ namespace kstd {
             return &_inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator*() noexcept -> T& {
+        [[nodiscard]] constexpr auto operator *() noexcept -> T& {
             assert_true(_inner != nullptr);
             return _inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator*() const noexcept -> const T& {
+        [[nodiscard]] constexpr auto operator *() const noexcept -> const T& {
             assert_true(_inner != nullptr);
             return _inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> T* {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> T* {
             assert_true(_inner != nullptr);
             return &_inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> const T* {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> const T* {
             assert_true(_inner != nullptr);
             return &_inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
             return _inner == other._inner;
         }
 
-        [[nodiscard]] constexpr auto operator==(decltype(nullptr)) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(decltype(nullptr)) const noexcept -> bool {
             return _inner == nullptr;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
             return _inner != other._inner;
         }
 
-        [[nodiscard]] constexpr auto operator!=(decltype(nullptr)) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(decltype(nullptr)) const noexcept -> bool {
             return _inner != nullptr;
         }
     };

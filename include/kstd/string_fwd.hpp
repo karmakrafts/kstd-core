@@ -25,9 +25,6 @@ namespace kstd {
     template<typename CHAR>
     struct BasicStringSlice;
 
-    template<typename CHAR, typename ALLOCATOR = Allocator<CHAR>>
-    struct BasicHeapString;
-
-    template<typename CHAR, usize SIZE = sizeof(BasicHeapString<CHAR, Allocator<CHAR>>) / sizeof(CHAR)>
+    template<typename CHAR, usize SIZE = 24 / sizeof(CHAR)>
     struct BasicSmallString;
 }// namespace kstd

@@ -75,12 +75,12 @@ namespace kstd {
             return Self(_data + begin, _data + end);
         }
 
-        [[nodiscard]] constexpr auto operator[](SizeType index) const noexcept -> ValueType {
+        [[nodiscard]] constexpr auto operator [](SizeType index) const noexcept -> ValueType {
             assert_false(index >= _size);
             return _data[index];
         }
 
-        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
             if(_size != other._size) { return false; }
 
             for(SizeType i = 0; i < _size; ++i) {
@@ -92,7 +92,7 @@ namespace kstd {
             return true;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
             return !(*this == other);// NOLINT
         }
     };
@@ -101,11 +101,11 @@ namespace kstd {
     using WStringSlice = BasicStringSlice<wchar_t>;
 
     namespace string_literals {
-        [[nodiscard]] constexpr auto operator""_str(const char* data, usize size) noexcept -> StringSlice {
+        [[nodiscard]] constexpr auto operator ""_str(const char* data, usize size) noexcept -> StringSlice {
             return {data, size};
         }
 
-        [[nodiscard]] constexpr auto operator""_str(const wchar_t* data, usize size) noexcept -> WStringSlice {
+        [[nodiscard]] constexpr auto operator ""_str(const wchar_t* data, usize size) noexcept -> WStringSlice {
             return {data, size};
         }
     }// namespace string_literals

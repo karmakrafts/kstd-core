@@ -46,7 +46,7 @@ namespace kstd {
 
         ~RelativePtr() noexcept = default;
 
-        constexpr auto operator=(Pointer value) noexcept -> Self& {
+        constexpr auto operator =(Pointer value) noexcept -> Self& {
             set(value);
             return *this;
         }
@@ -75,27 +75,27 @@ namespace kstd {
             return _offset != 0;
         }
 
-        [[nodiscard]] constexpr auto operator*() noexcept -> Reference {
+        [[nodiscard]] constexpr auto operator *() noexcept -> Reference {
             return *get();
         }
 
-        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstReference {
+        [[nodiscard]] constexpr auto operator *() const noexcept -> ConstReference {
             return *get();
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator[](SizeType index) noexcept -> Reference {
+        [[nodiscard]] constexpr auto operator [](SizeType index) noexcept -> Reference {
             return get()[index];
         }
 
-        [[nodiscard]] constexpr auto operator[](SizeType index) const noexcept -> ConstReference {
+        [[nodiscard]] constexpr auto operator [](SizeType index) const noexcept -> ConstReference {
             return get()[index];
         }
     };
