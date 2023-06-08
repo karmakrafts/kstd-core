@@ -49,16 +49,16 @@ namespace kstd {
         }
 
         template<typename... ARGS>
-        [[nodiscard]] constexpr auto construct(ARGS&&... args) noexcept -> T* {
+        [[nodiscard]] constexpr auto construct(ARGS&&... args) noexcept -> ValueType* {
             auto* memory = get_self().allocate(1);
             assert_true(memory != nullptr);
-            new(memory) T(utils::forward<ARGS>(args)...);
+            new(memory) ValueType(utils::forward<ARGS>(args)...);
             return memory;
         }
 
-        constexpr auto destroy(T* object) noexcept -> void {
+        constexpr auto destroy(ValueType* object) noexcept -> void {
             if(object == nullptr) { return; }
-            object->~T();
+            object->~ValueType();
             get_self().deallocate(object, 1);
         }
     };
@@ -67,33 +67,37 @@ namespace kstd {
     struct Allocator final : BasicAllocator<T, Allocator<T>> {
         using ValueType = T;
 
-        [[nodiscard]] constexpr auto allocate(usize count) noexcept -> T* {
-            return static_cast<T*>(KSTD_MEMORY_ALLOC_FN(sizeof(ValueType) * count));
+        [[nodiscard]] constexpr auto allocate(usize count) noexcept -> ValueType* {
+            return static_cast<ValueType*>(KSTD_MEMORY_ALLOC_FN(sizeof(ValueType) * count));
         }
 
-        [[nodiscard, maybe_unused]] constexpr auto allocate_zero(usize count) noexcept -> T* {
+        [[nodiscard, maybe_unused]] constexpr auto allocate_zero(usize count) noexcept -> ValueType* {
             const auto size = sizeof(ValueType) * count;
-            auto* memory = static_cast<T*>(KSTD_MEMORY_ALLOC_FN(size));
+            auto* memory = static_cast<ValueType*>(KSTD_MEMORY_ALLOC_FN(size));
             libc::memset(memory, 0, size);
             return memory;
         }
 
-        constexpr auto deallocate(T* ptr, [[maybe_unused]] usize count) noexcept -> void {
+        constexpr auto deallocate(ValueType* ptr, [[maybe_unused]] usize count) noexcept -> void {
             return KSTD_MEMORY_FREE_FN(ptr);
         }
     };
 
     template<typename T>
     struct Deleter final {
-        constexpr auto operator()(T* memory) noexcept -> void {
-            Allocator<T>().destroy(memory);
+        using ValueType = T;
+
+        constexpr auto operator()(ValueType* memory) noexcept -> void {
+            Allocator<ValueType>().destroy(memory);
         }
     };
 
     template<typename T>
     struct FreeDeleter final {
-        constexpr auto operator()(T* memory) noexcept -> void {
-            Allocator<T>().deallocate(memory, 1);
+        using ValueType = T;
+
+        constexpr auto operator()(ValueType* memory) noexcept -> void {
+            Allocator<ValueType>().deallocate(memory, 1);
         }
     };
 }// namespace kstd

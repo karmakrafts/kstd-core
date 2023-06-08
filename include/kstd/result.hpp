@@ -54,7 +54,7 @@ namespace kstd {
 
         template<typename T, typename E>
         union ResultInner {
-            using ValueType = meta::substitute_void<T, u8>;
+            using ValueType = meta::IfVoid<T, u8>;
 
             private:
             friend class Result<T, E>;
@@ -80,14 +80,13 @@ namespace kstd {
         static constexpr bool is_void = meta::is_void<T>;
 
         using Self = Result<T, E>;
-        using ValueType = meta::conditional<is_void, u8, T>;
+        using ValueType = meta::If<is_void, u8, T>;
         using ErrorType = E;
-        using NakedValueType = meta::naked_type<ValueType>;
+        using NakedValueType = meta::Naked<ValueType>;
         using InnerType = ResultInner<T, E>;
         using InnerValueType = typename InnerType::ValueType;
-        using BorrowedValueType = meta::conditional<meta::is_ptr<ValueType>, NakedValueType*, NakedValueType&>;
-        using ConstBorrowedValueType =
-                meta::conditional<meta::is_ptr<ValueType>, const NakedValueType*, const NakedValueType&>;
+        using BorrowedValueType = meta::If<meta::is_ptr<ValueType>, NakedValueType*, NakedValueType&>;
+        using ConstBorrowedValueType = meta::If<meta::is_ptr<ValueType>, const NakedValueType*, const NakedValueType&>;
 
         private:
         InnerType _inner;
@@ -121,8 +120,8 @@ namespace kstd {
         constexpr Result(Self&& other) noexcept :
                 _inner(),
                 _type(other._type) {
-            if(other.is_ok()) { _inner._value = move_or_copy(*other._inner._value); }
-            else if(other.is_error()) { _inner._error = move_or_copy(*other._inner._error); }
+            if(other.is_ok()) { _inner._value = utils::move_or_copy(*other._inner._value); }
+            else if(other.is_error()) { _inner._error = utils::move_or_copy(*other._inner._error); }
         }
 
         ~Result() noexcept {
@@ -206,7 +205,7 @@ namespace kstd {
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
             assert_true(is_error());
-            return Result<TT, E>(Error<E>(move_or_copy(_inner._error)));
+            return Result<TT, E>(Error<E>(utils::move_or_copy(_inner._error)));
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT

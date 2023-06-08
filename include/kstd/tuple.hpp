@@ -86,50 +86,49 @@ namespace kstd {
         TupleInner<TYPES...> _inner;
 
         template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
-        constexpr auto get_head(TupleInner<HEAD, TAIL...>& inner) noexcept -> Box<meta::pack_element<INDEX, Types>>& {
+        constexpr auto get_head(TupleInner<HEAD, TAIL...>& inner) noexcept -> Box<meta::PackElement<INDEX, Types>>& {
             if constexpr(CURRENT == INDEX) { return inner._head; }
             else { return get_head<INDEX, CURRENT + 1, TAIL...>(inner._tail); }
         }
 
         template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
         constexpr auto get_head(const TupleInner<HEAD, TAIL...>& inner) const noexcept
-                -> const Box<meta::pack_element<INDEX, Types>>& {
+                -> const Box<meta::PackElement<INDEX, Types>>& {
             if constexpr(CURRENT == INDEX) { return inner._head; }
             else { return get_head<INDEX, CURRENT + 1, TAIL...>(inner._tail); }
         }
 
         template<usize BEGIN, usize END, usize INDEX>
-        constexpr auto slice(TupleImpl<meta::slice_pack<BEGIN, END, Types>>& tuple) const noexcept -> void {
+        constexpr auto slice(TupleImpl<meta::SlicePack<BEGIN, END, Types>>& tuple) const noexcept -> void {
             tuple.template get<INDEX>() = get<BEGIN + INDEX>();
             if constexpr(INDEX < (END - BEGIN)) { slice<BEGIN, END, INDEX + 1>(tuple); }
         }
 
         template<usize CURRENT, typename HEAD, typename... TAIL>
-        constexpr auto equals(const TupleInner<HEAD, TAIL...>& a, const TupleInner<HEAD, TAIL...>& b,
+        constexpr auto equals(const TupleInner<HEAD, TAIL...>& lhs, const TupleInner<HEAD, TAIL...>& rhs,
                               bool& result) const noexcept -> void {
-            if constexpr(meta::has_equals_op<HEAD>) { result = result && (a._head == b._head); }
+            if constexpr(meta::has_equals_op<HEAD>) { result = result && (lhs._head == rhs._head); }
             else {
-                result = result && !(a._head != b._head);// NOLINT
+                result = result && !(lhs._head != rhs._head);// NOLINT
             }
 
-            if constexpr(CURRENT < num_values - 1) { equals<CURRENT + 1, TAIL...>(a._tail, b._tail, result); }
+            if constexpr(CURRENT < num_values - 1) { equals<CURRENT + 1, TAIL...>(lhs._tail, rhs._tail, result); }
         }
 
         template<usize CURRENT, typename HEAD, typename... TAIL>
-        constexpr auto not_equals(const TupleInner<HEAD, TAIL...>& a, const TupleInner<HEAD, TAIL...>& b,
+        constexpr auto not_equals(const TupleInner<HEAD, TAIL...>& lhs, const TupleInner<HEAD, TAIL...>& rhs,
                                   bool& result) const noexcept -> void {
-            if constexpr(meta::has_not_equals_op<HEAD>) { result = result || (a._head != b._head); }
+            if constexpr(meta::has_not_equals_op<HEAD>) { result = result || (lhs._head != rhs._head); }
             else {
-                result = result || !(a._head == b._head);// NOLINT
+                result = result || !(lhs._head == rhs._head);// NOLINT
             }
 
-            if constexpr(CURRENT < num_values - 1) { equals<CURRENT + 1, TAIL...>(a._tail, b._tail, result); }
+            if constexpr(CURRENT < num_values - 1) { equals<CURRENT + 1, TAIL...>(lhs._tail, rhs._tail, result); }
         }
 
-        template<usize NEW_SIZE, usize CURRENT, typename... OTHER_TYPES>// @formatter:off
+        template<usize NEW_SIZE, usize CURRENT, typename... OTHER_TYPES>
         constexpr auto concat(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other,
-                              TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>>& result) const noexcept
-                -> void {// @formatter:on
+                              TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>>& result) const noexcept -> void {
             if constexpr(CURRENT < num_values) { result.template reset<CURRENT>(get<CURRENT>()); }
             else { result.template reset<CURRENT>(other.template get<CURRENT - num_values>()); }
 
@@ -154,38 +153,38 @@ namespace kstd {
         }
 
         template<usize INDEX>
-        constexpr auto reset(meta::pack_element<INDEX, Types> value) noexcept -> void {
+        constexpr auto reset(meta::PackElement<INDEX, Types> value) noexcept -> void {
             get_head<INDEX, 0, TYPES...>(_inner) = utils::move_or_copy(value);
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() noexcept -> meta::lvalue_ref<meta::pack_element<INDEX, Types>> {
+        [[nodiscard]] constexpr auto get() noexcept -> meta::Ref<meta::PackElement<INDEX, Types>> {
             return get_head<INDEX, 0, TYPES...>(_inner).borrow();
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() const noexcept -> meta::const_lvalue_ref<meta::pack_element<INDEX, Types>> {
+        [[nodiscard]] constexpr auto get() const noexcept -> meta::ConstRef<meta::PackElement<INDEX, Types>> {
             return get_head<INDEX, 0, TYPES...>(_inner).borrow();
         }
 
         template<usize BEGIN, usize END>
-        [[nodiscard]] constexpr auto slice() const noexcept -> TupleImpl<meta::slice_pack<BEGIN, END, Types>> {
-            TupleImpl<meta::slice_pack<BEGIN, END, Types>> result;
+        [[nodiscard]] constexpr auto slice() const noexcept -> TupleImpl<meta::SlicePack<BEGIN, END, Types>> {
+            TupleImpl<meta::SlicePack<BEGIN, END, Types>> result;
             slice<BEGIN, END, 0>(result);
             return result;
         }
 
-        template<typename... OTHER_TYPES>// @formatter:off
+        template<typename... OTHER_TYPES>
         [[nodiscard]] constexpr auto concat(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept
-                -> TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> {// @formatter:on
+                -> TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> {
             TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> result;
             concat<num_values + sizeof...(OTHER_TYPES), 0, OTHER_TYPES...>(other, result);
             return result;
         }
 
-        template<typename... OTHER_TYPES>// @formatter:off
+        template<typename... OTHER_TYPES>
         [[nodiscard]] constexpr auto operator+(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept
-                -> TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> {// @formatter:on
+                -> TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> {
             return concat<OTHER_TYPES...>(other);
         }
 

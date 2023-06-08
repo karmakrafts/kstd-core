@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "defaults.hpp"
 #include "types.hpp"
 
 namespace kstd {
@@ -37,19 +38,13 @@ namespace kstd {
         OffsetType _offset;
 
         public:
+        KSTD_NO_MOVE_COPY(RelativePtr)
+
         constexpr RelativePtr() noexcept :
                 _offset(0) {
         }
 
-        constexpr RelativePtr(const Self& other) noexcept = delete;
-
-        constexpr RelativePtr(Self&& other) noexcept = delete;
-
         ~RelativePtr() noexcept = default;
-
-        constexpr auto operator=(const Self& other) noexcept -> Self& = delete;
-
-        constexpr auto operator=(Self&& other) noexcept -> Self& = delete;
 
         constexpr auto operator=(Pointer value) noexcept -> Self& {
             set(value);

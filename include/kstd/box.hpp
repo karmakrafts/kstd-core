@@ -24,17 +24,6 @@
 #include "utils.hpp"
 
 namespace kstd {
-    namespace {
-        template<typename T>
-        using def_if_ptr = meta::def_if<meta::is_ptr<T>>;
-
-        template<typename T>
-        using def_if_ref = meta::def_if<meta::is_ref<T>>;
-
-        template<typename T>
-        using def_if_val = meta::def_if<!meta::is_ref<T> && !meta::is_ptr<T>>;
-    }// namespace
-
     /*
      * A Box is a union-friendly way to store a pointer, reference or owned value.
      * Primarily used for things like kstd::Option and kstd::Result to make the code
@@ -47,13 +36,13 @@ namespace kstd {
      * Specialization for pointers, always pass-by-value
      */
     template<typename T>
-    struct Box<T, def_if_ptr<T>> final {
+    struct Box<T, meta::DefIf<meta::is_ptr<T>>> final {
         [[maybe_unused]] static constexpr bool is_pointer = true;
         [[maybe_unused]] static constexpr bool is_reference = false;
         [[maybe_unused]] static constexpr bool is_value = false;
 
         using ValueType = T;
-        using Self = Box<ValueType, def_if_ptr<ValueType>>;
+        using Self = Box<ValueType, meta::DefIf<meta::is_ptr<ValueType>>>;
         using StoredValueType = ValueType;
         using BorrowedValueType = ValueType&;
         using ConstBorrowedValueType = ValueType const&;
@@ -129,19 +118,19 @@ namespace kstd {
      * Specialization for references, stores a pointer
      */
     template<typename T>
-    struct Box<T, def_if_ref<T>> final {
+    struct Box<T, meta::DefIf<meta::is_ref<T>>> final {
         [[maybe_unused]] static constexpr bool is_pointer = false;
         [[maybe_unused]] static constexpr bool is_reference = true;
         [[maybe_unused]] static constexpr bool is_value = false;
 
-        using Self = Box<T, def_if_ref<T>>;
         using ValueType = T;
-        using NakedValueType = meta::naked_type<ValueType>;
+        using Self = Box<ValueType, meta::DefIf<meta::is_ref<ValueType>>>;
+        using NakedValueType = meta::Naked<ValueType>;
         using BorrowedValueType = ValueType;
         using ConstBorrowedValueType = const ValueType;
         using Pointer = NakedValueType*;
         using ConstPointer = const NakedValueType*;
-        using StoredValueType = meta::conditional<meta::is_const<ValueType>, ConstPointer, Pointer>;
+        using StoredValueType = meta::If<meta::is_const<ValueType>, ConstPointer, Pointer>;
 
         private:
         StoredValueType _value;
@@ -218,7 +207,7 @@ namespace kstd {
      * Specialization for owned values, uses move semantics
      */
     template<typename T>
-    struct Box<T, def_if_val<T>> final {
+    struct Box<T, meta::DefIf<!meta::is_ref<T> && !meta::is_ptr<T>>> final {
         static_assert(meta::is_move_assignable<T>, "Box type is not move assignable");
         static_assert(meta::is_move_constructible<T>, "Box type is not move constructible");
         static_assert(meta::is_default_constructible<T>, "Box type is not default constructible");
@@ -227,8 +216,8 @@ namespace kstd {
         [[maybe_unused]] static constexpr bool is_reference = false;
         [[maybe_unused]] static constexpr bool is_value = true;
 
-        using Self = Box<T, def_if_val<T>>;
         using ValueType = T;
+        using Self = Box<ValueType, meta::DefIf<!meta::is_ref<ValueType> && !meta::is_ptr<ValueType>>>;
         using BorrowedValueType = ValueType&;
         using ConstBorrowedValueType = const ValueType&;
         using Pointer = ValueType*;
@@ -247,7 +236,7 @@ namespace kstd {
         }
 
         constexpr Box(ValueType&& value) noexcept :// NOLINT
-                _value(move(value)) {
+                _value(utils::move(value)) {
         }
 
         constexpr Box(const Self& other) noexcept :
@@ -339,6 +328,6 @@ namespace kstd {
 
     template<typename T>
     [[nodiscard]] constexpr auto make_box(T value) noexcept -> Box<T> {
-        return Box<T>(move_or_copy(value));
+        return Box<T>(utils::move_or_copy(value));
     }
 }// namespace kstd

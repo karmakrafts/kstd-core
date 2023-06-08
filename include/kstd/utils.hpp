@@ -28,18 +28,18 @@ namespace kstd::utils {
     }
 
     template<typename T>
-    [[nodiscard]] constexpr auto forward(meta::remove_ref<T>& value) noexcept -> T&& {
+    [[nodiscard]] constexpr auto forward(meta::NonRef<T>& value) noexcept -> T&& {
         return static_cast<T&&>(value);
     }
 
     template<typename T>
-    [[nodiscard]] constexpr auto forward(meta::remove_ref<T>&& value) noexcept -> T&& {
+    [[nodiscard]] constexpr auto forward(meta::NonRef<T>&& value) noexcept -> T&& {
         return static_cast<T&&>(value);
     }
 
     template<typename T>
-    [[nodiscard]] constexpr auto move(T&& value) noexcept -> meta::remove_ref<T>&& {
-        return static_cast<meta::remove_ref<T>&&>(value);
+    [[nodiscard]] constexpr auto move(T&& value) noexcept -> meta::NonRef<T>&& {
+        return static_cast<meta::NonRef<T>&&>(value);
     }
 
     template<typename T>

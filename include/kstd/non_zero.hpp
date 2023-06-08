@@ -20,6 +20,7 @@
 #pragma once
 
 #include "assert.hpp"
+#include "defaults.hpp"
 
 namespace kstd {
     template<typename T>
@@ -35,6 +36,8 @@ namespace kstd {
         ValueType _value;
 
         public:
+        KSTD_DEFAULT_MOVE_COPY(NonZero)
+
         constexpr NonZero() noexcept :
                 _value(static_cast<ValueType>(0)) {
         }
@@ -44,15 +47,7 @@ namespace kstd {
             assert_true(value != static_cast<ValueType>(0));
         }
 
-        constexpr NonZero(const Self& other) noexcept = default;
-
-        constexpr NonZero(Self&& other) noexcept = default;
-
         ~NonZero() noexcept = default;
-
-        constexpr auto operator=(const Self& other) noexcept -> Self& = default;
-
-        constexpr auto operator=(Self&& other) noexcept -> Self& = default;
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
             return _value == static_cast<ValueType>(0);

@@ -21,11 +21,11 @@
 
 #include "types.hpp"
 
-#define KSTD_SFINAE_TRAIT(t, n, c)                                                                                     \
+#define KSTD_SFINAE_TRAIT(t, n, c)        /* NOLINT */                                                                 \
     template<typename T, typename = void> /* NOLINT */                                                                 \
     struct t : public kstd::meta::False {};                                                                            \
     template<typename T>                                                                                               \
-    struct t<T, kstd::meta::def_if<(c)>> : public kstd::meta::True {};                                                 \
+    struct t<T, kstd::meta::DefIf<(c)>> : public kstd::meta::True {};                                                  \
     template<typename T>                                                                                               \
     constexpr bool n = t<T>::value;// NOLINT
 
@@ -47,6 +47,17 @@ namespace kstd::meta {
     struct True : public Constant<bool, true> {};
 
     struct False : public Constant<bool, false> {};
+
+    // Pack
+
+    template<typename... TYPES>
+    struct Pack final {
+        [[maybe_unused]] static constexpr usize num_types = sizeof...(TYPES);
+
+        [[nodiscard, maybe_unused]] constexpr auto get_size() const noexcept -> usize {
+            return num_types;
+        }
+    };
 
     // uneval
 
@@ -136,8 +147,10 @@ namespace kstd::meta {
     template<typename A, typename B>//
     constexpr bool is_same = IsSame<A, B>::value;
 
+#ifdef BUILD_DEBUG
     static_assert(is_same<i32, i32>, "Types are matching, trait should return true");
     static_assert(!is_same<i32, f32>, "Types aren't matching, trait should return false");
+#endif
 
     // is_void
 
@@ -150,42 +163,44 @@ namespace kstd::meta {
     template<typename T>//
     constexpr bool is_void = IsVoid<T>::value;
 
+#ifdef BUILD_DEBUG
     static_assert(is_void<void>, "Type is void, trait should return true");
     static_assert(!is_void<i32>, "Type is not a void, trait should return false");
+#endif
 
-    // def_if
+    // DefIf
 
     template<bool CONDITION, typename T = void>
-    struct DefIf;
+    struct DefIfImpl;
 
     template<typename T>
-    struct DefIf<true, T> {
+    struct DefIfImpl<true, T> {
         using Type = T;
     };
 
     template<typename T>
-    struct DefIf<false, T> {};
+    struct DefIfImpl<false, T> {};
 
     template<bool CONDITION, typename T = void>//
-    using def_if = typename DefIf<CONDITION, T>::Type;
+    using DefIf = typename DefIfImpl<CONDITION, T>::Type;
 
-    // conditional
+    // If
 
     template<bool CONDITION, typename IF_TRUE, typename IF_FALSE>
-    struct Conditional;
+    struct IfImpl;
 
     template<typename IF_TRUE, typename IF_FALSE>
-    struct Conditional<true, IF_TRUE, IF_FALSE> {
+    struct IfImpl<true, IF_TRUE, IF_FALSE> {
         using Type = IF_TRUE;
     };
 
     template<typename IF_TRUE, typename IF_FALSE>
-    struct Conditional<false, IF_TRUE, IF_FALSE> {
+    struct IfImpl<false, IF_TRUE, IF_FALSE> {
         using Type = IF_FALSE;
     };
 
     template<bool CONDITION, typename IF_TRUE, typename IF_FALSE>//
-    using conditional = typename Conditional<CONDITION, IF_TRUE, IF_FALSE>::Type;
+    using If = typename IfImpl<CONDITION, IF_TRUE, IF_FALSE>::Type;
 
     // is_destructible
 
@@ -210,6 +225,7 @@ namespace kstd::meta {
     constexpr bool is_destructible = IsDestructible<T>::value;
 #endif// defined(COMPILER_GCC) || defined(COMPILER_CLANG)
 
+#ifdef BUILD_DEBUG
     namespace {
         struct Destructible final {};
 
@@ -220,6 +236,7 @@ namespace kstd::meta {
         static_assert(is_destructible<Destructible>, "Type is destructible, trait should return true");
         static_assert(!is_destructible<NonDestructible>, "Type is non-destructible, trait should return false");
     }// namespace
+#endif
 
     // is_ptr
 
@@ -232,47 +249,53 @@ namespace kstd::meta {
     template<typename T>
     constexpr bool is_ptr = IsPtr<T>::value;
 
+#ifdef BUILD_DEBUG
     static_assert(is_ptr<i32*>, "Type is pointer, trait should return true");
     static_assert(is_ptr<const i32*>, "Type is pointer, trait should return true");
     static_assert(!is_ptr<i32>, "Type is not a pointer, trait should return false");
+#endif
 
-    // is_lvalue_ref
-
-    template<typename T>
-    struct IsLValueRef : public False {};
+    // is_owned_ref
 
     template<typename T>
-    struct IsLValueRef<T&> : public True {};
+    struct IsOwnedRefImpl : public False {};
+
+    template<typename T>
+    struct IsOwnedRefImpl<T&> : public True {};
 
     template<typename T>//
-    constexpr bool is_lvalue_ref = IsLValueRef<T>::value;
+    constexpr bool is_owned_ref = IsOwnedRefImpl<T>::value;
 
-    static_assert(is_lvalue_ref<i32&>, "Type is an lvalue reference, trait should return true");
-    static_assert(is_lvalue_ref<const i32&>, "Type is an lvalue reference, trait should return true");
-    static_assert(!is_lvalue_ref<void>, "Type is not an lvalue reference, trait should return false");
-    static_assert(!is_lvalue_ref<i32&&>, "Type is not an lvalue reference, trait should return false");
+#ifdef BUILD_DEBUG
+    static_assert(is_owned_ref<i32&>, "Type is an lvalue reference, trait should return true");
+    static_assert(is_owned_ref<const i32&>, "Type is an lvalue reference, trait should return true");
+    static_assert(!is_owned_ref<void>, "Type is not an lvalue reference, trait should return false");
+    static_assert(!is_owned_ref<i32&&>, "Type is not an lvalue reference, trait should return false");
+#endif
 
-    // is_rvalue_ref
+    // is_temp_ref
 
     template<typename T>
-    struct IsRValueRef : public False {};
+    struct IsTempRefImpl : public False {};
 
     template<typename T>
-    struct IsRValueRef<T&&> : public True {};
+    struct IsTempRefImpl<T&&> : public True {};
 
     template<typename T>//
-    constexpr bool is_rvalue_ref = IsRValueRef<T>::value;
+    constexpr bool is_temp_ref = IsTempRefImpl<T>::value;
 
-    static_assert(!is_rvalue_ref<i32&>, "Type is not an rvalue reference, trait should return true");
-    static_assert(!is_rvalue_ref<const i32&>, "Type is not an rvalue reference, trait should return true");
-    static_assert(is_rvalue_ref<i32&&>, "Type is an rvalue reference, trait should return false");
-    static_assert(is_rvalue_ref<const i32&&>, "Type is an rvalue reference, trait should return false");
+#ifdef BUILD_DEBUG
+    static_assert(!is_temp_ref<i32&>, "Type is not an rvalue reference, trait should return true");
+    static_assert(!is_temp_ref<const i32&>, "Type is not an rvalue reference, trait should return true");
+    static_assert(is_temp_ref<i32&&>, "Type is an rvalue reference, trait should return false");
+    static_assert(is_temp_ref<const i32&&>, "Type is an rvalue reference, trait should return false");
+#endif
 
     // is_ref
 
     template<typename T>
     struct IsRef final {
-        static constexpr bool value = is_lvalue_ref<T> || is_rvalue_ref<T>;
+        static constexpr bool value = is_owned_ref<T> || is_temp_ref<T>;
     };
 
     template<typename T>//
@@ -388,6 +411,7 @@ namespace kstd::meta {
     template<typename T>//
     constexpr bool is_cv = IsCV<T>::value;
 
+#ifdef BUILD_DEBUG
     static_assert(!is_cv<void>);
     static_assert(is_cv<const i32*>);
     static_assert(is_cv<const i32&>);
@@ -395,6 +419,7 @@ namespace kstd::meta {
     static_assert(is_cv<volatile i32&>);
     static_assert(is_cv<const volatile i32*>);
     static_assert(is_cv<const volatile i32&>);
+#endif
 
     // is_value
 
@@ -406,507 +431,553 @@ namespace kstd::meta {
     template<typename T>//
     constexpr bool is_value = IsValue<T>::value;
 
+#ifdef BUILD_DEBUG
     static_assert(is_value<i32>);
     static_assert(!is_value<i32*>);
     static_assert(!is_value<i32&>);
+#endif
 
-    // remove_ref
+    // NonRef
 
     template<typename T>
-    struct RemoveRef {
+    struct NonRefImpl {
         using Type = T;
     };
 
     template<typename T>
-    struct RemoveRef<T&> {
-        using Type = T;
-    };
-
-    template<typename T>//
-    using remove_ref = typename RemoveRef<T>::Type;
-
-    // remove_ptr
-
-    template<typename T>
-    struct RemovePtr {
-        using Type = T;
-    };
-
-    template<typename T>
-    struct RemovePtr<T*> {
+    struct NonRefImpl<T&> {
         using Type = T;
     };
 
     template<typename T>//
-    using remove_ptr = typename RemovePtr<T>::Type;
+    using NonRef = typename NonRefImpl<T>::Type;
 
-    // remove_const
+    // NonPtr
 
     template<typename T>
-    struct RemoveConst {
+    struct NonPtrImpl {
         using Type = T;
     };
 
     template<typename T>
-    struct RemoveConst<const T> {
+    struct NonPtrImpl<T*> {
+        using Type = T;
+    };
+
+    template<typename T>//
+    using NonPtr = typename NonPtrImpl<T>::Type;
+
+    // NonConst
+
+    template<typename T>
+    struct NonConstImpl {
         using Type = T;
     };
 
     template<typename T>
-    struct RemoveConst<const T*> {
+    struct NonConstImpl<const T> {
+        using Type = T;
+    };
+
+    template<typename T>
+    struct NonConstImpl<const T*> {
         using Type = T*;
     };
 
     template<typename T>
-    struct RemoveConst<const T&> {
+    struct NonConstImpl<const T&> {
         using Type = T&;
     };
 
     template<typename T>
-    struct RemoveConst<const T&&> {
+    struct NonConstImpl<const T&&> {
         using Type = T&&;
     };
 
     template<typename T>//
-    using remove_const = typename RemoveConst<T>::Type;
+    using NonConst = typename NonConstImpl<T>::Type;
 
-    static_assert(is_same<remove_const<i32>, i32>);
-    static_assert(is_same<remove_const<const i32*>, i32*>);
-    static_assert(is_same<remove_const<const i32&>, i32&>);
-    static_assert(is_same<remove_const<const i32&&>, i32&&>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<NonConst<i32>, i32>);
+    static_assert(is_same<NonConst<const i32*>, i32*>);
+    static_assert(is_same<NonConst<const i32&>, i32&>);
+    static_assert(is_same<NonConst<const i32&&>, i32&&>);
+#endif
 
-    // remove_volatile
+    // NonVolatile
 
     template<typename T>
-    struct RemoveVolatile {
+    struct NonVolatileImpl {
         using Type = T;
     };
 
     template<typename T>
-    struct RemoveVolatile<volatile T> {
+    struct NonVolatileImpl<volatile T> {
         using Type = T;
     };
 
     template<typename T>
-    struct RemoveVolatile<volatile T*> {
+    struct NonVolatileImpl<volatile T*> {
         using Type = T*;
     };
 
     template<typename T>
-    struct RemoveVolatile<volatile T&> {
+    struct NonVolatileImpl<volatile T&> {
         using Type = T&;
     };
 
     template<typename T>
-    struct RemoveVolatile<volatile T&&> {
+    struct NonVolatileImpl<volatile T&&> {
         using Type = T&&;
     };
 
     template<typename T>//
-    using remove_volatile = typename RemoveVolatile<T>::Type;
+    using NonVolatile = typename NonVolatileImpl<T>::Type;
 
-    static_assert(is_same<remove_volatile<i32>, i32>);
-    static_assert(is_same<remove_volatile<volatile i32*>, i32*>);
-    static_assert(is_same<remove_volatile<volatile i32&>, i32&>);
-    static_assert(is_same<remove_volatile<volatile i32&&>, i32&&>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<NonVolatile<i32>, i32>);
+    static_assert(is_same<NonVolatile<volatile i32*>, i32*>);
+    static_assert(is_same<NonVolatile<volatile i32&>, i32&>);
+    static_assert(is_same<NonVolatile<volatile i32&&>, i32&&>);
+#endif
 
-    // remove_cv
+    // NonCV
 
     template<typename T>
-    struct RemoveCV final {
-        using Type = remove_const<remove_volatile<T>>;
+    struct NonCVImpl final {
+        using Type = NonConst<NonVolatile<T>>;
     };
 
     template<typename T>//
-    using remove_cv = typename RemoveCV<T>::Type;
+    using NonCV = typename NonCVImpl<T>::Type;
 
-    static_assert(is_same<remove_cv<const i32*>, i32*>);
-    static_assert(is_same<remove_cv<volatile i32*>, i32*>);
-    static_assert(is_same<remove_cv<const volatile i32*>, i32*>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<NonCV<const i32*>, i32*>);
+    static_assert(is_same<NonCV<volatile i32*>, i32*>);
+    static_assert(is_same<NonCV<const volatile i32*>, i32*>);
+#endif
 
-    // naked_type
+    // Naked
 
     template<typename T>
-    struct NakedType final {
-        using Type = remove_ref<remove_ptr<remove_cv<T>>>;
+    struct NakedImpl final {
+        using Type = NonRef<NonPtr<NonCV<T>>>;
     };
 
     template<typename T>//
-    using naked_type = typename NakedType<T>::Type;
+    using Naked = typename NakedImpl<T>::Type;
 
-    static_assert(is_same<naked_type<i32>, i32>);
-    static_assert(is_same<naked_type<i32*>, i32>);
-    static_assert(is_same<naked_type<const i32*>, i32>);
-    static_assert(is_same<naked_type<i32&>, i32>);
-    static_assert(is_same<naked_type<const i32&>, i32>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<Naked<i32>, i32>);
+    static_assert(is_same<Naked<i32*>, i32>);
+    static_assert(is_same<Naked<const i32*>, i32>);
+    static_assert(is_same<Naked<i32&>, i32>);
+    static_assert(is_same<Naked<const i32&>, i32>);
+#endif
 
-    // lvalue_ref
+    // Ref
 
     template<typename T>
-    struct LValueRef final {
+    struct RefImpl final {
         using Type = T&;
     };
 
     template<typename T>//
-    using lvalue_ref = typename LValueRef<T>::Type;
+    using Ref = typename RefImpl<T>::Type;
 
-    static_assert(is_same<lvalue_ref<i32>, i32&>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<Ref<i32>, i32&>);
+#endif
 
-    // const_lvalue_ref
+    // ConstRef
 
     template<typename T>
-    struct ConstLValueRef final {
+    struct ConstRefImpl final {
         using Type = T const&;
     };
 
     template<typename T>//
-    using const_lvalue_ref = typename ConstLValueRef<T>::Type;
+    using ConstRef = typename ConstRefImpl<T>::Type;
 
-    static_assert(is_same<const_lvalue_ref<i32>, const i32&>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<ConstRef<i32>, const i32&>);
+#endif
 
-    // rvalue_ref
+    // TempRef
 
     template<typename T>
-    struct RValueRef final {
+    struct TempRefImpl final {
         using Type = T&&;
     };
 
     template<typename T>//
-    using rvalue_ref = typename RValueRef<T>::Type;
+    using TempRef = typename TempRefImpl<T>::Type;
 
-    static_assert(is_same<rvalue_ref<i32>, i32&&>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<TempRef<i32>, i32&&>);
+#endif
 
-    // add_const
+    // Const
 
     template<typename T>
-    struct AddConst final {
+    struct ConstImpl final {
         using Type = const T;
     };
 
     template<typename T>
-    struct AddConst<T*> final {
+    struct ConstImpl<T*> final {
         using Type = const T*;
     };
 
     template<typename T>
-    struct AddConst<T&> final {
+    struct ConstImpl<T&> final {
         using Type = const T&;
     };
 
     template<typename T>
-    struct AddConst<T&&> final {
+    struct ConstImpl<T&&> final {
         using Type = const T&&;
     };
 
     template<typename T>//
-    using add_const = typename AddConst<T>::Type;
+    using Const = typename ConstImpl<T>::Type;
 
-    static_assert(is_same<add_const<i32*>, const i32*>);
-    static_assert(is_same<add_const<i32&>, const i32&>);
-    static_assert(is_same<add_const<i32&&>, const i32&&>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<Const<i32*>, const i32*>);
+    static_assert(is_same<Const<i32&>, const i32&>);
+    static_assert(is_same<Const<i32&&>, const i32&&>);
+#endif
 
-    // add_volatile
+    // Volatile
 
     template<typename T>
-    struct AddVolatile final {
+    struct VolatileImpl final {
         using Type = volatile T;
     };
 
     template<typename T>
-    struct AddVolatile<T*> final {
+    struct VolatileImpl<T*> final {
         using Type = volatile T*;
     };
 
     template<typename T>
-    struct AddVolatile<T&> final {
+    struct VolatileImpl<T&> final {
         using Type = volatile T&;
     };
 
-    template<typename T>//
-    using add_volatile = typename AddVolatile<T>::Type;
+    template<typename T>
+    using Volatile = typename VolatileImpl<T>::Type;
 
-    static_assert(is_same<add_volatile<i32>, volatile i32>);
-    static_assert(is_same<add_volatile<i32*>, volatile i32*>);
-    static_assert(is_same<add_volatile<i32&>, volatile i32&>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<Volatile<i32>, volatile i32>);
+    static_assert(is_same<Volatile<i32*>, volatile i32*>);
+    static_assert(is_same<Volatile<i32&>, volatile i32&>);
+#endif
 
-    // add_ptr
+    // Ptr
 
     template<typename T>
-    struct AddPtr final {
+    struct PtrImpl final {
         using Type = T*;
     };
 
-    template<typename T>//
-    using add_ptr = typename AddPtr<T>::Type;
+    template<typename T>
+    using Ptr = typename PtrImpl<T>::Type;
 
-    static_assert(is_same<add_ptr<void>, void*>);
-    static_assert(is_same<add_ptr<void*>, void**>);
+#ifdef BUILD_DEBUG
+    static_assert(is_same<Ptr<void>, void*>);
+    static_assert(is_same<Ptr<void*>, void**>);
+#endif
 
     // has_add_op
 
-    KSTD_SFINAE_TRAIT(HasAddOp, has_add_op, (is_same<T, naked_type<decltype(uneval<T>() + uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasAddOp, has_add_op, (is_same<T, Naked<decltype(uneval<T>() + uneval<T>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_add_op<void>);
     static_assert(has_add_op<i32>);
+#endif
 
     // has_sub_op
 
-    KSTD_SFINAE_TRAIT(HasSubOp, has_sub_op, (is_same<T, naked_type<decltype(uneval<T>() - uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasSubOp, has_sub_op, (is_same<T, Naked<decltype(uneval<T>() - uneval<T>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_sub_op<void>);
     static_assert(has_sub_op<i32>);
+#endif
 
     // has_mul_op
 
-    KSTD_SFINAE_TRAIT(HasMulOp, has_mul_op, (is_same<T, naked_type<decltype(uneval<T>() * uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasMulOp, has_mul_op, (is_same<T, Naked<decltype(uneval<T>() * uneval<T>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_mul_op<void>);
     static_assert(has_mul_op<i32>);
+#endif
 
     // has_div_op
 
-    KSTD_SFINAE_TRAIT(HasDivOp, has_div_op, (is_same<T, naked_type<decltype(uneval<T>() / uneval<T>())>>) );
+    KSTD_SFINAE_TRAIT(HasDivOp, has_div_op, (is_same<T, Naked<decltype(uneval<T>() / uneval<T>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_div_op<void>);
     static_assert(has_div_op<i32>);
+#endif
 
     // has_mod_op
 
-    KSTD_SFINAE_TRAIT(HasModOp, has_mod_op, (is_same<T, naked_type<decltype(uneval<T>() % uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasModOp, has_mod_op, (is_same<T, Naked<decltype(uneval<T>() % uneval<T>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_mod_op<void>);
     static_assert(has_mod_op<i32>);
+#endif
 
     // has_shl_op
 
-    KSTD_SFINAE_TRAIT(HasShlOp, has_shl_op, (is_same<T, naked_type<decltype(uneval<T>() << uneval<i32>())>>) )
+    KSTD_SFINAE_TRAIT(HasShlOp, has_shl_op, (is_same<T, Naked<decltype(uneval<T>() << uneval<i32>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_shl_op<void>);
     static_assert(has_shl_op<i32>);
+#endif
 
     // has_shr_op
 
-    KSTD_SFINAE_TRAIT(HasShrOp, has_shr_op, (is_same<T, naked_type<decltype(uneval<T>() >> uneval<i32>())>>) )
+    KSTD_SFINAE_TRAIT(HasShrOp, has_shr_op, (is_same<T, Naked<decltype(uneval<T>() >> uneval<i32>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_shr_op<void>);
     static_assert(has_shr_op<i32>);
+#endif
 
     // has_and_op
 
-    KSTD_SFINAE_TRAIT(HasAndOp, has_and_op, (is_same<T, naked_type<decltype(uneval<T>() & uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasAndOp, has_and_op, (is_same<T, Naked<decltype(uneval<T>() & uneval<T>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_and_op<void>);
     static_assert(has_and_op<i32>);
+#endif
 
     // has_or_op
 
-    KSTD_SFINAE_TRAIT(HasOrOp, has_or_op, (is_same<T, naked_type<decltype(uneval<T>() | uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasOrOp, has_or_op, (is_same<T, Naked<decltype(uneval<T>() | uneval<T>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_or_op<void>);
     static_assert(has_or_op<i32>);
+#endif
 
     // has_xor_op
 
-    KSTD_SFINAE_TRAIT(HasXorOp, has_xor_op, (is_same<T, naked_type<decltype(uneval<T>() ^ uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasXorOp, has_xor_op, (is_same<T, Naked<decltype(uneval<T>() ^ uneval<T>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_xor_op<void>);
     static_assert(has_xor_op<i32>);
+#endif
 
     // has_inv_op
 
-    KSTD_SFINAE_TRAIT(HasInvOp, has_inv_op, (is_same<T, naked_type<decltype(~uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasInvOp, has_inv_op, (is_same<T, Naked<decltype(~uneval<T>())>>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_inv_op<void>);
     static_assert(has_inv_op<i32>);
+#endif
 
     // has_equals_op
 
-    KSTD_SFINAE_TRAIT(HasEqualsOp, has_equals_op, (is_same<naked_type<decltype(uneval<T>() == uneval<T>())>, bool>) )
+    KSTD_SFINAE_TRAIT(HasEqualsOp, has_equals_op, (is_same<Naked<decltype(uneval<T>() == uneval<T>())>, bool>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_equals_op<void>);
     static_assert(has_equals_op<i32>);
+#endif
 
     // has_not_equals_op
 
-    KSTD_SFINAE_TRAIT(HasNotEqualsOp, has_not_equals_op,
-                      (is_same<naked_type<decltype(uneval<T>() != uneval<T>())>, bool>) )
+    KSTD_SFINAE_TRAIT(HasNotEqualsOp, has_not_equals_op, (is_same<Naked<decltype(uneval<T>() != uneval<T>())>, bool>) )
+#ifdef BUILD_DEBUG
     static_assert(!has_not_equals_op<void>);
     static_assert(has_not_equals_op<i32>);
+#endif
 
-    // Pack
-
-    template<typename... TYPES>
-    struct Pack final {
-        [[maybe_unused]] static constexpr usize num_types = sizeof...(TYPES);
-
-        [[nodiscard, maybe_unused]] constexpr auto get_size() const noexcept -> usize {
-            return num_types;
-        }
-    };
-
-    // pack_element
+    // PackElement
 
     template<usize INDEX, typename PACK>
-    struct PackElement;
+    struct PackElementImpl;
 
     template<usize INDEX, typename HEAD, typename... TAIL>
-    struct PackElement<INDEX, Pack<HEAD, TAIL...>> : public PackElement<INDEX - 1, Pack<TAIL...>> {};
+    struct PackElementImpl<INDEX, Pack<HEAD, TAIL...>> : public PackElementImpl<INDEX - 1, Pack<TAIL...>> {};
 
     template<typename HEAD, typename... TAIL>
-    struct PackElement<0, Pack<HEAD, TAIL...>> {
+    struct PackElementImpl<0, Pack<HEAD, TAIL...>> {
         using Type = HEAD;
     };
 
     template<usize INDEX, typename PACK>//
-    using pack_element = typename PackElement<INDEX, PACK>::Type;
+    using PackElement = typename PackElementImpl<INDEX, PACK>::Type;
 
-    static_assert(is_same<pack_element<0, Pack<i32, f32, u32>>, i32>, "Type should be i32");
-    static_assert(is_same<pack_element<1, Pack<i32, f32, u32>>, f32>, "Type should be f32");
-    static_assert(is_same<pack_element<2, Pack<i32, f32, u32>>, u32>, "Type should be u32");
+#ifdef BUILD_DEBUG
+    static_assert(is_same<PackElement<0, Pack<i32, f32, u32>>, i32>, "Type should be i32");
+    static_assert(is_same<PackElement<1, Pack<i32, f32, u32>>, f32>, "Type should be f32");
+    static_assert(is_same<PackElement<2, Pack<i32, f32, u32>>, u32>, "Type should be u32");
+#endif
 
-    // skip_elements
+    // LeftTrimPack
 
     template<usize COUNT, typename PACK, typename = Pack<>>
-    struct SkipElements {
+    struct LeftTrimPackImpl {
         using Type = Pack<>;
     };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... SKIPPED>
-    struct SkipElements<COUNT, Pack<HEAD, TAIL...>, Pack<SKIPPED...>>
-            : public SkipElements<COUNT - 1, Pack<TAIL...>, Pack<SKIPPED..., HEAD>> {};
+    struct LeftTrimPackImpl<COUNT, Pack<HEAD, TAIL...>, Pack<SKIPPED...>>
+            : public LeftTrimPackImpl<COUNT - 1, Pack<TAIL...>, Pack<SKIPPED..., HEAD>> {};
 
     template<typename HEAD, typename... TAIL, typename... SKIPPED>
-    struct SkipElements<0, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> {
+    struct LeftTrimPackImpl<0, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> {
         using Type = Pack<HEAD, TAIL...>;
     };
 
     template<typename... SKIPPED>
-    struct SkipElements<0, Pack<>, Pack<SKIPPED...>> {
+    struct LeftTrimPackImpl<0, Pack<>, Pack<SKIPPED...>> {
         using Type = Pack<>;
     };
 
     template<usize COUNT, typename PACK>//
-    using skip_elements = typename SkipElements<COUNT, PACK>::Type;
+    using LeftTrimPack = typename LeftTrimPackImpl<COUNT, PACK>::Type;
 
-    static_assert(is_same<skip_elements<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
-    static_assert(is_same<skip_elements<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+#ifdef BUILD_DEBUG
+    static_assert(is_same<LeftTrimPack<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<LeftTrimPack<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<skip_elements<0, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
+    static_assert(is_same<LeftTrimPack<0, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
                   "Pack type should be Pack<i32, f32, u64>");
-    static_assert(is_same<skip_elements<1, Pack<i32, f32, u64>>, Pack<f32, u64>>, "Pack type should be Pack<f32, u64>");
-    static_assert(is_same<skip_elements<2, Pack<i32, f32, u64>>, Pack<u64>>, "Pack type should be Pack<u64>");
-    static_assert(is_same<skip_elements<3, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<LeftTrimPack<1, Pack<i32, f32, u64>>, Pack<f32, u64>>, "Pack type should be Pack<f32, u64>");
+    static_assert(is_same<LeftTrimPack<2, Pack<i32, f32, u64>>, Pack<u64>>, "Pack type should be Pack<u64>");
+    static_assert(is_same<LeftTrimPack<3, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(skip_elements<0, Pack<i32, f32, u64>>().get_size() == 3, "Pack size should be 3");
-    static_assert(skip_elements<1, Pack<i32, f32, u64>>().get_size() == 2, "Pack size should be 2");
-    static_assert(skip_elements<2, Pack<i32, f32, u64>>().get_size() == 1, "Pack size should be 1");
-    static_assert(skip_elements<3, Pack<i32, f32, u64>>().get_size() == 0, "Pack size should be 0");
+    static_assert(LeftTrimPack<0, Pack<i32, f32, u64>>().get_size() == 3, "Pack size should be 3");
+    static_assert(LeftTrimPack<1, Pack<i32, f32, u64>>().get_size() == 2, "Pack size should be 2");
+    static_assert(LeftTrimPack<2, Pack<i32, f32, u64>>().get_size() == 1, "Pack size should be 1");
+    static_assert(LeftTrimPack<3, Pack<i32, f32, u64>>().get_size() == 0, "Pack size should be 0");
+#endif
 
-    // trim_elements
+    // RightTrimPack
 
     template<usize COUNT, typename PACK, typename = Pack<>>
-    struct TrimElements {
+    struct RightTrimPackImpl {
         using Type = Pack<>;
     };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... ACCUMULATED>
-    struct TrimElements<COUNT, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>>
-            : public TrimElements<COUNT - 1, Pack<TAIL...>, Pack<ACCUMULATED..., HEAD>> {};
+    struct RightTrimPackImpl<COUNT, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>>
+            : public RightTrimPackImpl<COUNT - 1, Pack<TAIL...>, Pack<ACCUMULATED..., HEAD>> {};
 
     template<typename HEAD, typename... TAIL, typename... ACCUMULATED>
-    struct TrimElements<0, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> {
+    struct RightTrimPackImpl<0, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> {
         using Type = Pack<ACCUMULATED...>;
     };
 
     template<typename... ACCUMULATED>
-    struct TrimElements<0, Pack<>, Pack<ACCUMULATED...>> {
+    struct RightTrimPackImpl<0, Pack<>, Pack<ACCUMULATED...>> {
         using Type = Pack<ACCUMULATED...>;
     };
 
     template<usize COUNT, typename PACK>//
-    using trim_elements = typename TrimElements<COUNT, PACK>::Type;
+    using RightTrimPack = typename RightTrimPackImpl<COUNT, PACK>::Type;
 
-    static_assert(is_same<trim_elements<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
-    static_assert(is_same<trim_elements<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+#ifdef BUILD_DEBUG
+    static_assert(is_same<RightTrimPack<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<RightTrimPack<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<trim_elements<3, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
+    static_assert(is_same<RightTrimPack<3, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
                   "Pack type should be Pack<i32, f32, u64>");
-    static_assert(is_same<trim_elements<2, Pack<i32, f32, u64>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<trim_elements<1, Pack<i32, f32, u64>>, Pack<i32>>, "Pack type should be Pack<i32>");
-    static_assert(is_same<trim_elements<0, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<RightTrimPack<2, Pack<i32, f32, u64>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<RightTrimPack<1, Pack<i32, f32, u64>>, Pack<i32>>, "Pack type should be Pack<i32>");
+    static_assert(is_same<RightTrimPack<0, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(trim_elements<0, Pack<i32, f32, u64>>().get_size() == 0, "Pack size should be 0");
-    static_assert(trim_elements<1, Pack<i32, f32, u64>>().get_size() == 1, "Pack size should be 1");
+    static_assert(RightTrimPack<0, Pack<i32, f32, u64>>().get_size() == 0, "Pack size should be 0");
+    static_assert(RightTrimPack<1, Pack<i32, f32, u64>>().get_size() == 1, "Pack size should be 1");
 
-    static_assert(trim_elements<2, Pack<i32, f32, u64>>().get_size() == 2, "Pack size should be 2");
-    static_assert(trim_elements<3, Pack<i32, f32, u64>>().get_size() == 3, "Pack size should be 3");
+    static_assert(RightTrimPack<2, Pack<i32, f32, u64>>().get_size() == 2, "Pack size should be 2");
+    static_assert(RightTrimPack<3, Pack<i32, f32, u64>>().get_size() == 3, "Pack size should be 3");
+#endif
 
-    // slice_pack
+    // SlicePack
 
     template<usize BEGIN, usize END, typename PACK>
-    struct SlicePack;
+    struct SlicePackImpl;
 
     template<usize BEGIN, usize END, typename... TYPES>
-    struct SlicePack<BEGIN, END, Pack<TYPES...>> {
-        using Type = trim_elements<END + 1 - BEGIN, skip_elements<BEGIN, Pack<TYPES...>>>;
+    struct SlicePackImpl<BEGIN, END, Pack<TYPES...>> {
+        using Type = RightTrimPack<END + 1 - BEGIN, LeftTrimPack<BEGIN, Pack<TYPES...>>>;
     };
 
     template<usize BEGIN, usize END>
-    struct SlicePack<BEGIN, END, Pack<>> {
+    struct SlicePackImpl<BEGIN, END, Pack<>> {
         using Type = Pack<>;
     };
 
     template<usize BEGIN, usize END, typename PACK>//
-    using slice_pack = typename SlicePack<BEGIN, END, PACK>::Type;
+    using SlicePack = typename SlicePackImpl<BEGIN, END, PACK>::Type;
 
-    static_assert(is_same<slice_pack<0, 0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
-    static_assert(is_same<slice_pack<0, 1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
-    static_assert(is_same<slice_pack<1, 2, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+#ifdef BUILD_DEBUG
+    static_assert(is_same<SlicePack<0, 0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<SlicePack<0, 1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(is_same<SlicePack<1, 2, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<slice_pack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
+    static_assert(is_same<SlicePack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
                   "Pack type should be Pack<i32, f32, u64, u32>");
-    static_assert(is_same<slice_pack<0, 2, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64>>,
+    static_assert(is_same<SlicePack<0, 2, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64>>,
                   "Pack type should be Pack<i32, f32, u64>");
-    static_assert(is_same<slice_pack<0, 1, Pack<i32, f32, u64, u32>>, Pack<i32, f32>>,
+    static_assert(is_same<SlicePack<0, 1, Pack<i32, f32, u64, u32>>, Pack<i32, f32>>,
                   "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<slice_pack<0, 0, Pack<i32, f32, u64, u32>>, Pack<i32>>, "Pack type should be Pack<i32>");
+    static_assert(is_same<SlicePack<0, 0, Pack<i32, f32, u64, u32>>, Pack<i32>>, "Pack type should be Pack<i32>");
 
-    static_assert(is_same<slice_pack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
+    static_assert(is_same<SlicePack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
                   "Pack type should be Pack<i32, f32, u64, u32>");
-    static_assert(is_same<slice_pack<1, 3, Pack<i32, f32, u64, u32>>, Pack<f32, u64, u32>>,
+    static_assert(is_same<SlicePack<1, 3, Pack<i32, f32, u64, u32>>, Pack<f32, u64, u32>>,
                   "Pack type should be Pack<f32, u64, u32>");
-    static_assert(is_same<slice_pack<2, 3, Pack<i32, f32, u64, u32>>, Pack<u64, u32>>,
+    static_assert(is_same<SlicePack<2, 3, Pack<i32, f32, u64, u32>>, Pack<u64, u32>>,
                   "Pack type should be Pack<u64, u32>");
-    static_assert(is_same<slice_pack<3, 3, Pack<i32, f32, u64, u32>>, Pack<u32>>, "Pack type should be Pack<u32>");
+    static_assert(is_same<SlicePack<3, 3, Pack<i32, f32, u64, u32>>, Pack<u32>>, "Pack type should be Pack<u32>");
 
-    static_assert(slice_pack<0, 3, Pack<i32, f32, u64, u32>>().get_size() == 4, "Pack size should be 4");
-    static_assert(slice_pack<0, 2, Pack<i32, f32, u64, u32>>().get_size() == 3, "Pack size should be 3");
-    static_assert(slice_pack<0, 1, Pack<i32, f32, u64, u32>>().get_size() == 2, "Pack size should be 2");
-    static_assert(slice_pack<0, 0, Pack<i32, f32, u64, u32>>().get_size() == 1, "Pack size should be 1");
+    static_assert(SlicePack<0, 3, Pack<i32, f32, u64, u32>>().get_size() == 4, "Pack size should be 4");
+    static_assert(SlicePack<0, 2, Pack<i32, f32, u64, u32>>().get_size() == 3, "Pack size should be 3");
+    static_assert(SlicePack<0, 1, Pack<i32, f32, u64, u32>>().get_size() == 2, "Pack size should be 2");
+    static_assert(SlicePack<0, 0, Pack<i32, f32, u64, u32>>().get_size() == 1, "Pack size should be 1");
+#endif
 
-    // concat_packs
+    // ConcatPacks
 
     template<typename PACK_A, typename PACK_B>
-    struct ConcatPacks;
+    struct ConcatPacksImpl;
 
     template<typename... TYPES_A, typename... TYPES_B>
-    struct ConcatPacks<Pack<TYPES_A...>, Pack<TYPES_B...>> {
+    struct ConcatPacksImpl<Pack<TYPES_A...>, Pack<TYPES_B...>> {
         using Type = Pack<TYPES_A..., TYPES_B...>;
     };
 
     template<typename PACK_A, typename PACK_B>//
-    using concat_packs = typename ConcatPacks<PACK_A, PACK_B>::Type;
+    using ConcatPacks = typename ConcatPacksImpl<PACK_A, PACK_B>::Type;
 
-    static_assert(is_same<concat_packs<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+#ifdef BUILD_DEBUG
+    static_assert(is_same<ConcatPacks<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<concat_packs<Pack<>, Pack<i32, f32>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<concat_packs<Pack<i32, f32>, Pack<>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<concat_packs<Pack<i32, f32>, Pack<i32, f32>>, Pack<i32, f32, i32, f32>>,
+    static_assert(is_same<ConcatPacks<Pack<>, Pack<i32, f32>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<ConcatPacks<Pack<i32, f32>, Pack<>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
+    static_assert(is_same<ConcatPacks<Pack<i32, f32>, Pack<i32, f32>>, Pack<i32, f32, i32, f32>>,
                   "Pack type should be Pack<i32, f32, i32, f32>");
+#endif
 
-    // transform_pack
+    // TransformPack
 
     template<template<typename> typename TRANSFORM, typename PACK>
-    struct TransformPack;
+    struct TransformPackImpl;
 
     template<template<typename> typename TRANSFORM, typename... TYPES>//
-    struct TransformPack<TRANSFORM, Pack<TYPES...>> {
+    struct TransformPackImpl<TRANSFORM, Pack<TYPES...>> {
         using Type = Pack<typename TRANSFORM<TYPES>::Type...>;
     };
 
     template<template<typename> typename TRANSFORM, typename... TYPES>//
-    using transform_pack = typename TransformPack<TRANSFORM, TYPES...>::Type;
+    using TransformPack = typename TransformPackImpl<TRANSFORM, TYPES...>::Type;
 
     // substitute_void
 
     template<typename T, typename SUBSTITUTE>//
-    using substitute_void = conditional<is_void<T>, SUBSTITUTE, T>;
+    using IfVoid = If<is_void<T>, SUBSTITUTE, T>;
 }// namespace kstd::meta

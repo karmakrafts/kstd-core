@@ -25,11 +25,11 @@ TEST(kstd_Tuple, TestValues) {
 
     // Template get<>
     const auto a = pair.get<0>();
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(a)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(a)>, kstd::i32>);
     ASSERT_EQ(a, 1337);
 
     const auto b = pair.get<1>();
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(b)>, kstd::f32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(b)>, kstd::f32>);
     ASSERT_EQ(b, 3.141F);
 
     // std::tuple_size support
@@ -38,8 +38,8 @@ TEST(kstd_Tuple, TestValues) {
 
     // Structured bindings
     const auto& [x, y] = pair;
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x)>, kstd::i32>);
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(y)>, kstd::f32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(y)>, kstd::f32>);
     ASSERT_EQ(x, 1337);
     ASSERT_EQ(y, 3.141F);
 
@@ -54,10 +54,10 @@ TEST(kstd_Tuple, TestValues) {
     const auto quad = pair + pair;
     const auto& [qx, qy, qz, qw] = quad;
 
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(qx)>, kstd::i32>);
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(qy)>, kstd::f32>);
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(qz)>, kstd::i32>);
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(qw)>, kstd::f32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(qx)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(qy)>, kstd::f32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(qz)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(qw)>, kstd::f32>);
 
     ASSERT_EQ(qx, 1337);
     ASSERT_EQ(qy, 3.141F);
@@ -72,11 +72,11 @@ TEST(kstd_Tuple, TestReferences) {
 
     // Template get<>
     const auto x_a = pair.get<0>();
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x_a)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x_a)>, kstd::i32>);
     ASSERT_EQ(a, 1337);
 
     const auto x_b = pair.get<1>();
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x_b)>, kstd::f32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x_b)>, kstd::f32>);
     ASSERT_EQ(b, 3.141F);
 
     // std::tuple_size support
@@ -85,8 +85,8 @@ TEST(kstd_Tuple, TestReferences) {
 
     // Structured bindings
     auto& [x, y] = pair;
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x)>, kstd::i32>);
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(y)>, kstd::f32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(y)>, kstd::f32>);
     ASSERT_EQ(x, 1337);
     ASSERT_EQ(y, 3.141F);
 
@@ -121,11 +121,11 @@ TEST(kstd_Tuple, TestPointers) {
 
     // Template get<>
     const auto x_a = pair.get<0>();
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x_a)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x_a)>, kstd::i32>);
     ASSERT_EQ(a, 1337);
 
     const auto x_b = pair.get<1>();
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x_b)>, kstd::f32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x_b)>, kstd::f32>);
     ASSERT_EQ(b, 3.141F);
 
     // std::tuple_size support
@@ -134,8 +134,8 @@ TEST(kstd_Tuple, TestPointers) {
 
     // Structured bindings
     auto& [x, y] = pair;
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x)>, kstd::i32>);
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(y)>, kstd::f32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(y)>, kstd::f32>);
     ASSERT_EQ(*x, 1337);
     ASSERT_EQ(*y, 3.141F);
 
@@ -165,14 +165,14 @@ TEST(kstd_Tuple, TestSlice) {
     kstd::Tuple<kstd::i8, kstd::i16, kstd::i32, kstd::i64> tuple(1, 2, 3, 4);
 
     const auto [x, y] = tuple.slice<0, 1>();
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(x)>, kstd::i8>);
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(y)>, kstd::i16>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x)>, kstd::i8>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(y)>, kstd::i16>);
     ASSERT_EQ(x, 1);
     ASSERT_EQ(y, 2);
 
     const auto [z, w] = tuple.slice<2, 3>();
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(z)>, kstd::i32>);
-    static_assert(kstd::meta::is_same<kstd::meta::naked_type<decltype(w)>, kstd::i64>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(z)>, kstd::i32>);
+    static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(w)>, kstd::i64>);
     ASSERT_EQ(z, 3);
     ASSERT_EQ(w, 4);
 }

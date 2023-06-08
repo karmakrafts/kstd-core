@@ -30,13 +30,16 @@ namespace kstd {
 
         public:
         static constexpr usize size = SIZE;
-        using ValueType = T;
-        using Self = Array<T, SIZE>;
+
+        using ElementType [[maybe_unused]] = T;
+        using Self [[maybe_unused]] = Array<T, SIZE>;
+        using Pointer [[maybe_unused]] = T*;
+        using ConstPointer [[maybe_unused]] = const T*;
 
         KSTD_DEFAULT_MOVE_COPY(Array)
 
-        constexpr Array() noexcept {                                       // NOLINT
-            libc::memset(reinterpret_cast<T*>(_data), 0, sizeof(T) * SIZE);// NOLINT
+        constexpr Array() noexcept {                                            // NOLINT
+            libc::memset(reinterpret_cast<Pointer>(_data), 0, sizeof(T) * SIZE);// NOLINT
         }
 
         ~Array() noexcept = default;
@@ -45,12 +48,12 @@ namespace kstd {
             return size;
         }
 
-        [[nodiscard]] constexpr auto get_data() noexcept -> T* {
-            return reinterpret_cast<T*>(_data);// NOLINT
+        [[nodiscard]] constexpr auto get_data() noexcept -> Pointer {
+            return static_cast<Pointer>(_data);// NOLINT
         }
 
-        [[nodiscard]] constexpr auto get_data() const noexcept -> const T* {
-            return reinterpret_cast<const T*>(_data);// NOLINT
+        [[nodiscard]] constexpr auto get_data() const noexcept -> ConstPointer {
+            return static_cast<ConstPointer>(_data);// NOLINT
         }
     };
 }// namespace kstd
