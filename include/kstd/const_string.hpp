@@ -45,7 +45,7 @@ namespace kstd {
         ~BasicConstString() noexcept = default;
 
         [[nodiscard]] constexpr auto to_slice() const noexcept -> BasicStringSlice<ValueType> {
-            return BasicStringSlice<ValueType>(static_cast<const ValueType*>(data), length);
+            return BasicStringSlice<ValueType>(static_cast<const ValueType*>(data));
         }
 
         [[nodiscard]] constexpr auto get_length() const noexcept -> usize {
@@ -58,13 +58,15 @@ namespace kstd {
             if constexpr(length != OTHER_LENGTH) {
                 return false;
             }
-            for(usize i = 0; i < length; ++i) {
-                if(other.data[i] == data[i]) {
-                    continue;
+            else {
+                for(usize i = 0; i < length; ++i) {
+                    if(other.data[i] == data[i]) {
+                        continue;
+                    }
+                    return false;
                 }
-                return false;
+                return true;
             }
-            return true;
         }
 
         template<usize OTHER_LENGTH>

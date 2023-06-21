@@ -26,8 +26,6 @@
 namespace kstd {
     template<typename T, usize SIZE>
     class Array final {
-        T _data[SIZE];// NOLINT
-
         public:
         static constexpr usize size = SIZE;
 
@@ -36,10 +34,14 @@ namespace kstd {
         using Pointer [[maybe_unused]] = T*;
         using ConstPointer [[maybe_unused]] = const T*;
 
+        private:
+        ElementType _data[size];// NOLINT
+
+        public:
         KSTD_DEFAULT_MOVE_COPY(Array)
 
         constexpr Array() noexcept {                                            // NOLINT
-            libc::memset(reinterpret_cast<Pointer>(_data), 0, sizeof(T) * SIZE);// NOLINT
+            libc::memset(reinterpret_cast<Pointer>(_data), 0, sizeof(T) * size);// NOLINT
         }
 
         ~Array() noexcept = default;

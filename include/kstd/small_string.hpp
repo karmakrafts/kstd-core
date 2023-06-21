@@ -26,14 +26,14 @@
 #include "types.hpp"
 
 namespace kstd {
-    template<typename CHAR, usize SIZE>
+    template<typename CHAR, usize CAPACITY>
     struct BasicSmallString final {
-        static constexpr usize capacity = SIZE;
+        static constexpr usize capacity = CAPACITY;
         static constexpr usize usable_capacity = capacity - 1;
         [[maybe_unused]] static constexpr usize byte_capacity = capacity * sizeof(CHAR);
 
         using ValueType = CHAR;
-        using Self = BasicSmallString<ValueType, SIZE>;
+        using Self = BasicSmallString<ValueType, CAPACITY>;
         using Pointer = ValueType*;
         using ConstPointer = const ValueType*;
 
@@ -101,7 +101,7 @@ namespace kstd {
 
         constexpr auto set(const ValueType* data, usize size) noexcept -> void {
             assert_true(data != nullptr);
-            assert_true(size <= usable_capacity);
+            assert_true(size <= capacity);
             libc::memset(_data.get_data(), 0, byte_capacity);// NOLINT
             resize(size);
             libc::copy_string(_data.get_data(), data, size);// NOLINT
@@ -135,10 +135,10 @@ namespace kstd {
             return get_size() == 0;
         }
 
-        template<usize OTHER_SIZE>
-        [[nodiscard]] constexpr auto concat(const BasicSmallString<ValueType, OTHER_SIZE>& other) noexcept
-                -> BasicSmallString<ValueType, SIZE + OTHER_SIZE> {
-            BasicSmallString<ValueType, SIZE + OTHER_SIZE> result;
+        template<usize OTHER_CAPACITY>
+        [[nodiscard]] constexpr auto concat(const BasicSmallString<ValueType, OTHER_CAPACITY>& other) noexcept
+                -> BasicSmallString<ValueType, CAPACITY + OTHER_CAPACITY> {
+            BasicSmallString<ValueType, CAPACITY + OTHER_CAPACITY> result;
             const auto size = get_size_in_bytes();
             const auto other_size = other.get_size_in_bytes();
             libc::memcpy(result.get_data(), _data.get_data(), size);// NOLINT
@@ -147,38 +147,38 @@ namespace kstd {
             return result;
         }
 
-        template<usize OTHER_SIZE>
-        [[nodiscard]] constexpr auto operator+(const BasicSmallString<ValueType, OTHER_SIZE>& other) noexcept
-                -> BasicSmallString<ValueType, SIZE + OTHER_SIZE> {
-            return concat<OTHER_SIZE>(other);
+        template<usize OTHER_CAPACITY>
+        [[nodiscard]] constexpr auto operator+(const BasicSmallString<ValueType, OTHER_CAPACITY>& other) noexcept
+                -> BasicSmallString<ValueType, CAPACITY + OTHER_CAPACITY> {
+            return concat<OTHER_CAPACITY>(other);
         }
 
-        template<usize OTHER_SIZE>
-        [[nodiscard]] constexpr auto operator==(const BasicSmallString<ValueType, OTHER_SIZE>& other) const noexcept
+        template<usize OTHER_CAPACITY>
+        [[nodiscard]] constexpr auto operator==(const BasicSmallString<ValueType, OTHER_CAPACITY>& other) const noexcept
                 -> bool {
-            return libc::compare_string(_data.get_data(), other._data.get_data()) == 0;// NOLINT
+            return libc::compare_string<ValueType>(_data.get_data(), other.get_data()) == 0;// NOLINT
         }
 
         [[nodiscard]] constexpr auto operator==(const ValueType* data) const noexcept -> bool {
             assert_true(data != nullptr);
-            return libc::compare_string(_data.get_data(), data) == 0;// NOLINT
+            return libc::compare_string<ValueType>(_data.get_data(), data) == 0;// NOLINT
         }
 
-        template<usize OTHER_SIZE>
-        [[nodiscard]] constexpr auto operator!=(const BasicSmallString<ValueType, OTHER_SIZE>& other) const noexcept
+        template<usize OTHER_CAPACITY>
+        [[nodiscard]] constexpr auto operator!=(const BasicSmallString<ValueType, OTHER_CAPACITY>& other) const noexcept
                 -> bool {
-            return libc::compare_string(_data.get_data(), other._data.get_data()) != 0;// NOLINT
+            return libc::compare_string<ValueType>(_data.get_data(), other.get_data()) != 0;// NOLINT
         }
 
         [[nodiscard]] constexpr auto operator!=(const ValueType* data) const noexcept -> bool {
             assert_true(data != nullptr);
-            return libc::compare_string(_data.get_data(), data) != 0;// NOLINT
+            return libc::compare_string<ValueType>(_data.get_data(), data) != 0;// NOLINT
         }
     };
 
-    template<usize SIZE>//
-    using SmallString = BasicSmallString<char, SIZE>;
+    template<usize CAPACITY>//
+    using SmallString = BasicSmallString<char, CAPACITY>;
 
-    template<usize SIZE>//
-    using WSmallString = BasicSmallString<wchar_t, SIZE>;
+    template<usize CAPACITY>//
+    using WSmallString = BasicSmallString<wchar_t, CAPACITY>;
 }// namespace kstd

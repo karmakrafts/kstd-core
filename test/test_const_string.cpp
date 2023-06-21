@@ -34,17 +34,33 @@ struct Bar final {
 };
 
 TEST(kstd_ConstString, TestCompare) {
-    constexpr auto valueA = Foo<"HELLO WORLD!">();
-    constexpr auto valueB = Foo<"HELLO WORLD!">();
+    constexpr auto valueA = Foo<kstd::ConstString("HELLO WORLD!")>();// NOLINT
+    constexpr auto valueB = Foo<kstd::ConstString("HELLO WORLD!")>();// NOLINT
 
     ASSERT_TRUE(valueA.str == valueB.str);
     ASSERT_FALSE(valueA.str != valueB.str);
 }
 
+TEST(kstd_ConstString, TestCompareSlice) {
+    using namespace kstd::string_literals;
+    constexpr auto value = Foo<kstd::ConstString("HELLO WORLD!")>();
+
+    ASSERT_TRUE(value.str.to_slice() == "HELLO WORLD!"_str);
+    ASSERT_FALSE(value.str.to_slice() != "HELLO WORLD!"_str);
+}
+
 TEST(kstd_ConstWString, TestCompare) {
-    constexpr auto valueA = Bar<L"HELLO WORLD!">();
-    constexpr auto valueB = Bar<L"HELLO WORLD!">();
+    constexpr auto valueA = Bar<kstd::ConstWString(L"HELLO WORLD!")>();// NOLINT
+    constexpr auto valueB = Bar<kstd::ConstWString(L"HELLO WORLD!")>();// NOLINT
 
     ASSERT_TRUE(valueA.str == valueB.str);
     ASSERT_FALSE(valueA.str != valueB.str);
+}
+
+TEST(kstd_ConstWString, TestCompareSlice) {
+    using namespace kstd::string_literals;
+    constexpr auto value = Bar<kstd::ConstWString(L"HELLO WORLD!")>();
+
+    ASSERT_TRUE(value.str.to_slice() == L"HELLO WORLD!"_str);
+    ASSERT_FALSE(value.str.to_slice() != L"HELLO WORLD!"_str);
 }
