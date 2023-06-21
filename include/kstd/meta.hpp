@@ -37,7 +37,7 @@ namespace kstd::meta {
         static constexpr T value = VALUE;
         using ValueType = T;
 
-        [[nodiscard]] constexpr auto operator ()() const noexcept -> ValueType {
+        [[nodiscard]] constexpr auto operator()() const noexcept -> ValueType {
             return value;
         }
     };

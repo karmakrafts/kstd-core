@@ -130,19 +130,29 @@ namespace kstd::libc {
     // Strings
     template<typename T>
     [[nodiscard]] constexpr auto get_string_length(const T* str) noexcept -> usize {
-        if constexpr(meta::is_same<T, char>) { return strlen(str); }
-        else if constexpr(meta::is_same<T, wchar_t>) { return wcslen(str); }
+        if constexpr(meta::is_same<T, char>) {
+            return strlen(str);
+        }
+        else if constexpr(meta::is_same<T, wchar_t>) {
+            return wcslen(str);
+        }
         else {
             auto* ptr = str;
-            while(*ptr != static_cast<T>('\0')) { ++ptr; }
+            while(*ptr != static_cast<T>('\0')) {
+                ++ptr;
+            }
             return static_cast<usize>(ptr - str);// Use pointer difference
         }
     }
 
     template<typename T>
     constexpr auto copy_string(T* dst, const T* src) noexcept -> void {
-        if constexpr(meta::is_same<T, char>) { return strcpy(dst, src); }
-        else if constexpr(meta::is_same<T, wchar_t>) { return wcscpy(dst, src); }
+        if constexpr(meta::is_same<T, char>) {
+            return strcpy(dst, src);
+        }
+        else if constexpr(meta::is_same<T, wchar_t>) {
+            return wcscpy(dst, src);
+        }
         else {
             const auto dst_length = get_string_length(dst);
             const auto src_length = get_string_length(src);
@@ -153,8 +163,12 @@ namespace kstd::libc {
 
     template<typename T>
     constexpr auto copy_string(T* dst, const T* src, usize size) noexcept -> void {
-        if constexpr(meta::is_same<T, char>) { strcpy(dst, src); }
-        else if constexpr(meta::is_same<T, wchar_t>) { wcscpy(dst, src); }
+        if constexpr(meta::is_same<T, char>) {
+            strcpy(dst, src);
+        }
+        else if constexpr(meta::is_same<T, wchar_t>) {
+            wcscpy(dst, src);
+        }
         else {
             const auto dst_length = get_string_length(dst);
             const auto src_length = get_string_length(src);
@@ -165,8 +179,12 @@ namespace kstd::libc {
 
     template<typename T>
     constexpr auto compare_string(const T* lhs, const T* rhs) noexcept -> i32 {
-        if constexpr(meta::is_same<T, char>) { return strcmp(lhs, rhs); }
-        else if constexpr(meta::is_same<T, wchar_t>) { return wcscmp(lhs, rhs); }
+        if constexpr(meta::is_same<T, char>) {
+            return strcmp(lhs, rhs);
+        }
+        else if constexpr(meta::is_same<T, wchar_t>) {
+            return wcscmp(lhs, rhs);
+        }
         else {
             const auto a_length = get_string_length(lhs);
             const auto b_length = get_string_length(rhs);
@@ -181,8 +199,12 @@ namespace kstd::libc {
 
     template<typename T>
     constexpr auto concat_string(T* dst, const T* src) noexcept -> T* {
-        if constexpr(meta::is_same<T, char>) { return strcat(dst, src); }
-        else if constexpr(meta::is_same<T, wchar_t>) { return wcscat(dst, src); }
+        if constexpr(meta::is_same<T, char>) {
+            return strcat(dst, src);
+        }
+        else if constexpr(meta::is_same<T, wchar_t>) {
+            return wcscat(dst, src);
+        }
         else {
             memcpy(dst + get_string_length(dst), src, get_string_length(src) + 1);
             return dst;

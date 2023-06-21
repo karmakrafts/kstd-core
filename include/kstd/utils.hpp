@@ -44,8 +44,12 @@ namespace kstd::utils {
 
     template<typename T>
     [[nodiscard]] constexpr auto move_or_copy(T&& value) noexcept -> decltype(auto) {
-        if constexpr((meta::is_ref<T> || meta::is_ptr<T>) || !meta::is_move_constructible<T>) { return value; }
-        else { return move(value); }
+        if constexpr((meta::is_ref<T> || meta::is_ptr<T>) || !meta::is_move_constructible<T>) {
+            return value;
+        }
+        else {
+            return move(value);
+        }
     }
 
     template<typename R, typename T>

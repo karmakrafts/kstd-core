@@ -54,26 +54,32 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto get() const noexcept -> ValueType {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+            assert_false(is_empty());
             return _value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+            assert_false(is_empty());
             return &_value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+            assert_false(is_empty());
             return &_value;
         }
     };

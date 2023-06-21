@@ -22,22 +22,28 @@
 namespace kstd {
     template<typename T>
     [[nodiscard]] constexpr auto min(T x, T y) noexcept -> T {// NOLINT
-        if(x <= y) { return x; }
-
+        if(x <= y) {
+            return x;
+        }
         return y;
     }
 
     template<typename T>
     [[nodiscard]] constexpr auto max(T x, T y) noexcept -> T {// NOLINT
-        if(x >= y) { return x; }
-
+        if(x >= y) {
+            return x;
+        }
         return y;
     }
 
     template<typename T>
     [[nodiscard]] constexpr auto clamp(T x, T min, T max) noexcept -> T {// NOLINT
-        if(x <= min) { return min; }
-        if(x >= max) { return max; }
+        if(x <= min) {
+            return min;
+        }
+        if(x >= max) {
+            return max;
+        }
         return x;
     }
 }// namespace kstd

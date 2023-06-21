@@ -50,7 +50,11 @@ namespace kstd {
     struct Result;
 
     namespace {
-        enum class ResultType : u8 { OK, ERROR, EMPTY };
+        enum class ResultType : u8 {
+            OK,
+            ERROR,
+            EMPTY
+        };
 
         template<typename T, typename E>
         union ResultInner {
@@ -113,15 +117,23 @@ namespace kstd {
         constexpr Result(const Self& other) noexcept :
                 _inner(),
                 _type(other._type) {
-            if(other.is_ok()) { _inner._value = other._inner._value; }
-            else if(other.is_error()) { _inner._error = other._inner._error; }
+            if(other.is_ok()) {
+                _inner._value = other._inner._value;
+            }
+            else if(other.is_error()) {
+                _inner._error = other._inner._error;
+            }
         }
 
         constexpr Result(Self&& other) noexcept :
                 _inner(),
                 _type(other._type) {
-            if(other.is_ok()) { _inner._value = utils::move_or_copy(*other._inner._value); }
-            else if(other.is_error()) { _inner._error = utils::move_or_copy(*other._inner._error); }
+            if(other.is_ok()) {
+                _inner._value = utils::move_or_copy(*other._inner._value);
+            }
+            else if(other.is_error()) {
+                _inner._error = utils::move_or_copy(*other._inner._error);
+            }
         }
 
         ~Result() noexcept {
@@ -136,11 +148,15 @@ namespace kstd {
                 }
             }
 
-            if(is_error()) { _inner._error.~ErrorType(); }
+            if(is_error()) {
+                _inner._error.~ErrorType();
+            }
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& {
-            if(this == &other) { return *this; }
+        constexpr auto operator=(const Self& other) noexcept -> Self& {
+            if(this == &other) {
+                return *this;
+            }
 
             if(other.is_ok()) {
                 drop();
@@ -155,12 +171,16 @@ namespace kstd {
             return *this;
         }
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& {
+        constexpr auto operator=(Self&& other) noexcept -> Self& {
             if(other.is_ok()) {
                 drop();
 
-                if constexpr(is_pointer || is_reference) { _inner._value = other._inner._value; }
-                else { _inner._value = utils::move_or_copy(other._inner._value); }
+                if constexpr(is_pointer || is_reference) {
+                    _inner._value = other._inner._value;
+                }
+                else {
+                    _inner._value = utils::move_or_copy(other._inner._value);
+                }
             }
             else if(other.is_error()) {
                 drop();
@@ -176,8 +196,12 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto is_ok() const noexcept -> bool {
-            if constexpr(is_void) { return is_empty(); }
-            else { return _type == ResultType::OK; }
+            if constexpr(is_void) {
+                return is_empty();
+            }
+            else {
+                return _type == ResultType::OK;
+            }
         }
 
         [[nodiscard]] constexpr auto is_error() const noexcept -> bool {
@@ -187,14 +211,18 @@ namespace kstd {
         [[nodiscard]] constexpr auto borrow_value() noexcept -> BorrowedValueType {
             assert_true(!is_error());
 
-            if constexpr(!is_void) { return _inner._value.borrow(); }
+            if constexpr(!is_void) {
+                return _inner._value.borrow();
+            }
         }
 
         [[nodiscard]] constexpr auto unwrap() noexcept -> decltype(auto) {
             assert_true(!is_error());
             _type = ResultType::EMPTY;
 
-            if constexpr(!is_void) { return _inner._value.get(); }
+            if constexpr(!is_void) {
+                return _inner._value.get();
+            }
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E {
@@ -212,11 +240,11 @@ namespace kstd {
             return !is_empty();
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> NakedValueType* {
+        [[nodiscard]] constexpr auto operator->() noexcept -> NakedValueType* {
             return &borrow_value();
         }
 
-        [[nodiscard]] constexpr auto operator *() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto operator*() noexcept -> decltype(auto) {
             return borrow_value();
         }
     };

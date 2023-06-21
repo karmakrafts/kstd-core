@@ -44,7 +44,9 @@ namespace kstd {
         }
 
         ~OutPtr() noexcept {
-            if(_new_value == nullptr) { return; }
+            if(_new_value == nullptr) {
+                return;
+            }
 
             _owner.reset(_new_value);
         }
@@ -56,9 +58,9 @@ namespace kstd {
                 _new_value(other._new_value) {
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& = delete;
+        constexpr auto operator=(const Self& other) noexcept -> Self& = delete;
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& {
+        constexpr auto operator=(Self&& other) noexcept -> Self& {
             _owner = other._owner;
             _new_value = other._new_value;
             return *this;

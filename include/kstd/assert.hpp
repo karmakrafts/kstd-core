@@ -47,9 +47,9 @@ namespace kstd {
                     AssertionMessage(other._data) {
             }
 
-            inline auto operator =(const AssertionMessage& other) noexcept -> AssertionMessage& = delete;
+            inline auto operator=(const AssertionMessage& other) noexcept -> AssertionMessage& = delete;
 
-            inline auto operator =(AssertionMessage&& other) noexcept -> AssertionMessage& = delete;
+            inline auto operator=(AssertionMessage&& other) noexcept -> AssertionMessage& = delete;
 
             ~AssertionMessage() noexcept {
                 libc::free(_data);// NOLINT: Free heap memory when object is destroyed

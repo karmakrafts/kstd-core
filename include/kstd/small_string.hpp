@@ -72,14 +72,16 @@ namespace kstd {
 
         ~BasicSmallString() noexcept = default;
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& {
-            if(this == &other) { return *this; }
+        constexpr auto operator=(const Self& other) noexcept -> Self& {
+            if(this == &other) {
+                return *this;
+            }
 
             set(other._data.get_data(), other.get_size());
             return *this;
         }
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& {
+        constexpr auto operator=(Self&& other) noexcept -> Self& {
             set(other._data.get_data(), other.get_size());
             return *this;
         }
@@ -89,7 +91,9 @@ namespace kstd {
         }
 
         constexpr auto clear() noexcept -> void {
-            if(is_empty()) { return; }
+            if(is_empty()) {
+                return;
+            }
 
             libc::memset(_data.get_data(), 0, byte_capacity);// NOLINT
             _available_capacity = usable_capacity;           // NOLINT
@@ -144,29 +148,29 @@ namespace kstd {
         }
 
         template<usize OTHER_SIZE>
-        [[nodiscard]] constexpr auto operator +(const BasicSmallString<ValueType, OTHER_SIZE>& other) noexcept
+        [[nodiscard]] constexpr auto operator+(const BasicSmallString<ValueType, OTHER_SIZE>& other) noexcept
                 -> BasicSmallString<ValueType, SIZE + OTHER_SIZE> {
             return concat<OTHER_SIZE>(other);
         }
 
         template<usize OTHER_SIZE>
-        [[nodiscard]] constexpr auto operator ==(const BasicSmallString<ValueType, OTHER_SIZE>& other) const noexcept
+        [[nodiscard]] constexpr auto operator==(const BasicSmallString<ValueType, OTHER_SIZE>& other) const noexcept
                 -> bool {
             return libc::compare_string(_data.get_data(), other._data.get_data()) == 0;// NOLINT
         }
 
-        [[nodiscard]] constexpr auto operator ==(const ValueType* data) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(const ValueType* data) const noexcept -> bool {
             assert_true(data != nullptr);
             return libc::compare_string(_data.get_data(), data) == 0;// NOLINT
         }
 
         template<usize OTHER_SIZE>
-        [[nodiscard]] constexpr auto operator !=(const BasicSmallString<ValueType, OTHER_SIZE>& other) const noexcept
+        [[nodiscard]] constexpr auto operator!=(const BasicSmallString<ValueType, OTHER_SIZE>& other) const noexcept
                 -> bool {
             return libc::compare_string(_data.get_data(), other._data.get_data()) != 0;// NOLINT
         }
 
-        [[nodiscard]] constexpr auto operator !=(const ValueType* data) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(const ValueType* data) const noexcept -> bool {
             assert_true(data != nullptr);
             return libc::compare_string(_data.get_data(), data) != 0;// NOLINT
         }

@@ -57,7 +57,9 @@ namespace kstd {
         }
 
         constexpr auto destroy(ValueType* object) noexcept -> void {
-            if(object == nullptr) { return; }
+            if(object == nullptr) {
+                return;
+            }
             object->~ValueType();
             get_self().deallocate(object, 1);
         }
@@ -87,7 +89,7 @@ namespace kstd {
     struct Deleter final {
         using ValueType = T;
 
-        constexpr auto operator ()(ValueType* memory) noexcept -> void {
+        constexpr auto operator()(ValueType* memory) noexcept -> void {
             Allocator<ValueType>().destroy(memory);
         }
     };
@@ -96,7 +98,7 @@ namespace kstd {
     struct FreeDeleter final {
         using ValueType = T;
 
-        constexpr auto operator ()(ValueType* memory) noexcept -> void {
+        constexpr auto operator()(ValueType* memory) noexcept -> void {
             Allocator<ValueType>().deallocate(memory, 1);
         }
     };

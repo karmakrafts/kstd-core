@@ -76,57 +76,77 @@ namespace kstd {
 
         constexpr BasicRc(const Self& other) noexcept :
                 _inner(other._inner) {
-            if(_inner != nullptr) { ++_inner->_count; }
+            if(_inner != nullptr) {
+                ++_inner->_count;
+            }
         }
 
         constexpr BasicRc(Self&& other) noexcept :
                 _inner(other._inner) {
-            if(_inner != nullptr) { ++_inner->_count; }
+            if(_inner != nullptr) {
+                ++_inner->_count;
+            }
         }
 
         ~BasicRc() noexcept {
             drop();
         }
 
-        constexpr auto operator =(const Self& other) noexcept -> Self& {
-            if(this == &other) { return *this; }
+        constexpr auto operator=(const Self& other) noexcept -> Self& {
+            if(this == &other) {
+                return *this;
+            }
 
             drop();
             _inner = other._inner;
 
-            if(_inner != nullptr) { ++_inner->_count; }
+            if(_inner != nullptr) {
+                ++_inner->_count;
+            }
 
             return *this;
         }
 
-        constexpr auto operator =(Self&& other) noexcept -> Self& {
+        constexpr auto operator=(Self&& other) noexcept -> Self& {
             drop();
             _inner = other._inner;
 
-            if(_inner != nullptr) { ++_inner->_count; }
+            if(_inner != nullptr) {
+                ++_inner->_count;
+            }
 
             return *this;
         }
 
         constexpr auto reset(ElementType* pointer) noexcept -> void {
-            if(pointer == nullptr) { return; }
+            if(pointer == nullptr) {
+                return;
+            }
 
             drop();
             _inner = ALLOCATOR<InnerType>().construct(utils::move_or_copy(*pointer));
         }
 
         constexpr auto drop() noexcept -> void {
-            if(_inner == nullptr) { return; }
+            if(_inner == nullptr) {
+                return;
+            }
 
-            if(_inner->_count > 0) { --_inner->_count; }
+            if(_inner->_count > 0) {
+                --_inner->_count;
+            }
 
-            if(_inner->_count == 0) { DELETER<InnerType>()(_inner); }
+            if(_inner->_count == 0) {
+                DELETER<InnerType>()(_inner);
+            }
 
             _inner = nullptr;// Avoid dangling pointer
         }
 
         [[nodiscard]] constexpr auto get_count() const noexcept -> usize {
-            if(_inner == nullptr) { return 0; }
+            if(_inner == nullptr) {
+                return 0;
+            }
 
             return static_cast<usize>(_inner->_count);
         }
@@ -141,39 +161,39 @@ namespace kstd {
             return &_inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator *() noexcept -> T& {
+        [[nodiscard]] constexpr auto operator*() noexcept -> T& {
             assert_true(_inner != nullptr);
             return _inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator *() const noexcept -> const T& {
+        [[nodiscard]] constexpr auto operator*() const noexcept -> const T& {
             assert_true(_inner != nullptr);
             return _inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() noexcept -> T* {
+        [[nodiscard]] constexpr auto operator->() noexcept -> T* {
             assert_true(_inner != nullptr);
             return &_inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator ->() const noexcept -> const T* {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> const T* {
             assert_true(_inner != nullptr);
             return &_inner->_value;
         }
 
-        [[nodiscard]] constexpr auto operator ==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
             return _inner == other._inner;
         }
 
-        [[nodiscard]] constexpr auto operator ==(decltype(nullptr)) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(decltype(nullptr)) const noexcept -> bool {
             return _inner == nullptr;
         }
 
-        [[nodiscard]] constexpr auto operator !=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
             return _inner != other._inner;
         }
 
-        [[nodiscard]] constexpr auto operator !=(decltype(nullptr)) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(decltype(nullptr)) const noexcept -> bool {
             return _inner != nullptr;
         }
     };
