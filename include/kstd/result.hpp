@@ -19,11 +19,13 @@
 
 #pragma once
 
+#include <string_view>
+
+#include "assert.hpp"
 #include "box.hpp"
 #include "defaults.hpp"
 #include "libc.hpp"
 #include "meta.hpp"
-#include "string_slice.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 
@@ -46,7 +48,7 @@ namespace kstd {
         }
     };
 
-    template<typename T, typename E = StringSlice>
+    template<typename T, typename E = std::string_view>
     struct Result;
 
     namespace {
@@ -249,12 +251,12 @@ namespace kstd {
         }
     };
 
-    template<typename T, typename E = StringSlice>
+    template<typename T, typename E = std::string_view>
     [[nodiscard]] constexpr auto make_ok(T value) noexcept -> Result<T, E> {
         return Result<T, E>(utils::move_or_copy(value));
     }
 
-    template<typename T, typename E>
+    template<typename T, typename E = std::string_view>
     [[nodiscard]] constexpr auto make_error(E error) noexcept -> Result<T, E> {
         return Result<T, E>(Error<E>(utils::move_or_copy(error)));
     }

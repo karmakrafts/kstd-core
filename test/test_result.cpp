@@ -19,12 +19,12 @@
 
 #include <gtest/gtest.h>
 #include <kstd/result.hpp>
-#include <kstd/string_slice.hpp>
-
-using namespace kstd::string_literals;
+#include <string_view>
 
 TEST(kstd_Result, TestValue) {
-    const auto value = "Hello World!"_str;
+    using namespace std::string_view_literals;
+
+    const auto value = "Hello World!"sv;
     auto result = kstd::make_ok(value);
 
     ASSERT_TRUE(result);
@@ -34,14 +34,16 @@ TEST(kstd_Result, TestValue) {
     ASSERT_FALSE(result.is_empty());
     ASSERT_EQ(other_value, value);
 
-    result = kstd::Error("This is an error now!"_str);
+    result = kstd::Error("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
 TEST(kstd_Result, TestReference) {
-    auto value = "Hello World!"_str;
-    auto result = kstd::make_ok<kstd::StringSlice&>(value);
+    using namespace std::string_view_literals;
+
+    auto value = "Hello World!"sv;
+    auto result = kstd::make_ok<std::string_view&>(value);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, result.borrow_value());
@@ -50,13 +52,15 @@ TEST(kstd_Result, TestReference) {
     ASSERT_FALSE(result.is_empty());
     ASSERT_EQ(other_value, value);
 
-    result = kstd::Error("This is an error now!"_str);
+    result = kstd::Error("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
 TEST(kstd_Result, TestPointer) {
-    auto value = "Hello World!"_str;
+    using namespace std::string_view_literals;
+
+    auto value = "Hello World!"sv;
     auto result = kstd::make_ok(&value);
 
     ASSERT_TRUE(result.is_ok());
@@ -66,25 +70,29 @@ TEST(kstd_Result, TestPointer) {
     ASSERT_FALSE(result.is_empty());
     ASSERT_EQ(*other_value, value);
 
-    result = kstd::Error("This is an error now!"_str);
+    result = kstd::Error("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
 TEST(kstd_Result, TestVoid) {
+    using namespace std::string_view_literals;
+
     auto result = kstd::Result<void>();
     ASSERT_TRUE(result.is_ok());
 
-    result = kstd::Error("This is an error now!"_str);
+    result = kstd::Error("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
 TEST(kstd_Result, TestEmpty) {
-    auto result = kstd::Result<kstd::StringSlice>();
+    using namespace std::string_view_literals;
+
+    auto result = kstd::Result<std::string_view>();
     ASSERT_TRUE(result.is_empty());
 
-    result = kstd::Error("This is an error now!"_str);
+    result = kstd::Error("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.get_error(), "This is an error now!"_str);
+    ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }

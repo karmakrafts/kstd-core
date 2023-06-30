@@ -19,12 +19,13 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include "stdio.h" // NOLINT
 #include "stdlib.h"// NOLINT
 #include "string.h"// NOLINT
 #include "wchar.h" // NOLINT
 
-#include "math.hpp"
 #include "meta.hpp"
 #include "types.hpp"
 #include "utils.hpp"
@@ -156,7 +157,7 @@ namespace kstd::libc {
         else {
             const auto dst_length = get_string_length(dst);
             const auto src_length = get_string_length(src);
-            const auto length = min(dst_length, src_length);
+            const auto length = std::min(dst_length, src_length);
             memcpy(dst, src, (length + 1) * sizeof(T));
         }
     }
@@ -172,7 +173,7 @@ namespace kstd::libc {
         else {
             const auto dst_length = get_string_length(dst);
             const auto src_length = get_string_length(src);
-            const auto length = min(dst_length, src_length);
+            const auto length = std::min(dst_length, src_length);
             memcpy(dst, src, (length + 1) * sizeof(T));
         }
     }

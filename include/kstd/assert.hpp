@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include "array.hpp"
+#include <array>
+
 #include "libc.hpp"
 #include "source_location.hpp"
 
@@ -63,8 +64,8 @@ namespace kstd {
         [[nodiscard]] inline auto
         get_default_assertion_message(const SourceLocation& location = current_location()) noexcept
                 -> AssertionMessage {
-            Array<char, BUFFER_SIZE> buffer;
-            auto* buffer_data = buffer.get_data();
+            std::array<char, BUFFER_SIZE> buffer {};
+            auto* buffer_data = buffer.data();
             libc::sprintf(buffer_data, "%s:%zu [%s]", location.get_file(), location.get_line(),
                           location.get_function());
             return AssertionMessage(buffer_data);

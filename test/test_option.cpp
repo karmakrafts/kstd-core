@@ -19,16 +19,15 @@
 
 #include <gtest/gtest.h>
 #include <kstd/option.hpp>
-#include <kstd/string_slice.hpp>
 
 TEST(kstd_Option, TestEmpty) {
-    auto opt = kstd::make_empty<kstd::StringSlice>();
+    auto opt = kstd::make_empty<std::string_view>();
     ASSERT_FALSE(opt);
 }
 
 TEST(kstd_Option, TestValue) {
-    using namespace kstd::string_literals;
-    constexpr auto str = "Hello World!"_str;
+    using namespace std::string_view_literals;
+    constexpr auto str = "Hello World!"sv;
 
     auto opt = kstd::make_value(str);
     ASSERT_TRUE(opt);
@@ -44,8 +43,8 @@ TEST(kstd_Option, TestValue) {
 }
 
 TEST(kstd_Option, TestPointer) {
-    using namespace kstd::string_literals;
-    constexpr auto str = "Hello World!"_str;
+    using namespace std::string_view_literals;
+    constexpr auto str = "Hello World!"sv;
 
     auto opt = kstd::make_value(&str);
     ASSERT_TRUE(opt);
@@ -61,10 +60,10 @@ TEST(kstd_Option, TestPointer) {
 }
 
 TEST(kstd_Option, TestReference) {
-    using namespace kstd::string_literals;
-    constexpr auto str = "Hello World!"_str;
+    using namespace std::string_view_literals;
+    constexpr auto str = "Hello World!"sv;
 
-    auto opt = kstd::make_value<const kstd::StringSlice&>(str);
+    auto opt = kstd::make_value<const std::string_view&>(str);
     ASSERT_TRUE(opt);
 
     ASSERT_EQ(opt.borrow(), str);
@@ -78,8 +77,8 @@ TEST(kstd_Option, TestReference) {
 }
 
 TEST(kstd_Option, TestNonZero) {
-    using namespace kstd::string_literals;
-    constexpr auto str = "Hello World!"_str;
+    using namespace std::string_view_literals;
+    constexpr auto str = "Hello World!"sv;
 
     auto opt = kstd::make_value(kstd::make_non_zero(&str));
     ASSERT_TRUE(opt);
