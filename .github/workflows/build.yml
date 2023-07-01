@@ -10,15 +10,15 @@ on:
         type: string
 jobs:
   build:
-    runs-on: ${{image_name}}
+    runs-on: ${{inputs.image_name}}
     steps:
       - uses: actions/checkout@v3
       - name: Initialize submodules
         run: git submodule update --init
-      - name: Configure CMake (${{image_name}})
-        run: cmake -B ${{github.workspace}}/build-${{image_name}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=${{std_version}}
-      - name: Build (${{image_name}})
-        run: cmake --build ${{github.workspace}}/build-${{image_name}} --config ${{env.BUILD_TYPE}} --clean-first
-      - name: Test (${{image_name}})
-        working-directory: ${{github.workspace}}/build-${{image_name}}
+      - name: Configure CMake (${{inputs.image_name}})
+        run: cmake -B ${{github.workspace}}/build-${{inputs.image_name}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
+      - name: Build (${{inputs.image_name}})
+        run: cmake --build ${{github.workspace}}/build-${{inputs.image_name}} --config ${{env.BUILD_TYPE}} --clean-first
+      - name: Test (${{inputs.image_name}})
+        working-directory: ${{github.workspace}}/build-${{inputs.image_name}}
         run: ctest -C ${{env.BUILD_TYPE}}
