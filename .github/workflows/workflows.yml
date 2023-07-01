@@ -12,14 +12,14 @@ jobs:
       platform_name: ubuntu-20
       image_name: ubuntu-20.04
       std_version: 17
-      version: 12
+      version: 11
   ubuntu-20-04-cpp20-gcc:
     uses: karmakrafts/kstd-core/.github/workflows/gcc.yml@master
     with:
       platform_name: ubuntu-20
       image_name: ubuntu-20.04
       std_version: 20
-      version: 12
+      version: 11
   ubuntu-20-04-cpp17-clang:
     uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
     with:
