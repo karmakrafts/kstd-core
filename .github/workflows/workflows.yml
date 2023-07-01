@@ -18,13 +18,13 @@ jobs:
       image_name: ubuntu-20.04
       std_version: 20
   build-ubuntu-20-04-cpp17-clang:
-    uses: karmakrafts/kstd-core/.github/workflows/build_clang.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
     with:
       platform_name: ubuntu-20
       image_name: ubuntu-20.04
       std_version: 17
   build-ubuntu-20-04-cpp20-clang:
-    uses: karmakrafts/kstd-core/.github/workflows/build_clang.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
     with:
       platform_name: ubuntu-20
       image_name: ubuntu-20.04
@@ -43,13 +43,13 @@ jobs:
       image_name: ubuntu-22.04
       std_version: 20
   build-ubuntu-22-04-cpp17-clang:
-    uses: karmakrafts/kstd-core/.github/workflows/build_clang.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
     with:
       platform_name: ubuntu-22
       image_name: ubuntu-22.04
       std_version: 17
   build-ubuntu-22-04-cpp20-clang:
-    uses: karmakrafts/kstd-core/.github/workflows/build_clang.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
     with:
       platform_name: ubuntu-22
       image_name: ubuntu-22.04
