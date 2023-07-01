@@ -1,0 +1,6 @@
+macro(target_include_kstd_core target)
+    if(NOT KSTD_CORE_INCLUDED)
+        target_include_directories(${target} PUBLIC "${KSTD_CORE_DIR}/include")
+        set(KSTD_CORE_INCLUDED ON)
+    endif()
+endmacro()
