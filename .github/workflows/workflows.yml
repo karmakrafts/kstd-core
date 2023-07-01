@@ -7,13 +7,13 @@ on:
 jobs:
   # Linux
   build-ubuntu-20-04-cpp17-gcc:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: ubuntu-20
       image_name: ubuntu-20.04
       std_version: 17
   build-ubuntu-20-04-cpp20-gcc:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: ubuntu-20
       image_name: ubuntu-20.04
@@ -32,13 +32,13 @@ jobs:
       std_version: 20
 
   build-ubuntu-22-04-cpp17-gcc:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: ubuntu-22
       image_name: ubuntu-22.04
       std_version: 17
   build-ubuntu-22-04-cpp20-gcc:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: ubuntu-22
       image_name: ubuntu-22.04
@@ -58,39 +58,39 @@ jobs:
 
   # MacOS
   build-macos-11-cpp17:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: macos-11
       image_name: macos-11
       std_version: 17
   build-macos-11-cpp20:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: macos-11
       image_name: macos-11
       std_version: 20
 
   build-macos-12-cpp17:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: macos-12
       image_name: macos-12
       std_version: 17
   build-macos-12-cpp20:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: macos-12
       image_name: macos-12
       std_version: 20
 
   build-macos-13-cpp17:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: macos-13
       image_name: macos-13
       std_version: 17
   build-macos-13-cpp20:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: macos-13
       image_name: macos-13
@@ -98,13 +98,13 @@ jobs:
 
   # Windows
   build-windows-2019-cpp17-msvc:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: windows-2019
       image_name: windows-2019
       std_version: 17
   build-windows-2019-cpp20-msvc:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: windows-2019
       image_name: windows-2019
@@ -123,13 +123,13 @@ jobs:
       std_version: 20
 
   build-windows-2022-cpp17-msvc:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: windows-2022
       image_name: windows-2022
       std_version: 17
   build-windows-2022-cpp20-msvc:
-    uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
     with:
       platform_name: windows-2022
       image_name: windows-2022
