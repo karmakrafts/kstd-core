@@ -170,6 +170,10 @@ namespace kstd {
         }
 
         constexpr auto drop() noexcept -> void {
+            if(!_is_present) {
+                return;
+            }
+
             _inner.~InnerType();
             _is_present = false;// Mark this option as empty after releasing ownership
         }
