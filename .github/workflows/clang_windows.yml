@@ -17,15 +17,16 @@ jobs:
   build:
     runs-on: ${{inputs.image_name}}
     steps:
-      - uses: actions/checkout@v3
+      - uses: seanmiddleditch/gha-setup-ninja@master
       - name: Install LLVM & Clang
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: 15.0
+      - uses: actions/checkout@v3
       - name: Initialize submodules
         run: git submodule update --init
       - name: Configure CMake (${{inputs.platform_name}})
-        run: cmake -B ${{github.workspace}}/build-${{inputs.platform_name}} -DCMAKE_C_FLAGS=TRUE -DCMAKE_CXX_FLAGS=TRUE -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -DCMAKE_LINKER="C:/Program Files/LLVM/bin/lld-link.exe" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGTEST_USE_OWN_TR1_TUPLE=1 -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
+        run: cmake -G Ninja -B ${{github.workspace}}/build-${{inputs.platform_name}} -DCMAKE_C_FLAGS=TRUE -DCMAKE_CXX_FLAGS=TRUE -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -DCMAKE_LINKER="C:/Program Files/LLVM/bin/lld-link.exe" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGTEST_USE_OWN_TR1_TUPLE=1 -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
       - name: Build (${{inputs.platform_name}})
         run: cmake --build ${{github.workspace}}/build-${{inputs.platform_name}} --config ${{env.BUILD_TYPE}} --clean-first
       - name: Test (${{inputs.platform_name}})
