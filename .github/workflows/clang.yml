@@ -13,6 +13,8 @@ on:
         type: string
 env:
   BUILD_TYPE: Debug
+  CC: clang-15
+  CXX: clang-15
 jobs:
   build:
     runs-on: ${{inputs.image_name}}
