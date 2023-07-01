@@ -7,17 +7,19 @@ on:
 jobs:
   # Linux
   ubuntu-20-04-cpp17-gcc:
-    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/gcc.yml@master
     with:
       platform_name: ubuntu-20
       image_name: ubuntu-20.04
       std_version: 17
+      version: 12
   ubuntu-20-04-cpp20-gcc:
-    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/gcc.yml@master
     with:
       platform_name: ubuntu-20
       image_name: ubuntu-20.04
       std_version: 20
+      version: 12
   ubuntu-20-04-cpp17-clang:
     uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
     with:
@@ -34,17 +36,19 @@ jobs:
       version: 15
 
   ubuntu-22-04-cpp17-gcc:
-    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/gcc.yml@master
     with:
       platform_name: ubuntu-22
       image_name: ubuntu-22.04
       std_version: 17
+      version: 12
   ubuntu-22-04-cpp20-gcc:
-    uses: karmakrafts/kstd-core/.github/workflows/default.yml@master
+    uses: karmakrafts/kstd-core/.github/workflows/gcc.yml@master
     with:
       platform_name: ubuntu-22
       image_name: ubuntu-22.04
       std_version: 20
+      version: 12
   ubuntu-22-04-cpp17-clang:
     uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
     with:
