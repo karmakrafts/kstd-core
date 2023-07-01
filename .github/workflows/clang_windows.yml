@@ -13,6 +13,8 @@ on:
         type: string
 env:
   BUILD_TYPE: Debug
+  CC: C:\Program Files\LLVM\bin\clang-15
+  CXX: C:\Program Files\LLVM\bin\clang++-15
 jobs:
   build:
     runs-on: ${{inputs.image_name}}
@@ -22,11 +24,10 @@ jobs:
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: 15.0
-          env: true
       - name: Initialize submodules
         run: git submodule update --init
       - name: Configure CMake (${{inputs.platform_name}})
-        run: cmake -B ${{github.workspace}}/build-${{inputs.platform_name}} -T "ClangCL" -DCMAKE_CXX_FLAGS=-stdlib=libc++ -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGTEST_USE_OWN_TR1_TUPLE=1 -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
+        run: cmake -B ${{github.workspace}}/build-${{inputs.platform_name}} -T "ClangCL" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGTEST_USE_OWN_TR1_TUPLE=1 -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
       - name: Build (${{inputs.platform_name}})
         run: cmake --build ${{github.workspace}}/build-${{inputs.platform_name}} --config ${{env.BUILD_TYPE}} --clean-first
       - name: Test (${{inputs.platform_name}})
