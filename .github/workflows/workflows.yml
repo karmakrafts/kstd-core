@@ -1,4 +1,4 @@
-name: Build & Test All Configurations
+name: Build & Test
 on:
   push:
     branches: [ "master" ]
