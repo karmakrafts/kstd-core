@@ -97,27 +97,51 @@ jobs:
       std_version: 20
 
   # Windows
-  build-windows-2019-cpp17:
+  build-windows-2019-cpp17-msvc:
     uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
     with:
       platform_name: windows-2019
       image_name: windows-2019
       std_version: 17
-  build-windows-2019-cpp20:
+  build-windows-2019-cpp20-msvc:
     uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
     with:
       platform_name: windows-2019
       image_name: windows-2019
       std_version: 20
+  build-windows-2019-cpp17-clang:
+    uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
+    with:
+      platform_name: windows-2019
+      image_name: windows-2019
+      std_version: 17
+  build-windows-2019-cpp20-clang:
+    uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
+    with:
+      platform_name: windows-2019
+      image_name: windows-2019
+      std_version: 20
 
-  build-windows-2022-cpp17:
+  build-windows-2022-cpp17-msvc:
     uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
     with:
       platform_name: windows-2022
       image_name: windows-2022
       std_version: 17
-  build-windows-2022-cpp20:
+  build-windows-2022-cpp20-msvc:
     uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
+    with:
+      platform_name: windows-2022
+      image_name: windows-2022
+      std_version: 20
+  build-windows-2022-cpp17-clang:
+    uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
+    with:
+      platform_name: windows-2022
+      image_name: windows-2022
+      std_version: 17
+  build-windows-2022-cpp20-clang:
+    uses: karmakrafts/kstd-core/.github/workflows/clang.yml@master
     with:
       platform_name: windows-2022
       image_name: windows-2022
