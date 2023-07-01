@@ -34,17 +34,13 @@ jobs:
       - uses: seanmiddleditch/gha-setup-ninja@master
       - name: Configure CMake (${{inputs.platform_name}})
         run: >-
-          cmake -G Ninja -B ${{github.workspace}}/build-${{inputs.platform_name}} 
-          -DCMAKE_C_FLAGS=TRUE 
-          -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe"
-          -DCMAKE_C_COMPILER_ID="Clang"
-          -DCMAKE_CXX_FLAGS=TRUE
-          -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang.exe" 
-          -DCMAKE_CXX_COMPILER_ID="Clang"
-          -DCMAKE_LINKER="C:/Program Files/LLVM/bin/lld-link.exe" 
-          -DCMAKE_SYSTEM_NAME="Generic"
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
-          -DGTEST_USE_OWN_TR1_TUPLE=1 
+          cmake -G Ninja -B ${{github.workspace}}/build-${{inputs.platform_name}}
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+          -DCMAKE_C_COMPILER:FILEPATH="C:/Program Files/LLVM/bin/clang.exe"
+          -DCMAKE_CXX_COMPILER:FILEPATH="C:/Program Files/LLVM/bin/clang.exe"
+          -DCMAKE_LINKER:FILEPATH="C:/Program Files/LLVM/bin/lld-link.exe"
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          -DGTEST_USE_OWN_TR1_TUPLE=1
           -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
       - name: Build (${{inputs.platform_name}})
         run: >-

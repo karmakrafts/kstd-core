@@ -34,10 +34,10 @@ jobs:
         run: git submodule update --init
       - name: Configure CMake (${{inputs.platform_name}})
         run: >-
-          cmake -B ${{github.workspace}}/build-${{inputs.platform_name}} 
-          -DCMAKE_CXX_FLAGS=-stdlib=libc++ 
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
-          -DGTEST_USE_OWN_TR1_TUPLE=1 
+          cmake -B ${{github.workspace}}/build-${{inputs.platform_name}}
+          -DCMAKE_CXX_FLAGS=-stdlib=libc++
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          -DGTEST_USE_OWN_TR1_TUPLE=1
           -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
       - name: Build (${{inputs.platform_name}})
         run: >-
