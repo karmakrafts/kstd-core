@@ -25,7 +25,7 @@ jobs:
       - name: Initialize submodules
         run: git submodule update --init
       - name: Configure CMake (${{inputs.platform_name}})
-        run: cmake -B ${{github.workspace}}/build-${{inputs.platform_name}} -DCMAKE_C_COMPILER=C:\Program Files\LLVM\bin\clang-15 -DCMAKE_CXX_COMPILER=C:\Program Files\LLVM\bin\clang++-15 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGTEST_USE_OWN_TR1_TUPLE=1 -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
+        run: cmake -B ${{github.workspace}}/build-${{inputs.platform_name}} -DCMAKE_C_COMPILER="C:\Program Files\LLVM\bin\clang-15" -DCMAKE_CXX_COMPILER="C:\Program Files\LLVM\bin\clang++-15" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGTEST_USE_OWN_TR1_TUPLE=1 -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
       - name: Build (${{inputs.platform_name}})
         run: cmake --build ${{github.workspace}}/build-${{inputs.platform_name}} --config ${{env.BUILD_TYPE}} --clean-first
       - name: Test (${{inputs.platform_name}})
