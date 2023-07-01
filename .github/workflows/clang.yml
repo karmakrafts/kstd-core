@@ -13,8 +13,6 @@ on:
         type: string
 env:
   BUILD_TYPE: Debug
-  CC: clang-15
-  CXX: clang-15
 jobs:
   build:
     runs-on: ${{inputs.image_name}}
@@ -24,6 +22,7 @@ jobs:
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: 15.0
+          env: true
       - name: Initialize submodules
         run: git submodule update --init
       - name: Configure CMake (${{inputs.platform_name}})
