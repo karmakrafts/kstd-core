@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <stddef.h>// NOLINT
-#include <stdint.h>// NOLINT
+#include <cstdint>
+#include <cstddef>
 
 namespace kstd {
     // NOLINTBEGIN
