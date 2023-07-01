@@ -17,12 +17,12 @@ jobs:
   build:
     runs-on: ${{inputs.image_name}}
     steps:
+      - uses: actions/checkout@v3
       - name: Install LLVM & Clang
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: 15.0
           env: true
-      - uses: actions/checkout@v3
       - name: Initialize submodules
         run: git submodule update --init
       - name: Configure CMake (${{inputs.platform_name}})
