@@ -11,6 +11,9 @@ on:
       std_version:
         required: true
         type: string
+      version:
+        required: true
+        type: string
 env:
   BUILD_TYPE: Debug
 jobs:
@@ -23,11 +26,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./llvm
-          key: llvm-15
+          key: llvm-${{inputs.version}}
       - name: Install LLVM & Clang
         uses: KyleMayes/install-llvm-action@v1
         with:
-          version: 15.0
+          version: ${{inputs.version}}
           env: true
           cached: ${{steps.cache-llvm.outputs.cache-hit}}
       - name: Initialize submodules
