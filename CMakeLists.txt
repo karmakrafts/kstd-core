@@ -3,6 +3,7 @@ project("kstd-core" LANGUAGES C CXX)
 
 option(KSTD_CORE_BUILD_TESTS "Build unit tests for kstd-core" ON)
 set(KSTD_CORE_MODULE ON) # Let other modules know we are present!
+set(KSTD_CORE_INCLUDED OFF)
 add_compile_definitions(KSTD_CORE_MODULE)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
@@ -15,8 +16,10 @@ include(CommonLibraries)
 include(Platform)
 
 macro(target_include_kstd_core target)
-    target_include_directories(${target} PUBLIC "${CMAKE_SOURCE_DIR}/include")
-    target_include_fmt(${target})
+    if(NOT KSTD_CORE_INCLUDED)
+        target_include_directories(${target} PUBLIC "${CMAKE_SOURCE_DIR}/include")
+        set(KSTD_CORE_INCLUDED ON)
+    endif()
 endmacro()
 
 if(${KSTD_CORE_BUILD_TESTS})
