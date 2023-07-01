@@ -1,0 +1,34 @@
+name: Build & Test
+on:
+  workflow_call:
+    inputs:
+      platform_name:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      std_version:
+        required: true
+        type: string
+env:
+  BUILD_TYPE: Debug
+jobs:
+  build:
+    runs-on: ${{inputs.image_name}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install LLVM & Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: 15.0
+          env: true
+      - name: Initialize submodules
+        run: git submodule update --init
+      - name: Configure CMake (${{inputs.platform_name}})
+        run: cmake -B ${{github.workspace}}/build-${{inputs.platform_name}} -T "LLVM-vs2019" -DCMAKE_CXX_FLAGS=-stdlib=libc++ -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGTEST_USE_OWN_TR1_TUPLE=1 -DCMAKE_CXX_STANDARD=${{inputs.std_version}}
+      - name: Build (${{inputs.platform_name}})
+        run: cmake --build ${{github.workspace}}/build-${{inputs.platform_name}} --config ${{env.BUILD_TYPE}} --clean-first
+      - name: Test (${{inputs.platform_name}})
+        working-directory: ${{github.workspace}}/build-${{inputs.platform_name}}
+        run: ctest -C ${{env.BUILD_TYPE}}
