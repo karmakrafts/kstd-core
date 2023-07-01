@@ -208,10 +208,6 @@ namespace kstd {
      */
     template<typename T>
     struct Box<T, meta::DefIf<!meta::is_ref<T> && !meta::is_ptr<T>>> final {
-        static_assert(meta::is_move_assignable<T>, "Box type is not move assignable");
-        static_assert(meta::is_move_constructible<T>, "Box type is not move constructible");
-        static_assert(meta::is_default_constructible<T>, "Box type is not default constructible");
-
         [[maybe_unused]] static constexpr bool is_pointer = false;
         [[maybe_unused]] static constexpr bool is_reference = false;
         [[maybe_unused]] static constexpr bool is_value = true;
