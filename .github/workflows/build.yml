@@ -1,0 +1,24 @@
+name: Build & Test
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      std_version:
+        required: true
+        type: string
+jobs:
+  build:
+    runs-on: ${{image_name}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Initialize submodules
+        run: git submodule update --init
+      - name: Configure CMake (${{image_name}})
+        run: cmake -B ${{github.workspace}}/build-${{image_name}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD=${{std_version}}
+      - name: Build (${{image_name}})
+        run: cmake --build ${{github.workspace}}/build-${{image_name}} --config ${{env.BUILD_TYPE}} --clean-first
+      - name: Test (${{image_name}})
+        working-directory: ${{github.workspace}}/build-${{image_name}}
+        run: ctest -C ${{env.BUILD_TYPE}}
