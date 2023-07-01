@@ -243,9 +243,7 @@ namespace kstd {
                 _value(utils::move(other._value)) {
         }
 
-        ~Box() noexcept {
-            drop();
-        }
+        ~Box() noexcept = default;
 
         constexpr auto drop() noexcept -> void {
             if constexpr(meta::is_destructible<T>) {
