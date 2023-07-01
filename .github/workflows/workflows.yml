@@ -5,6 +5,7 @@ on:
   pull_request:
     branches: [ "master" ]
 jobs:
+  # Linux
   build-ubuntu-20-04-cpp17-gcc:
     uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
     with:
@@ -55,6 +56,7 @@ jobs:
       image_name: ubuntu-22.04
       std_version: 20
 
+  # MacOS
   build-macos-11-cpp17:
     uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
     with:
@@ -94,6 +96,7 @@ jobs:
       image_name: macos-13
       std_version: 20
 
+  # Windows
   build-windows-2019-cpp17:
     uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
     with:
