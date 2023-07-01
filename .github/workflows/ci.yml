@@ -1,14 +1,9 @@
 name: Build & Test
-
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
-env:
-  BUILD_TYPE: Debug
-
 jobs:
   build-ubuntu-20-04-cpp17:
     uses: karmakrafts/kstd-core/.github/workflows/build.yml@master
