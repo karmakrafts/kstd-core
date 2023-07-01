@@ -118,14 +118,14 @@ jobs:
       image_name: windows-2019
       std_version: 20
   windows-2019-cpp17-clang:
-    uses: karmakrafts/workflows/.github/workflows/clang_windows.yml@master
+    uses: karmakrafts/workflows/.github/workflows/clang-windows.yml@master
     with:
       platform_name: windows-2019
       image_name: windows-2019
       std_version: 17
       version: 15
   windows-2019-cpp20-clang:
-    uses: karmakrafts/workflows/.github/workflows/clang_windows.yml@master
+    uses: karmakrafts/workflows/.github/workflows/clang-windows.yml@master
     with:
       platform_name: windows-2019
       image_name: windows-2019
@@ -145,14 +145,14 @@ jobs:
       image_name: windows-2022
       std_version: 20
   windows-2022-cpp17-clang:
-    uses: karmakrafts/workflows/.github/workflows/clang_windows.yml@master
+    uses: karmakrafts/workflows/.github/workflows/clang-windows.yml@master
     with:
       platform_name: windows-2022
       image_name: windows-2022
       std_version: 17
       version: 15
   windows-2022-cpp20-clang:
-    uses: karmakrafts/workflows/.github/workflows/clang_windows.yml@master
+    uses: karmakrafts/workflows/.github/workflows/clang-windows.yml@master
     with:
       platform_name: windows-2022
       image_name: windows-2022
