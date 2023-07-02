@@ -216,8 +216,7 @@ namespace kstd {
             return false;
         }
 
-        template<>
-        [[nodiscard]] constexpr auto operator==<Types>(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
             bool result = true;
             equals<0>(_inner, other._inner, result);
             return result;
@@ -228,8 +227,7 @@ namespace kstd {
             return true;
         }
 
-        template<>
-        [[nodiscard]] constexpr auto operator!=<Types>(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
             bool result = false;
             not_equals<0>(_inner, other._inner, result);
             return !result;
