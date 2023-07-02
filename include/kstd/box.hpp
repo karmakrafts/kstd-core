@@ -74,17 +74,14 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
-            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType {
-            assert_false(is_empty());
             return _value;
         }
 
@@ -205,7 +202,8 @@ namespace kstd {
         [[maybe_unused]] static constexpr bool is_value = true;
 
         using ValueType = T;
-        using VariantType = std::variant<ValueType, std::array<u8, sizeof(ValueType)>>;
+        using EmptyArrayType = std::array<u8, sizeof(ValueType)>;
+        using VariantType = std::variant<ValueType, EmptyArrayType>;
         using Self = Box<ValueType, meta::DefIf<!meta::is_ref<ValueType> && !meta::is_ptr<ValueType>>>;
         using BorrowedValueType = ValueType&;
         using ConstBorrowedValueType = const ValueType&;
@@ -214,34 +212,26 @@ namespace kstd {
 
         private:
         VariantType _value;
-        bool _has_value;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Box)
 
         constexpr Box() noexcept :
-                _has_value(false),
-                _value(std::array<u8, sizeof(ValueType)>()) {
+                _value(EmptyArrayType()) {
         }
 
         constexpr Box(const ValueType& value) noexcept :// NOLINT
-                _value(value),
-                _has_value(true) {
+                _value(value) {
         }
 
         constexpr Box(ValueType&& value) noexcept :// NOLINT
-                _value(utils::move(value)),
-                _has_value(true) {
+                _value(utils::move(value)) {
         }
 
-        ~Box() noexcept {
-            if(_has_value) {
-                _value.~VariantType();
-            }
-        }
+        ~Box() noexcept = default;
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            return !_has_value;
+            return std::holds_alternative<EmptyArrayType>(_value);
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
@@ -256,7 +246,6 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType&& {
             assert_false(is_empty());
-            _has_value = false;
             return utils::move(std::get<ValueType>(_value));
         }
 
