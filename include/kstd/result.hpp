@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <string_view>
-
 #include "assert.hpp"
 #include "box.hpp"
 #include "defaults.hpp"
@@ -57,26 +55,6 @@ namespace kstd {
             ERROR,
             EMPTY
         };
-
-        template<typename T, typename E>
-        union ResultInner {
-            using ValueType = meta::IfVoid<T, u8>;
-
-            private:
-            friend class Result<T, E>;
-
-            Box<ValueType> _value;
-            E _error;
-
-            KSTD_DEFAULT_MOVE_COPY(ResultInner)
-
-            ResultInner() noexcept :
-                    _value() {
-            }
-
-            ~ResultInner() noexcept {
-            }// This is handled in Result itself
-        };
     }// namespace
 
     template<typename T, typename E>
@@ -85,113 +63,35 @@ namespace kstd {
         static constexpr bool is_reference = meta::is_ref<T>;
         static constexpr bool is_void = meta::is_void<T>;
 
-        using Self = Result<T, E>;
+        using Self [[maybe_unused]] = Result<T, E>;
         using ValueType = meta::If<is_void, u8, T>;
-        using ErrorType = E;
-        using NakedValueType = meta::Naked<ValueType>;
-        using InnerType = ResultInner<T, E>;
-        using InnerValueType = typename InnerType::ValueType;
-        using BorrowedValueType = meta::If<meta::is_ptr<ValueType>, NakedValueType*, NakedValueType&>;
-        using ConstBorrowedValueType = meta::If<meta::is_ptr<ValueType>, const NakedValueType*, const NakedValueType&>;
+        using BoxedValueType = Box<ValueType>;
+        using ErrorType [[maybe_unused]] = E;
+        using InnerType = std::variant<BoxedValueType, ErrorType>;
 
         private:
         InnerType _inner;
         ResultType _type;
 
         public:
+        KSTD_DEFAULT_MOVE_COPY(Result)
+
         constexpr Result() noexcept :
                 _inner(),
                 _type(ResultType::EMPTY) {
         }
 
         constexpr Result(ValueType value) noexcept :// NOLINT
-                _inner(),
+                _inner(BoxedValueType(value)),
                 _type(ResultType::OK) {
-            _inner._value = value;
         }
 
-        constexpr Result(Error<E> error) noexcept :// NOLINT
-                _inner(),
+        constexpr Result(Error<ErrorType> error) noexcept :// NOLINT
+                _inner(utils::move_or_copy(error.get_error())),
                 _type(ResultType::ERROR) {
-            _inner._error = utils::move_or_copy(error.get_error());
         }
 
-        constexpr Result(const Self& other) noexcept :
-                _inner(),
-                _type(other._type) {
-            if(other.is_ok()) {
-                _inner._value = other._inner._value;
-            }
-            else if(other.is_error()) {
-                _inner._error = other._inner._error;
-            }
-        }
-
-        constexpr Result(Self&& other) noexcept :
-                _inner(),
-                _type(other._type) {
-            if(other.is_ok()) {
-                _inner._value = utils::move_or_copy(*other._inner._value);
-            }
-            else if(other.is_error()) {
-                _inner._error = utils::move_or_copy(*other._inner._error);
-            }
-        }
-
-        ~Result() noexcept {
-            drop();
-        }
-
-        constexpr auto drop() noexcept -> void {
-            if constexpr(!is_void && meta::is_destructible<InnerValueType> && !is_pointer && !is_reference) {
-                if(is_ok()) {
-                    _inner._value.drop();// Free currently held value
-                    return;
-                }
-            }
-
-            if(is_error()) {
-                _inner._error.~ErrorType();
-            }
-        }
-
-        constexpr auto operator=(const Self& other) noexcept -> Self& {
-            if(this == &other) {
-                return *this;
-            }
-
-            if(other.is_ok()) {
-                drop();
-                _inner._value = other._inner._value;
-            }
-            else if(other.is_error()) {
-                drop();
-                _inner._error = other._inner._error;
-            }
-
-            _type = other._type;
-            return *this;
-        }
-
-        constexpr auto operator=(Self&& other) noexcept -> Self& {
-            if(other.is_ok()) {
-                drop();
-
-                if constexpr(is_pointer || is_reference) {
-                    _inner._value = other._inner._value;
-                }
-                else {
-                    _inner._value = utils::move_or_copy(other._inner._value);
-                }
-            }
-            else if(other.is_error()) {
-                drop();
-                _inner._error = utils::move_or_copy(other._inner._error);
-            }
-
-            _type = other._type;
-            return *this;
-        }
+        ~Result() noexcept = default;
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
             return _type == ResultType::EMPTY;
@@ -210,44 +110,60 @@ namespace kstd {
             return _type == ResultType::ERROR;
         }
 
-        [[nodiscard]] constexpr auto borrow_value() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto borrow() noexcept -> decltype(auto) {
             assert_true(!is_error());
 
             if constexpr(!is_void) {
-                return _inner._value.borrow();
+                return std::get<BoxedValueType>(_inner).borrow();
             }
         }
 
-        [[nodiscard]] constexpr auto unwrap() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto borrow() const noexcept -> decltype(auto) {
+            assert_true(!is_error());
+
+            if constexpr(!is_void) {
+                return std::get<BoxedValueType>(_inner).borrow();
+            }
+        }
+
+        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
             assert_true(!is_error());
             _type = ResultType::EMPTY;
 
             if constexpr(!is_void) {
-                return _inner._value.get();
+                return std::get<BoxedValueType>(_inner).get();
             }
         }
 
-        [[nodiscard]] constexpr auto get_error() noexcept -> E {
+        [[nodiscard]] constexpr auto get_error() noexcept -> decltype(auto) {
             assert_true(is_error());
-            return _inner._error;
+            return std::get<ErrorType>(_inner);
         }
 
         template<typename TT>
-        [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
+        [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, ErrorType> {
             assert_true(is_error());
-            return Result<TT, E>(Error<E>(utils::move_or_copy(_inner._error)));
+            return Result<TT, ErrorType>(Error<ErrorType>(utils::move_or_copy(std::get<ErrorType>(_inner))));
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
             return !is_empty();
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> NakedValueType* {
-            return &borrow_value();
+        [[nodiscard]] constexpr auto operator->() noexcept -> decltype(auto) {
+            return &borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator->() const noexcept -> decltype(auto) {
+            return &borrow();
         }
 
         [[nodiscard]] constexpr auto operator*() noexcept -> decltype(auto) {
-            return borrow_value();
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator*() const noexcept -> decltype(auto) {
+            return borrow();
         }
     };
 

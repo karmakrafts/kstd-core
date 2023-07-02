@@ -29,110 +29,26 @@
 #include "utils.hpp"
 
 namespace kstd {
-    namespace {
-        template<typename T>
-        struct OptionInner {
-            using ValueType = T;
-            using Self = OptionInner<ValueType>;
-            using BoxType = Box<ValueType>;
-            using BorrowedValueType = typename BoxType::BorrowedValueType;
-            using ConstBorrowedValueType = typename BoxType::ConstBorrowedValueType;
-            using Pointer = typename BoxType::Pointer;
-            using ConstPointer = typename BoxType::ConstPointer;
-
-            BoxType _value;
-            bool _is_present;
-
-            KSTD_DEFAULT_MOVE_COPY(OptionInner)
-
-            constexpr OptionInner() noexcept :
-                    _value(),
-                    _is_present(false) {
-            }
-
-            constexpr OptionInner(ValueType value) noexcept :// NOLINT
-                    _value(utils::move_or_copy(value)),
-                    _is_present(true) {
-            }
-
-            ~OptionInner() noexcept = default;
-
-            [[nodiscard]] constexpr auto is_present() const noexcept -> bool {
-                return _is_present;
-            }
-
-            [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
-                return _value.get();// Forward rvalue so we can move
-            }
-
-            [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
-                return _value.borrow();
-            }
-
-            [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-                return _value.borrow();
-            }
-        };
-
-        template<typename T>
-        struct OptionInner<NonZero<T>> {
-            using ValueType = T;
-            using Self = OptionInner<NonZero<T>>;
-            using BorrowedValueType = ValueType&;
-            using ConstBorrowedValueType = const ValueType&;
-            using Pointer = ValueType*;
-            using ConstPointer = const ValueType*;
-
-            NonZero<ValueType> _value;
-
-            KSTD_DEFAULT_MOVE_COPY(OptionInner)
-
-            constexpr OptionInner() noexcept :
-                    _value() {
-            }
-
-            constexpr OptionInner(NonZero<ValueType> value) noexcept :// NOLINT
-                    _value(value) {
-            }
-
-            ~OptionInner() noexcept = default;
-
-            [[nodiscard]] constexpr auto is_present() const noexcept -> bool {
-                return !_value.is_empty();
-            }
-
-            [[nodiscard]] constexpr auto get() noexcept -> ValueType {
-                return _value;// Copy and pass as rvalue to move automatically
-            }
-
-            [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
-                return _value.borrow();
-            }
-
-            [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-                return _value.borrow();
-            }
-        };
-    }// namespace
-
     template<typename T>
     struct Option {
         static constexpr bool is_pointer = meta::is_ptr<T>;
         static constexpr bool is_reference = meta::is_ref<T>;
 
         using ValueType = T;
-        using Self = Option<ValueType>;
-        using InnerType = OptionInner<ValueType>;
-        using BorrowedValueType = typename InnerType::BorrowedValueType;
-        using ConstBorrowedValueType = typename InnerType::ConstBorrowedValueType;
-        using Pointer = typename InnerType::Pointer;
-        using ConstPointer = typename InnerType::ConstPointer;
+        using Self [[maybe_unused]] = Option<ValueType>;
+        using BoxType = Box<ValueType>;
+        using BorrowedValueType = typename BoxType::BorrowedValueType;
+        using ConstBorrowedValueType = typename BoxType::ConstBorrowedValueType;
+        using Pointer = typename BoxType::Pointer;
+        using ConstPointer = typename BoxType::ConstPointer;
 
         private:
-        InnerType _inner;
+        BoxType _inner;
         bool _is_present;
 
         public:
+        KSTD_DEFAULT_MOVE_COPY(Option)
+
         constexpr Option() noexcept :
                 _inner(),
                 _is_present(false) {
@@ -143,64 +59,7 @@ namespace kstd {
                 _is_present(true) {
         }
 
-        constexpr Option(const Self& other) noexcept :
-                _inner(),
-                _is_present(other._is_present) {
-            if(other) {
-                drop();
-                _inner = other._inner.borrow();
-            }
-        }
-
-        constexpr Option(Self&& other) noexcept :
-                _inner(),
-                _is_present(other._is_present) {
-            if(other) {
-                drop();
-                _inner = other._inner.get();
-            }
-        }
-
-        ~Option() noexcept {
-            drop();
-        }
-
-        constexpr auto reset() noexcept -> void {
-            _is_present = false;
-        }
-
-        constexpr auto drop() noexcept -> void {
-            if(!_is_present) {
-                return;
-            }
-
-            _inner.~InnerType();
-            _is_present = false;// Mark this option as empty after releasing ownership
-        }
-
-        constexpr auto operator=(const Self& other) noexcept -> Self& {
-            if(this == &other) {
-                return *this;
-            }
-
-            if(other) {
-                drop();
-                _inner = other._inner;
-                _is_present = true;
-            }
-
-            return *this;
-        }
-
-        constexpr auto operator=(Self&& other) noexcept -> Self& {
-            if(other) {
-                drop();
-                _inner = utils::move(other._inner);
-                _is_present = true;
-            }
-
-            return *this;
-        }
+        ~Option() noexcept = default;
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
             return !_is_present;

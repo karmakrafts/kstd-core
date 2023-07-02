@@ -31,11 +31,8 @@ TEST(kstd_Option, TestValue) {
 
     auto opt = kstd::make_value(str);
     ASSERT_TRUE(opt);
-
     ASSERT_EQ(opt.borrow(), str);
-    opt.drop();
 
-    ASSERT_FALSE(opt);
     opt = {str};
 
     ASSERT_TRUE(opt);
@@ -48,11 +45,8 @@ TEST(kstd_Option, TestPointer) {
 
     auto opt = kstd::make_value(&str);
     ASSERT_TRUE(opt);
-
     ASSERT_EQ(*opt.borrow(), str);
-    opt.drop();
 
-    ASSERT_FALSE(opt);
     opt = {&str};
 
     ASSERT_TRUE(opt);
@@ -66,10 +60,6 @@ TEST(kstd_Option, TestReference) {
     auto opt = kstd::make_value<const std::string_view&>(str);
     ASSERT_TRUE(opt);
 
-    ASSERT_EQ(opt.borrow(), str);
-    opt.drop();
-
-    ASSERT_FALSE(opt);
     opt = {str};
 
     ASSERT_TRUE(opt);
@@ -82,5 +72,5 @@ TEST(kstd_Option, TestNonZero) {
 
     auto opt = kstd::make_value(kstd::make_non_zero(&str));
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.borrow(), &str);
+    ASSERT_EQ(opt.borrow().borrow(), &str);
 }

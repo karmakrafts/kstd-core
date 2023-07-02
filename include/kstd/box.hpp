@@ -65,13 +65,6 @@ namespace kstd {
 
         ~Box() noexcept = default;
 
-        constexpr auto drop() noexcept -> void {
-        }
-
-        constexpr auto reset(ValueType value) noexcept -> void {
-            _value = value;
-        }
-
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
             return _value;
         }
@@ -82,11 +75,6 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType {
             return _value;
-        }
-
-        constexpr auto operator=(ValueType value) noexcept -> Self& {
-            _value = value;
-            return *this;
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
@@ -136,6 +124,8 @@ namespace kstd {
         StoredValueType _value;
 
         public:
+        KSTD_DEFAULT_MOVE_COPY(Box)
+
         constexpr Box() noexcept :
                 _value(nullptr) {
         }
@@ -144,18 +134,7 @@ namespace kstd {
                 _value(&value) {
         }
 
-        constexpr Box(const Self& other) noexcept = default;
-
-        constexpr Box(Self&& other) noexcept = default;
-
         ~Box() noexcept = default;
-
-        constexpr auto drop() noexcept -> void {
-        }
-
-        constexpr auto reset(ValueType value) noexcept -> void {
-            _value = &value;
-        }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
             return *_value;
@@ -167,15 +146,6 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType {
             return *_value;
-        }
-
-        constexpr auto operator=(const Self& other) noexcept -> Self& = default;
-
-        constexpr auto operator=(Self&&) noexcept -> Self& = default;
-
-        constexpr auto operator=(ValueType value) noexcept -> Self& {
-            _value = &value;
-            return *this;
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
@@ -223,6 +193,8 @@ namespace kstd {
         ValueType _value;
 
         public:
+        KSTD_DEFAULT_MOVE_COPY(Box)
+
         constexpr Box() noexcept :
                 _value(ValueType()) {
         }
@@ -235,31 +207,7 @@ namespace kstd {
                 _value(utils::move(value)) {
         }
 
-        constexpr Box(const Self& other) noexcept :
-                _value(other._value) {
-        }
-
-        constexpr Box(Self&& other) noexcept :
-                _value(utils::move(other._value)) {
-        }
-
         ~Box() noexcept = default;
-
-        constexpr auto drop() noexcept -> void {
-            if constexpr(meta::is_destructible<T>) {
-                _value.~ValueType();
-            }
-        }
-
-        constexpr auto reset(const ValueType& value) noexcept -> void {
-            drop();
-            _value = value;
-        }
-
-        constexpr auto reset(ValueType&& value) noexcept -> void {
-            drop();
-            _value = utils::move(value);
-        }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
             return _value;
@@ -271,30 +219,6 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType&& {
             return utils::move(_value);
-        }
-
-        constexpr auto operator=(const Self& other) noexcept -> Self& {
-            drop();
-            _value = other._value;
-            return *this;
-        }
-
-        constexpr auto operator=(Self&& other) noexcept -> Self& {
-            drop();
-            _value = utils::move(other._value);
-            return *this;
-        }
-
-        constexpr auto operator=(const ValueType& value) noexcept -> Self& {
-            drop();
-            _value = value;
-            return *this;
-        }
-
-        constexpr auto operator=(ValueType&& value) noexcept -> Self& {
-            drop();
-            _value = utils::move(value);
-            return *this;
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {

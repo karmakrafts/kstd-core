@@ -28,7 +28,7 @@ TEST(kstd_Result, TestValue) {
     auto result = kstd::make_ok(value);
 
     ASSERT_TRUE(result);
-    ASSERT_EQ(value, result.borrow_value());
+    ASSERT_EQ(value, result.borrow());
 
     auto other_value = *result;
     ASSERT_FALSE(result.is_empty());
@@ -46,7 +46,7 @@ TEST(kstd_Result, TestReference) {
     auto result = kstd::make_ok<std::string_view&>(value);
 
     ASSERT_TRUE(result.is_ok());
-    ASSERT_EQ(value, result.borrow_value());
+    ASSERT_EQ(value, result.borrow());
 
     auto other_value = *result;
     ASSERT_FALSE(result.is_empty());
@@ -64,9 +64,9 @@ TEST(kstd_Result, TestPointer) {
     auto result = kstd::make_ok(&value);
 
     ASSERT_TRUE(result.is_ok());
-    ASSERT_EQ(value, *result.borrow_value());
+    ASSERT_EQ(value, *result.borrow());
 
-    auto other_value = *result;
+    auto* other_value = *result;
     ASSERT_FALSE(result.is_empty());
     ASSERT_EQ(*other_value, value);
 

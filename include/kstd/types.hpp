@@ -5,8 +5,12 @@
 
 #pragma once
 
-#include <cstdint>
+#include <atomic>
 #include <cstddef>
+#include <cstdint>
+#include <string>
+#include <string_view>
+#include <variant>
 
 namespace kstd {
     // NOLINTBEGIN
@@ -46,4 +50,24 @@ namespace kstd {
     static_assert(sizeof(f32) == 4);
     static_assert(sizeof(f64) == 8);                         // NOLINT
     static_assert(sizeof(f64ex) >= 8 && sizeof(f64ex) <= 16);// NOLINT
+
+    // Atomics
+    // NOLINTBEGIN
+    using atomic_i8 = std::atomic_int8_t;
+    using atomic_i16 = std::atomic_int16_t;
+    using atomic_i32 = std::atomic_int32_t;
+    using atomic_i64 = std::atomic_int64_t;
+
+    using atomic_u8 = std::atomic_uint8_t;
+    using atomic_u16 = std::atomic_uint16_t;
+    using atomic_u32 = std::atomic_uint32_t;
+    using atomic_u64 = std::atomic_uint64_t;
+
+    using atomic_f32 = std::atomic<f32>;
+    using atomic_f64 = std::atomic<f64>;
+
+    using std::atomic_bool;
+    using std::atomic_char;
+    using atomic_wchar = std::atomic_wchar_t;
+    // NOLINTEND
 }// namespace kstd
