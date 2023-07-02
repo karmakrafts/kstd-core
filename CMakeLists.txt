@@ -10,8 +10,8 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
 endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;")
-include(CommonLibraries)
 include(Platform)
+include(CommonLibraries)
 include_scripts()
 
 if(${KSTD_CORE_BUILD_TESTS})
