@@ -108,7 +108,7 @@ namespace kstd {
 
         template<usize BEGIN, usize END, usize INDEX>
         constexpr auto slice(TupleImpl<meta::SlicePack<BEGIN, END, Types>>& tuple) const noexcept -> void {
-            tuple.template get<INDEX>() = get<BEGIN + INDEX>();
+            tuple.template get_head<INDEX>() = get_head<BEGIN + INDEX>();
             if constexpr(INDEX < (END - BEGIN)) {
                 slice<BEGIN, END, INDEX + 1>(tuple);
             }
@@ -148,10 +148,10 @@ namespace kstd {
         constexpr auto concat(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other,
                               TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>>& result) const noexcept -> void {
             if constexpr(CURRENT < num_values) {
-                result.template reset<CURRENT>(get<CURRENT>());
+                result.template get_head<CURRENT>() = get_head<CURRENT>();
             }
             else {
-                result.template reset<CURRENT>(other.template get<CURRENT - num_values>());
+                result.template get_head<CURRENT>() = other.template get_head<CURRENT - num_values>();
             }
             if constexpr(CURRENT < NEW_SIZE - 1) {
                 concat<NEW_SIZE, CURRENT + 1, OTHER_TYPES...>(other, result);
@@ -176,17 +176,22 @@ namespace kstd {
         }
 
         template<usize INDEX>
-        constexpr auto reset(meta::PackElement<INDEX, Types> value) noexcept -> void {
-            get_head<INDEX, 0, TYPES...>(_inner) = utils::move_or_copy(value);
+        constexpr auto get_head() noexcept -> Box<meta::PackElement<INDEX, Types>>& {
+            return get_head<INDEX, 0, TYPES...>(_inner);
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() noexcept -> meta::Ref<meta::PackElement<INDEX, Types>> {
+        constexpr auto get_head() const noexcept -> const Box<meta::PackElement<INDEX, Types>>& {
+            return get_head<INDEX, 0, TYPES...>(_inner);
+        }
+
+        template<usize INDEX>
+        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
             return get_head<INDEX, 0, TYPES...>(_inner).borrow();
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() const noexcept -> meta::ConstRef<meta::PackElement<INDEX, Types>> {
+        [[nodiscard]] constexpr auto get() const noexcept -> decltype(auto) {
             return get_head<INDEX, 0, TYPES...>(_inner).borrow();
         }
 

@@ -19,7 +19,9 @@
 
 #pragma once
 
+#include "assert.hpp"
 #include "defaults.hpp"
+#include "libc.hpp"
 #include "meta.hpp"
 #include "utils.hpp"
 
@@ -65,23 +67,32 @@ namespace kstd {
 
         ~Box() noexcept = default;
 
+        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
+            return _value == nullptr;
+        }
+
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {// NOLINT
+            assert_false(is_empty());
             return _value;
         }
 
@@ -136,23 +147,32 @@ namespace kstd {
 
         ~Box() noexcept = default;
 
+        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
+            return _value == nullptr;
+        }
+
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+            assert_false(is_empty());
             return *_value;
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {// NOLINT
+            assert_false(is_empty());
             return *_value;
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType {
+            assert_false(is_empty());
             return *_value;
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+            assert_false(is_empty());
             return _value;
         }
 
@@ -191,41 +211,59 @@ namespace kstd {
 
         private:
         ValueType _value;
+        bool _has_value;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Box)
 
         constexpr Box() noexcept :
-                _value() {
+                _has_value(false) {
+            libc::memset(&_value, 0, sizeof(ValueType));
         }
 
         constexpr Box(const ValueType& value) noexcept :// NOLINT
-                _value(value) {
+                _value(value),
+                _has_value(true) {
         }
 
         constexpr Box(ValueType&& value) noexcept :// NOLINT
-                _value(utils::move(value)) {
+                _value(utils::move(value)),
+                _has_value(true) {
         }
 
-        ~Box() noexcept = default;
+        ~Box() noexcept {
+            if(_has_value) {
+                _value.~ValueType();
+            }
+        }
+
+        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
+            return !_has_value;
+        }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> ValueType&& {
+            assert_false(is_empty());
+            _has_value = false;
             return utils::move(_value);
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+            assert_false(is_empty());
             return &_value;
         }
 
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+            assert_false(is_empty());
             return &_value;
         }
 

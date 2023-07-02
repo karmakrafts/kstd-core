@@ -24,11 +24,11 @@ TEST(kstd_Tuple, TestValues) {
     kstd::Pair<kstd::i32, kstd::f32> pair(1337, 3.141F);
 
     // Template get<>
-    const auto a = pair.get<0>();
+    const auto& a = pair.get<0>();
     static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(a)>, kstd::i32>);
     ASSERT_EQ(a, 1337);
 
-    const auto b = pair.get<1>();
+    const auto& b = pair.get<1>();
     static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(b)>, kstd::f32>);
     ASSERT_EQ(b, 3.141F);
 
@@ -120,11 +120,11 @@ TEST(kstd_Tuple, TestPointers) {
     kstd::Pair<kstd::i32*, kstd::f32*> pair(&a, &b);
 
     // Template get<>
-    const auto x_a = pair.get<0>();
+    const auto* x_a = pair.get<0>();
     static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x_a)>, kstd::i32>);
     ASSERT_EQ(a, 1337);
 
-    const auto x_b = pair.get<1>();
+    const auto* x_b = pair.get<1>();
     static_assert(kstd::meta::is_same<kstd::meta::Naked<decltype(x_b)>, kstd::f32>);
     ASSERT_EQ(b, 3.141F);
 
