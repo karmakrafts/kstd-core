@@ -65,19 +65,19 @@ namespace kstd::utils {
         return *reinterpret_cast<const R*>(&value);// NOLINT
     }
 
-    [[nodiscard]] constexpr auto to_utf8(const std::wstring& value) noexcept -> std::string {
+    [[nodiscard]] inline auto to_utf8(const std::wstring& value) noexcept -> std::string {
         return {value.begin(), value.end()};
     }
 
-    [[nodiscard]] constexpr auto to_utf8(std::wstring_view value) noexcept -> std::string {
+    [[nodiscard]] inline auto to_utf8(std::wstring_view value) noexcept -> std::string {
         return {value.begin(), value.end()};
     }
 
-    [[nodiscard]] constexpr auto to_utf16(const std::string& value) noexcept -> std::wstring {
+    [[nodiscard]] inline auto to_utf16(const std::string& value) noexcept -> std::wstring {
         return {value.begin(), value.end()};
     }
 
-    [[nodiscard]] constexpr auto to_utf16(std::string_view value) noexcept -> std::wstring {
+    [[nodiscard]] inline auto to_utf16(std::string_view value) noexcept -> std::wstring {
         return {value.begin(), value.end()};
     }
 }// namespace kstd::utils
