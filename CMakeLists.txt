@@ -12,6 +12,7 @@ endif()
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;")
 include(CommonLibraries)
 include(Platform)
+include_scripts()
 
 if(${KSTD_CORE_BUILD_TESTS})
     file(GLOB_RECURSE KSTD_CORE_TEST_SOURCE_FILES "${CMAKE_SOURCE_DIR}/test/*.cpp")

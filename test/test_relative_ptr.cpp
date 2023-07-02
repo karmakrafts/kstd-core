@@ -35,18 +35,22 @@ struct TestStruct final {
  */
 
 TEST(kstd_RelativePtr, TestUnsignedOffset) {
-    auto* memory = reinterpret_cast<kstd::u8*>(                                                       // NOLINT
-            kstd::libc::malloc(sizeof(TestStruct<kstd::u8>) + sizeof(kstd::i32) + sizeof(kstd::f32)));// NOLINT
-    kstd::libc::memset(memory, 0, sizeof(TestStruct<kstd::u8>));
+    constexpr auto size = sizeof(TestStruct<kstd::u32>) + sizeof(kstd::i32) + sizeof(kstd::f32);
+
+    auto* memory = reinterpret_cast<kstd::u8*>(// NOLINT
+            kstd::libc::malloc(size));         // NOLINT
+    ASSERT_TRUE(memory != nullptr);
+    kstd::libc::memset(memory, 0, size);
 
     // Initialize test values
-    *reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::u8>)) = 1337;                      // NOLINT
-    *reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::u8>) + sizeof(kstd::i32)) = 3.141F;// NOLINT
+    *reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::u32>)) = 1337;                      // NOLINT
+    *reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::u32>) + sizeof(kstd::i32)) = 3.141F;// NOLINT
 
     // Initialize relative pointers
-    auto* rel = reinterpret_cast<TestStruct<kstd::u8>*>(memory);                                       // NOLINT
-    rel->foo = reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::u8>));                    // NOLINT
-    rel->bar = reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::u8>) + sizeof(kstd::i32));// NOLINT
+    new(memory) TestStruct<kstd::u32>();
+    auto* rel = reinterpret_cast<TestStruct<kstd::u32>*>(memory);                                       // NOLINT
+    rel->foo = reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::u32>));                    // NOLINT
+    rel->bar = reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::u32>) + sizeof(kstd::i32));// NOLINT
 
     // Validate data integrity
     ASSERT_EQ(*(rel->foo), 1337);
@@ -56,18 +60,21 @@ TEST(kstd_RelativePtr, TestUnsignedOffset) {
 }
 
 TEST(kstd_RelativePtr, TestSignedOffset) {
-    auto* memory = reinterpret_cast<kstd::u8*>(                                                       // NOLINT
-            kstd::libc::malloc(sizeof(TestStruct<kstd::i8>) + sizeof(kstd::i32) + sizeof(kstd::f32)));// NOLINT
-    kstd::libc::memset(memory, 0, sizeof(TestStruct<kstd::i8>));
+    constexpr auto size = sizeof(TestStruct<kstd::u32>) + sizeof(kstd::i32) + sizeof(kstd::f32);
+
+    auto* memory = reinterpret_cast<kstd::u8*>(// NOLINT
+            kstd::libc::malloc(size));         // NOLINT
+    ASSERT_TRUE(memory != nullptr);
+    kstd::libc::memset(memory, 0, size);
 
     // Initialize test values
-    *reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::i8>)) = 1337;                      // NOLINT
-    *reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::i8>) + sizeof(kstd::i32)) = 3.141F;// NOLINT
+    *reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::u32>)) = 1337;                      // NOLINT
+    *reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::u32>) + sizeof(kstd::i32)) = 3.141F;// NOLINT
 
     // Initialize relative pointers
-    auto* rel = reinterpret_cast<TestStruct<kstd::i8>*>(memory);                                       // NOLINT
-    rel->foo = reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::i8>));                    // NOLINT
-    rel->bar = reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::i8>) + sizeof(kstd::i32));// NOLINT
+    auto* rel = reinterpret_cast<TestStruct<kstd::u32>*>(memory);                                       // NOLINT
+    rel->foo = reinterpret_cast<kstd::i32*>(memory + sizeof(TestStruct<kstd::u32>));                    // NOLINT
+    rel->bar = reinterpret_cast<kstd::f32*>(memory + sizeof(TestStruct<kstd::u32>) + sizeof(kstd::i32));// NOLINT
 
     // Validate data integrity
     ASSERT_EQ(*(rel->foo), 1337);
