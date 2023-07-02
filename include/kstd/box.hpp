@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include "assert.hpp"
 #include "defaults.hpp"
 #include "libc.hpp"
@@ -219,7 +221,7 @@ namespace kstd {
 
         constexpr Box() noexcept :
                 _has_value(false),
-                _value() {
+                _value(std::array<u8, sizeof(ValueType)>()) {
         }
 
         constexpr Box(const ValueType& value) noexcept :// NOLINT
