@@ -31,7 +31,8 @@ TEST(kstd_Result, TestValue) {
     ASSERT_EQ(value, result.borrow());
 
     auto other_value = *result;
-    ASSERT_FALSE(result.is_empty());
+    ASSERT_TRUE(result.is_empty());
+    ASSERT_EQ(result.unwrap_or("Test"sv), "Test"sv);
     ASSERT_EQ(other_value, value);
 
     result = kstd::Error("This is an error now!"sv);
@@ -49,7 +50,9 @@ TEST(kstd_Result, TestReference) {
     ASSERT_EQ(value, result.borrow());
 
     auto other_value = *result;
-    ASSERT_FALSE(result.is_empty());
+    ASSERT_TRUE(result.is_empty());
+    auto value2 = "Test"sv;
+    ASSERT_EQ(result.unwrap_or(value2), value2);
     ASSERT_EQ(other_value, value);
 
     result = kstd::Error("This is an error now!"sv);
@@ -67,7 +70,9 @@ TEST(kstd_Result, TestPointer) {
     ASSERT_EQ(value, *result.borrow());
 
     auto* other_value = *result;
-    ASSERT_FALSE(result.is_empty());
+    ASSERT_TRUE(result.is_empty());
+    auto value2 = "Testing!!!1!"sv;
+    ASSERT_EQ(result.unwrap_or(&value2), &value2);
     ASSERT_EQ(*other_value, value);
 
     result = kstd::Error("This is an error now!"sv);

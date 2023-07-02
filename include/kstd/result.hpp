@@ -113,7 +113,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> decltype(auto) {
-            assert_true(!is_error());
+            assert_true(is_ok());
 
             if constexpr(!is_void) {
                 return std::get<BoxedValueType>(_value).borrow();
@@ -121,20 +121,29 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> decltype(auto) {
-            assert_true(!is_error());
+            assert_true(is_ok());
 
             if constexpr(!is_void) {
                 return std::get<BoxedValueType>(_value).borrow();
             }
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
-            assert_true(!is_error());
+        [[nodiscard]] constexpr auto unwrap() noexcept -> decltype(auto) {
+            assert_true(is_ok());
             _type = ResultType::EMPTY;
 
             if constexpr(!is_void) {
-                return std::get<BoxedValueType>(_value).borrow();
+                return std::get<BoxedValueType>(_value).get();
             }
+        }
+
+        [[nodiscard]] constexpr auto unwrap_or(ValueType default_value) noexcept -> ValueType {
+            if(!is_ok()) {
+                return default_value;
+            }
+
+            _type = ResultType::EMPTY;
+            return std::get<BoxedValueType>(_value).get();
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> decltype(auto) {
@@ -149,7 +158,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
-            return !is_empty();
+            return is_ok();
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> decltype(auto) {
@@ -161,11 +170,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator*() noexcept -> decltype(auto) {
-            return borrow();
-        }
-
-        [[nodiscard]] constexpr auto operator*() const noexcept -> decltype(auto) {
-            return borrow();
+            return unwrap();
         }
     };
 

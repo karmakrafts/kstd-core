@@ -244,7 +244,7 @@ namespace kstd {
             return std::get<ValueType>(_value);
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> ValueType&& {
+        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
             assert_false(is_empty());
             return utils::move(std::get<ValueType>(_value));
         }
