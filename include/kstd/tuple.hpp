@@ -211,13 +211,25 @@ namespace kstd {
             return concat<OTHER_TYPES...>(other);
         }
 
-        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
+        template<typename OTHER_TYPES>
+        [[nodiscard]] constexpr auto operator==(const TupleImpl<OTHER_TYPES>& other) const noexcept -> bool {
+            return false;
+        }
+
+        template<>
+        [[nodiscard]] constexpr auto operator==<Types>(const Self& other) const noexcept -> bool {
             bool result = true;
             equals<0>(_inner, other._inner, result);
             return result;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
+        template<typename OTHER_TYPES>
+        [[nodiscard]] constexpr auto operator!=(const TupleImpl<OTHER_TYPES>& other) const noexcept -> bool {
+            return true;
+        }
+
+        template<>
+        [[nodiscard]] constexpr auto operator!=<Types>(const Self& other) const noexcept -> bool {
             bool result = false;
             not_equals<0>(_inner, other._inner, result);
             return !result;

@@ -196,7 +196,7 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Box)
 
         constexpr Box() noexcept :
-                _value(ValueType()) {
+                _value() {
         }
 
         constexpr Box(const ValueType& value) noexcept :// NOLINT

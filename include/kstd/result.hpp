@@ -133,7 +133,7 @@ namespace kstd {
             _type = ResultType::EMPTY;
 
             if constexpr(!is_void) {
-                return std::get<BoxedValueType>(_value).get();
+                return std::get<BoxedValueType>(_value).borrow();
             }
         }
 
