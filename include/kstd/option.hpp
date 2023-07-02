@@ -37,25 +37,21 @@ namespace kstd {
         using ValueType = T;
         using Self [[maybe_unused]] = Option<ValueType>;
         using BoxType = Box<ValueType>;
-        using BorrowedValueType = typename BoxType::BorrowedValueType;
-        using ConstBorrowedValueType = typename BoxType::ConstBorrowedValueType;
-        using Pointer = typename BoxType::Pointer;
-        using ConstPointer = typename BoxType::ConstPointer;
 
         private:
-        BoxType _inner;
+        BoxType _value;
         bool _is_present;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Option)
 
         constexpr Option() noexcept :
-                _inner(),
+                _value(),
                 _is_present(false) {
         }
 
         constexpr Option(ValueType value) noexcept :// NOLINT
-                _inner(utils::move_or_copy(value)),
+                _value(utils::move_or_copy(value)),
                 _is_present(true) {
         }
 
@@ -69,38 +65,38 @@ namespace kstd {
             return _is_present;
         }
 
-        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto borrow() noexcept -> decltype(auto) {
             assert_false(is_empty());
-            return _inner.borrow();
+            return _value.borrow();
         }
 
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+        [[nodiscard]] constexpr auto borrow() const noexcept -> decltype(auto) {
             assert_false(is_empty());
-            return _inner.borrow();
+            return _value.borrow();
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
             assert_false(is_empty());
-            return _inner.get();
+            return _value.get();
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
             return has_value();
         }
 
-        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto operator*() noexcept -> decltype(auto) {
             return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
+        [[nodiscard]] constexpr auto operator*() const noexcept -> decltype(auto) {
             return borrow();
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> decltype(auto) {
             return &borrow();
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> decltype(auto) {
             return &borrow();
         }
     };

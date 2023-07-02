@@ -26,7 +26,7 @@ namespace kstd {
     template<typename T>
     struct NonZero final {
         using ValueType = T;
-        using Self = NonZero<T>;
+        using Self [[maybe_unused]] = NonZero<T>;
         using BorrowedValueType = ValueType&;
         using ConstBorrowedValueType = const ValueType&;
         using Pointer = ValueType*;

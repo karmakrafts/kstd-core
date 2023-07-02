@@ -33,6 +33,8 @@ namespace kstd {
         E _error;
 
         public:
+        using ErrorType [[maybe_unused]] = E;
+
         KSTD_DEFAULT_MOVE_COPY(Error)
 
         explicit Error(E error) noexcept :
@@ -66,28 +68,28 @@ namespace kstd {
         using Self [[maybe_unused]] = Result<T, E>;
         using ValueType = meta::If<is_void, u8, T>;
         using BoxedValueType = Box<ValueType>;
-        using ErrorType [[maybe_unused]] = E;
-        using InnerType = std::variant<BoxedValueType, ErrorType>;
+        using ErrorType = E;
+        using VariantType = std::variant<BoxedValueType, ErrorType>;
 
         private:
-        InnerType _inner;
+        VariantType _value;
         ResultType _type;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Result)
 
         constexpr Result() noexcept :
-                _inner(),
+                _value(),
                 _type(ResultType::EMPTY) {
         }
 
         constexpr Result(ValueType value) noexcept :// NOLINT
-                _inner(BoxedValueType(value)),
+                _value(BoxedValueType(value)),
                 _type(ResultType::OK) {
         }
 
         constexpr Result(Error<ErrorType> error) noexcept :// NOLINT
-                _inner(utils::move_or_copy(error.get_error())),
+                _value(utils::move_or_copy(error.get_error())),
                 _type(ResultType::ERROR) {
         }
 
@@ -114,7 +116,7 @@ namespace kstd {
             assert_true(!is_error());
 
             if constexpr(!is_void) {
-                return std::get<BoxedValueType>(_inner).borrow();
+                return std::get<BoxedValueType>(_value).borrow();
             }
         }
 
@@ -122,7 +124,7 @@ namespace kstd {
             assert_true(!is_error());
 
             if constexpr(!is_void) {
-                return std::get<BoxedValueType>(_inner).borrow();
+                return std::get<BoxedValueType>(_value).borrow();
             }
         }
 
@@ -131,19 +133,19 @@ namespace kstd {
             _type = ResultType::EMPTY;
 
             if constexpr(!is_void) {
-                return std::get<BoxedValueType>(_inner).get();
+                return std::get<BoxedValueType>(_value).get();
             }
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> decltype(auto) {
             assert_true(is_error());
-            return std::get<ErrorType>(_inner);
+            return std::get<ErrorType>(_value);
         }
 
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, ErrorType> {
             assert_true(is_error());
-            return Result<TT, ErrorType>(Error<ErrorType>(utils::move_or_copy(std::get<ErrorType>(_inner))));
+            return Result<TT, ErrorType>(Error<ErrorType>(utils::move_or_copy(std::get<ErrorType>(_value))));
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
