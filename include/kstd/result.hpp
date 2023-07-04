@@ -48,31 +48,20 @@ namespace kstd {
         }
     };
 
+    enum class ResultType : u8 {
+        OK,
+        ERROR,
+        EMPTY
+    };
+
     template<typename T, typename E = std::string_view>
-    struct Result;
-
-    namespace {
-        enum class ResultType : u8 {
-            OK,
-            ERROR,
-            EMPTY
-        };
-    }// namespace
-
-    template<typename T, typename E>
     struct Result final {
-        static constexpr bool is_pointer = meta::is_ptr<T>;
-        static constexpr bool is_reference = meta::is_ref<T>;
-        static constexpr bool is_void = meta::is_void<T>;
-
         using Self [[maybe_unused]] = Result<T, E>;
-        using ValueType = meta::If<is_void, u8, T>;
+        using ValueType = meta::If<meta::is_void<T>, u8, T>;
         using BoxedValueType = Box<ValueType>;
-        using ErrorType = E;
-        using VariantType = std::variant<BoxedValueType, ErrorType>;
 
         private:
-        VariantType _value;
+        std::variant<BoxedValueType, E> _value;
         ResultType _type;
 
         public:
@@ -83,13 +72,13 @@ namespace kstd {
                 _type(ResultType::EMPTY) {
         }
 
-        constexpr Result(ValueType value) noexcept :// NOLINT
-                _value(BoxedValueType(value)),
+        explicit constexpr Result(ValueType value) noexcept :// NOLINT
+                _value(BoxedValueType(utils::move_or_copy(value))),
                 _type(ResultType::OK) {
         }
 
-        constexpr Result(Error<ErrorType> error) noexcept :// NOLINT
-                _value(utils::move_or_copy(error.get_error())),
+        explicit constexpr Result(Error<E> error) noexcept :// NOLINT
+                _value(utils::move(error.get_error())),
                 _type(ResultType::ERROR) {
         }
 
@@ -100,7 +89,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto is_ok() const noexcept -> bool {
-            if constexpr(is_void) {
+            if constexpr(meta::is_void<T>) {
                 return is_empty();
             }
             else {
@@ -115,7 +104,7 @@ namespace kstd {
         [[nodiscard]] constexpr auto borrow() noexcept -> decltype(auto) {
             assert_true(is_ok());
 
-            if constexpr(!is_void) {
+            if constexpr(!meta::is_void<T>) {
                 return std::get<BoxedValueType>(_value).borrow();
             }
         }
@@ -123,7 +112,7 @@ namespace kstd {
         [[nodiscard]] constexpr auto borrow() const noexcept -> decltype(auto) {
             assert_true(is_ok());
 
-            if constexpr(!is_void) {
+            if constexpr(!meta::is_void<T>) {
                 return std::get<BoxedValueType>(_value).borrow();
             }
         }
@@ -132,7 +121,7 @@ namespace kstd {
             assert_true(is_ok());
             _type = ResultType::EMPTY;
 
-            if constexpr(!is_void) {
+            if constexpr(!meta::is_void<T>) {
                 return std::get<BoxedValueType>(_value).get();
             }
         }
@@ -148,13 +137,13 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get_error() noexcept -> decltype(auto) {
             assert_true(is_error());
-            return std::get<ErrorType>(_value);
+            return std::get<E>(_value);
         }
 
         template<typename TT>
-        [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, ErrorType> {
+        [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
             assert_true(is_error());
-            return Result<TT, ErrorType>(Error<ErrorType>(utils::move_or_copy(std::get<ErrorType>(_value))));
+            return Result<TT, E>(Error<E>(utils::move(std::get<E>(_value))));
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
@@ -181,6 +170,6 @@ namespace kstd {
 
     template<typename T, typename E = std::string_view>
     [[nodiscard]] constexpr auto make_error(E error) noexcept -> Result<T, E> {
-        return Result<T, E>(Error<E>(utils::move_or_copy(error)));
+        return Result<T, E>(Error<E>(utils::move(error)));
     }
 }// namespace kstd
