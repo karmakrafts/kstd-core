@@ -27,6 +27,7 @@
 #include "non_zero.hpp"
 #include "types.hpp"
 #include "utils.hpp"
+#include "void.hpp"
 
 namespace kstd {
     template<typename T>
@@ -36,48 +37,47 @@ namespace kstd {
 
         using ValueType = T;
         using Self [[maybe_unused]] = Option<ValueType>;
-        using BoxType = Box<ValueType>;
+        using BoxedValueType = Box<ValueType>;
 
         private:
-        BoxType _value;
-        bool _is_present;
+        std::variant<BoxedValueType, Void> _value;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Option)
 
         constexpr Option() noexcept :
-                _value(),
-                _is_present(false) {
+                _value(Void()) {
         }
 
         constexpr Option(ValueType value) noexcept :// NOLINT
-                _value(utils::move_or_copy(value)),
-                _is_present(true) {
+                _value(utils::move_or_copy(value)) {
         }
 
         ~Option() noexcept = default;
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            return !_is_present;
+            return std::holds_alternative<Void>(_value);
         }
 
         [[nodiscard]] constexpr auto has_value() const noexcept -> bool {
-            return _is_present;
+            return std::holds_alternative<BoxedValueType>(_value);
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> decltype(auto) {
             assert_false(is_empty());
-            return _value.borrow();
+            return std::get<BoxedValueType>(_value).borrow();
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> decltype(auto) {
             assert_false(is_empty());
-            return _value.borrow();
+            return std::get<BoxedValueType>(_value).borrow();
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
             assert_false(is_empty());
-            return _value.get();
+            auto value = std::get<BoxedValueType>(_value).get();
+            _value = Void();
+            return value;
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
@@ -85,11 +85,11 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator*() noexcept -> decltype(auto) {
-            return borrow();
+            return get();
         }
 
         [[nodiscard]] constexpr auto operator*() const noexcept -> decltype(auto) {
-            return borrow();
+            return get();
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> decltype(auto) {

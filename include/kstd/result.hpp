@@ -26,6 +26,7 @@
 #include "meta.hpp"
 #include "types.hpp"
 #include "utils.hpp"
+#include "void.hpp"
 
 namespace kstd {
     template<typename E>
@@ -48,12 +49,6 @@ namespace kstd {
         }
     };
 
-    namespace {
-        struct EmptyType final {
-            u8 value = 0;
-        };
-    }// namespace
-
     template<typename T, typename E = std::string_view>
     struct Result final {
         using Self [[maybe_unused]] = Result<T, E>;
@@ -61,13 +56,13 @@ namespace kstd {
         using BoxedValueType = Box<ValueType>;
 
         private:
-        std::variant<BoxedValueType, E, EmptyType> _value;
+        std::variant<BoxedValueType, E, Void> _value;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Result)
 
         constexpr Result() noexcept :
-                _value(EmptyType()) {
+                _value(Void()) {
         }
 
         explicit constexpr Result(ValueType value) noexcept :// NOLINT
@@ -81,7 +76,7 @@ namespace kstd {
         ~Result() noexcept = default;
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            return std::holds_alternative<EmptyType>(_value);
+            return std::holds_alternative<Void>(_value);
         }
 
         [[nodiscard]] constexpr auto is_ok() const noexcept -> bool {
@@ -118,11 +113,11 @@ namespace kstd {
 
             if constexpr(!meta::is_void<T>) {
                 auto value = std::get<BoxedValueType>(_value).get();
-                _value = EmptyType();
+                _value = Void();
                 return value;
             }
             else {
-                _value = EmptyType();
+                _value = Void();
             }
         }
 
@@ -132,7 +127,7 @@ namespace kstd {
             }
 
             auto value = std::get<BoxedValueType>(_value).get();
-            _value = EmptyType();
+            _value = Void();
             return value;
         }
 
