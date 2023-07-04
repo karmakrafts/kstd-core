@@ -35,7 +35,7 @@ TEST(kstd_Result, TestValue) {
     ASSERT_EQ(result.unwrap_or("Test"sv), "Test"sv);
     ASSERT_EQ(other_value, value);
 
-    result = kstd::Error("This is an error now!"sv);
+    result = kstd::make_error<std::string_view>("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
@@ -55,7 +55,7 @@ TEST(kstd_Result, TestReference) {
     ASSERT_EQ(result.unwrap_or(value2), value2);
     ASSERT_EQ(other_value, value);
 
-    result = kstd::Error("This is an error now!"sv);
+    result = kstd::make_error<std::string_view&>("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
@@ -75,7 +75,7 @@ TEST(kstd_Result, TestPointer) {
     ASSERT_EQ(result.unwrap_or(&value2), &value2);
     ASSERT_EQ(*other_value, value);
 
-    result = kstd::Error("This is an error now!"sv);
+    result = kstd::make_error<std::string_view*>("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
@@ -86,7 +86,7 @@ TEST(kstd_Result, TestVoid) {
     auto result = kstd::Result<void>();
     ASSERT_TRUE(result.is_ok());
 
-    result = kstd::Error("This is an error now!"sv);
+    result = kstd::make_error<void>("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
@@ -97,7 +97,7 @@ TEST(kstd_Result, TestEmpty) {
     auto result = kstd::Result<std::string_view>();
     ASSERT_TRUE(result.is_empty());
 
-    result = kstd::Error("This is an error now!"sv);
+    result = kstd::make_error<std::string_view>("This is an error now!"sv);
     ASSERT_TRUE(result.is_error());
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
