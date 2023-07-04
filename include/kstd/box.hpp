@@ -36,10 +36,6 @@ namespace kstd {
      */
     template<typename T, typename = void>
     struct Box {
-        [[maybe_unused]] static constexpr bool is_pointer = false;
-        [[maybe_unused]] static constexpr bool is_reference = false;
-        [[maybe_unused]] static constexpr bool is_value = true;
-
         using ValueType = T;
         using Self = Box<ValueType>;
         using NakedValueType = meta::Naked<ValueType>;
@@ -127,10 +123,6 @@ namespace kstd {
      */
     template<typename T>
     struct Box<T, meta::DefIf<meta::is_ptr<T>>> final {
-        [[maybe_unused]] static constexpr bool is_pointer = true;
-        [[maybe_unused]] static constexpr bool is_reference = false;
-        [[maybe_unused]] static constexpr bool is_value = false;
-
         using ValueType = T;
         using Self = Box<ValueType, meta::DefIf<meta::is_ptr<ValueType>>>;
         using NakedValueType = meta::Naked<ValueType>;
@@ -213,10 +205,6 @@ namespace kstd {
      */
     template<typename T>
     struct Box<T, meta::DefIf<meta::is_ref<T>>> final {
-        [[maybe_unused]] static constexpr bool is_pointer = false;
-        [[maybe_unused]] static constexpr bool is_reference = true;
-        [[maybe_unused]] static constexpr bool is_value = false;
-
         using ValueType = T;
         using BorrowedValueType = ValueType;
         using ConstBorrowedValueType = const ValueType;

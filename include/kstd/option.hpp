@@ -30,7 +30,7 @@
 
 namespace kstd {
     template<typename T>
-    struct Option {
+    struct Option final {
         using ValueType = T;
         using Self [[maybe_unused]] = Option<ValueType>;
         using BoxedValueType = Box<ValueType>;
@@ -73,6 +73,77 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
             return _value.get();
+        }
+
+        [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
+            return has_value();
+        }
+
+        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+            return &borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+            return &borrow();
+        }
+    };
+
+    template<typename T>
+    struct Option<NonZero<T>> final {
+        using ValueType = T;
+        using NonZeroValueType = NonZero<ValueType>;
+        using Self [[maybe_unused]] = Option<NonZeroValueType>;
+        using BorrowedValueType = NonZeroValueType&;
+        using ConstBorrowedValueType = const NonZeroValueType&;
+        using Pointer = NonZeroValueType*;
+        using ConstPointer = const NonZeroValueType*;
+
+        private:
+        NonZeroValueType _value;
+
+        public:
+        KSTD_DEFAULT_MOVE_COPY(Option)
+
+        constexpr Option() noexcept :
+                _value() {
+        }
+
+        constexpr Option(NonZeroValueType value) noexcept :// NOLINT
+                _value(utils::move_or_copy(value)) {
+        }
+
+        constexpr Option(ValueType value) noexcept :// NOLINT
+                _value(utils::move_or_copy(value)) {
+        }
+
+        ~Option() noexcept = default;
+
+        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
+            return _value.is_empty();
+        }
+
+        [[nodiscard]] constexpr auto has_value() const noexcept -> bool {
+            return !_value.is_empty();
+        }
+
+        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+            return _value;
+        }
+
+        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+            return _value;
+        }
+
+        [[nodiscard]] constexpr auto get() noexcept -> BorrowedValueType {
+            return _value;
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT

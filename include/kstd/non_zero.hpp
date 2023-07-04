@@ -21,12 +21,17 @@
 
 #include "assert.hpp"
 #include "defaults.hpp"
+#include "meta.hpp"
 
 namespace kstd {
     template<typename T>
     struct NonZero final {
+        static_assert(meta::is_integral<T> || meta::is_ptr<T>, "Type is neither an integer nor a pointer");
+
         using ValueType = T;
         using Self [[maybe_unused]] = NonZero<T>;
+        using BorrowedValueType = ValueType&;
+        using ConstBorrowedValueType = const ValueType&;
 
         private:
         ValueType _value;
@@ -45,16 +50,20 @@ namespace kstd {
 
         ~NonZero() noexcept = default;
 
+        [[nodiscard]] constexpr operator ValueType() const noexcept {
+            return _value;
+        }
+
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
             return _value == static_cast<ValueType>(0);
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> ValueType {
+        [[nodiscard]] constexpr auto get() noexcept -> BorrowedValueType {
             assert_false(is_empty());
             return _value;
         }
 
-        [[nodiscard]] constexpr auto get() const noexcept -> ValueType {
+        [[nodiscard]] constexpr auto get() const noexcept -> ConstBorrowedValueType {
             assert_false(is_empty());
             return _value;
         }

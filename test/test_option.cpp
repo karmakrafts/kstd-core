@@ -31,10 +31,17 @@ TEST(kstd_Option, TestValue) {
 
     auto opt = kstd::make_value(str);
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.borrow(), str);
+    ASSERT_EQ(*opt, str);
+}
 
-    opt = {str};
+TEST(kstd_Option, TestValueAssignment) {
+    using namespace std::string_view_literals;
+    constexpr auto str = "Hello World!"sv;
 
+    auto opt = kstd::make_empty<std::string_view>();
+    ASSERT_FALSE(opt);
+
+    opt = kstd::make_value(str);
     ASSERT_TRUE(opt);
     ASSERT_EQ(opt.get(), str);
 }
@@ -46,9 +53,16 @@ TEST(kstd_Option, TestPointer) {
     auto opt = kstd::make_value(&str);
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt.borrow(), str);
+}
 
-    opt = {&str};
+TEST(kstd_Option, TestPointerAssignment) {
+    using namespace std::string_view_literals;
+    constexpr auto str = "Hello World!"sv;
 
+    auto opt = kstd::make_empty<const std::string_view*>();
+    ASSERT_FALSE(opt);
+
+    opt = kstd::make_value(&str);
     ASSERT_TRUE(opt);
     ASSERT_EQ(opt.get(), &str);
 }
@@ -59,9 +73,16 @@ TEST(kstd_Option, TestReference) {
 
     auto opt = kstd::make_value<const std::string_view&>(str);
     ASSERT_TRUE(opt);
+}
 
-    opt = {str};
+TEST(kstd_Option, TestReferenceAssignment) {
+    using namespace std::string_view_literals;
+    constexpr auto str = "Hello World!"sv;
 
+    auto opt = kstd::make_empty<const std::string_view&>();
+    ASSERT_FALSE(opt);
+
+    opt = kstd::make_value<const std::string_view&>(str);
     ASSERT_TRUE(opt);
     ASSERT_EQ(opt.get(), str);
 }
@@ -72,5 +93,17 @@ TEST(kstd_Option, TestNonZero) {
 
     auto opt = kstd::make_value(kstd::make_non_zero(&str));
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.borrow().get(), &str);
+    ASSERT_EQ(*opt, &str);
+}
+
+TEST(kstd_Option, TestNonZeroAssignment) {
+    using namespace std::string_view_literals;
+    constexpr auto str = "Hello World!"sv;
+
+    auto opt = kstd::make_empty<kstd::NonZero<const std::string_view*>>();
+    ASSERT_FALSE(opt);
+
+    opt = kstd::make_value(kstd::make_non_zero(&str));
+    ASSERT_TRUE(opt);
+    ASSERT_EQ(*opt, &str);
 }

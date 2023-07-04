@@ -57,11 +57,13 @@ namespace kstd {
     using atomic_i16 = std::atomic_int16_t;
     using atomic_i32 = std::atomic_int32_t;
     using atomic_i64 = std::atomic_int64_t;
+    using atomic_isize = std::atomic_ptrdiff_t;
 
     using atomic_u8 = std::atomic_uint8_t;
     using atomic_u16 = std::atomic_uint16_t;
     using atomic_u32 = std::atomic_uint32_t;
     using atomic_u64 = std::atomic_uint64_t;
+    using atomic_usize = std::atomic_size_t;
 
     using atomic_f32 = std::atomic<f32>;
     using atomic_f64 = std::atomic<f64>;
