@@ -35,22 +35,22 @@ namespace kstd {
         public:
         KSTD_NO_MOVE_COPY(CDCounterStats)
 
-        CDCounterStats() noexcept :
+        inline CDCounterStats() noexcept :
                 _constructions(0),
                 _destructions(0) {
         }
 
         ~CDCounterStats() noexcept = default;
 
-        [[nodiscard]] constexpr auto get_constructions() const noexcept -> usize {
+        [[nodiscard]] inline auto get_constructions() const noexcept -> usize {
             return _constructions;
         }
 
-        [[nodiscard]] constexpr auto get_destructions() const noexcept -> usize {
+        [[nodiscard]] inline auto get_destructions() const noexcept -> usize {
             return _destructions;
         }
 
-        [[nodiscard]] constexpr auto get_spills() const noexcept -> usize {
+        [[nodiscard]] inline auto get_spills() const noexcept -> usize {
             return _constructions - _destructions;
         }
     };
@@ -59,16 +59,16 @@ namespace kstd {
         CDCounterStats* _stats;
 
         public:
-        CDCounter(CDCounterStats& stats) noexcept :
+        inline CDCounter(CDCounterStats& stats) noexcept :
                 _stats(&stats) {
         }
 
-        CDCounter(const CDCounter& other) noexcept :
+        inline CDCounter(const CDCounter& other) noexcept :
                 _stats(other._stats) {
             ++(_stats->_constructions);
         }
 
-        CDCounter(CDCounter&& other) noexcept :
+        inline CDCounter(CDCounter&& other) noexcept :
                 _stats(other._stats) {
             ++(_stats->_constructions);
         }
