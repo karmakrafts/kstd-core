@@ -72,5 +72,5 @@ TEST(kstd_Option, TestNonZero) {
 
     auto opt = kstd::make_value(kstd::make_non_zero(&str));
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.borrow().borrow(), &str);
+    ASSERT_EQ(opt.borrow().get(), &str);
 }

@@ -30,7 +30,7 @@ TEST(kstd_Result, TestValue) {
     ASSERT_TRUE(result);
     ASSERT_EQ(value, result.borrow());
 
-    auto other_value = *result;
+    auto other_value = result.unwrap();
     ASSERT_TRUE(result.is_empty());
     ASSERT_EQ(result.unwrap_or("Test"sv), "Test"sv);
     ASSERT_EQ(other_value, value);
@@ -49,7 +49,7 @@ TEST(kstd_Result, TestReference) {
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, result.borrow());
 
-    auto other_value = *result;
+    auto other_value = result.unwrap();
     ASSERT_TRUE(result.is_empty());
     auto value2 = "Test"sv;
     ASSERT_EQ(result.unwrap_or(value2), value2);
@@ -69,7 +69,7 @@ TEST(kstd_Result, TestPointer) {
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result.borrow());
 
-    auto* other_value = *result;
+    auto* other_value = result.unwrap();
     ASSERT_TRUE(result.is_empty());
     auto value2 = "Testing!!!1!"sv;
     ASSERT_EQ(result.unwrap_or(&value2), &value2);

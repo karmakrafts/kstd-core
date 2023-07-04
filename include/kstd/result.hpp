@@ -44,7 +44,7 @@ namespace kstd {
 
         ~Error() noexcept = default;
 
-        [[nodiscard]] constexpr auto get_error() noexcept -> E& {
+        [[nodiscard]] constexpr auto get() noexcept -> E& {
             return _error;
         }
     };
@@ -53,10 +53,15 @@ namespace kstd {
     struct Result final {
         using Self [[maybe_unused]] = Result<T, E>;
         using ValueType = meta::If<meta::is_void<T>, u8, T>;
+        using ErrorType = Error<E>;
         using BoxedValueType = Box<ValueType>;
+        using BorrowedValueType = typename BoxedValueType::BorrowedValueType;
+        using ConstBorrowedValueType = typename BoxedValueType::ConstBorrowedValueType;
+        using Pointer = typename BoxedValueType::Pointer;
+        using ConstPointer = typename BoxedValueType::ConstBorrowedValueType;
 
         private:
-        std::variant<BoxedValueType, E, Void> _value;
+        std::variant<BoxedValueType, ErrorType, Void> _value;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Result)
@@ -69,8 +74,8 @@ namespace kstd {
                 _value(BoxedValueType(utils::move_or_copy(value))) {
         }
 
-        explicit constexpr Result(Error<E> error) noexcept :// NOLINT
-                _value(utils::move(error.get_error())) {
+        explicit constexpr Result(ErrorType error) noexcept :// NOLINT
+                _value(utils::move(error)) {
         }
 
         ~Result() noexcept = default;
@@ -89,10 +94,10 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto is_error() const noexcept -> bool {
-            return std::holds_alternative<E>(_value);
+            return std::holds_alternative<ErrorType>(_value);
         }
 
-        [[nodiscard]] constexpr auto borrow() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
             assert_true(is_ok());
 
             if constexpr(!meta::is_void<T>) {
@@ -100,7 +105,7 @@ namespace kstd {
             }
         }
 
-        [[nodiscard]] constexpr auto borrow() const noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
             assert_true(is_ok());
 
             if constexpr(!meta::is_void<T>) {
@@ -121,41 +126,43 @@ namespace kstd {
             }
         }
 
-        [[nodiscard]] constexpr auto unwrap_or(ValueType default_value) noexcept -> ValueType {
+        [[nodiscard]] constexpr auto unwrap_or(ValueType default_value) noexcept -> decltype(unwrap()) {
             if(!is_ok()) {
                 return default_value;
             }
 
-            auto value = std::get<BoxedValueType>(_value).get();
-            _value = Void();
-            return value;
+            return unwrap();
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> decltype(auto) {
             assert_true(is_error());
-            return std::get<E>(_value);
+            return utils::move(std::get<ErrorType>(_value).get());
         }
 
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
             assert_true(is_error());
-            return Result<TT, E>(Error<E>(utils::move(std::get<E>(_value))));
+            return Result<TT, E>(utils::move(std::get<ErrorType>(_value)));
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
             return is_ok();
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
             return &borrow();
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return &borrow();
-        }
-
-        [[nodiscard]] constexpr auto operator*() noexcept -> decltype(auto) {
-            return unwrap();
         }
     };
 

@@ -27,10 +27,6 @@ namespace kstd {
     struct NonZero final {
         using ValueType = T;
         using Self [[maybe_unused]] = NonZero<T>;
-        using BorrowedValueType = ValueType&;
-        using ConstBorrowedValueType = const ValueType&;
-        using Pointer = ValueType*;
-        using ConstPointer = const ValueType*;
 
         private:
         ValueType _value;
@@ -61,26 +57,6 @@ namespace kstd {
         [[nodiscard]] constexpr auto get() const noexcept -> ValueType {
             assert_false(is_empty());
             return _value;
-        }
-
-        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
-            assert_false(is_empty());
-            return _value;
-        }
-
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-            assert_false(is_empty());
-            return _value;
-        }
-
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
-            assert_false(is_empty());
-            return &_value;
-        }
-
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
-            assert_false(is_empty());
-            return &_value;
         }
     };
 

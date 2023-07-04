@@ -26,6 +26,7 @@
 #include "libc.hpp"
 #include "meta.hpp"
 #include "utils.hpp"
+#include "void.hpp"
 
 namespace kstd {
     /*
@@ -34,7 +35,92 @@ namespace kstd {
      * a little easier on the eyes and more digestible.
      */
     template<typename T, typename = void>
-    struct Box;
+    struct Box {
+        [[maybe_unused]] static constexpr bool is_pointer = false;
+        [[maybe_unused]] static constexpr bool is_reference = false;
+        [[maybe_unused]] static constexpr bool is_value = true;
+
+        using ValueType = T;
+        using Self = Box<ValueType>;
+        using NakedValueType = meta::Naked<ValueType>;
+        using BorrowedValueType = ValueType&;
+        using ConstBorrowedValueType = const ValueType&;
+        using Pointer = ValueType*;
+        using ConstPointer = const ValueType*;
+
+        private:
+        std::variant<ValueType, Void> _value;
+
+        public:
+        KSTD_DEFAULT_MOVE_COPY(Box)
+
+        constexpr Box() noexcept :
+                _value(Void()) {
+        }
+
+        constexpr Box(const ValueType& value) noexcept :// NOLINT
+                _value(value) {
+        }
+
+        constexpr Box(ValueType&& value) noexcept :// NOLINT
+                _value(utils::move(value)) {
+        }
+
+        ~Box() noexcept = default;
+
+        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
+            return std::holds_alternative<Void>(_value);
+        }
+
+        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+            assert_false(is_empty());
+            return std::get<ValueType>(_value);
+        }
+
+        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+            assert_false(is_empty());
+            return std::get<ValueType>(_value);
+        }
+
+        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
+            assert_false(is_empty());
+            auto value = utils::move(std::get<ValueType>(_value));
+            _value = Void();
+            return value;
+        }
+
+        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+            return &borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+            return &borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
+            return is_empty() == other.is_empty() && std::get<ValueType>(_value) == std::get<ValueType>(other._value);
+        }
+
+        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
+            return is_empty() != other.is_empty() || std::get<ValueType>(_value) != std::get<ValueType>(other._value);
+        }
+
+        [[nodiscard]] constexpr auto operator==(const ValueType& value) const noexcept -> bool {
+            return !is_empty() && std::get<ValueType>(_value) == value;
+        }
+
+        [[nodiscard]] constexpr auto operator!=(const ValueType& value) const noexcept -> bool {
+            return is_empty() || std::get<ValueType>(_value) != value;
+        }
+    };
 
     /*
      * Specialization for pointers, always pass-by-value
@@ -47,6 +133,7 @@ namespace kstd {
 
         using ValueType = T;
         using Self = Box<ValueType, meta::DefIf<meta::is_ptr<ValueType>>>;
+        using NakedValueType = meta::Naked<ValueType>;
         using StoredValueType = ValueType;
         using BorrowedValueType = ValueType&;
         using ConstBorrowedValueType = ValueType const&;
@@ -74,41 +161,50 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+            assert_false(is_empty());
             return _value;
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> ValueType {
+        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
+            assert_false(is_empty());
             return _value;
+        }
+
+        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
+            return borrow();
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
-            assert_false(is_empty());
-            return _value;
+            return borrow();
         }
 
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {// NOLINT
-            assert_false(is_empty());
-            return _value;
+            return borrow();
         }
 
         [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
-            return _value == other._value;
+            return is_empty() == other.is_empty() && _value == other._value;
         }
 
         [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
-            return _value != other._value;
+            return is_empty() != other.is_empty() || _value != other._value;
         }
 
         [[nodiscard]] constexpr auto operator==(ConstPointer pointer) const noexcept -> bool {
-            return _value == pointer;
+            return !is_empty() && _value == pointer;
         }
 
         [[nodiscard]] constexpr auto operator!=(ConstPointer pointer) const noexcept -> bool {
-            return _value != pointer;
+            return is_empty() || _value != pointer;
         }
     };
 
@@ -122,12 +218,12 @@ namespace kstd {
         [[maybe_unused]] static constexpr bool is_value = false;
 
         using ValueType = T;
-        using Self = Box<ValueType, meta::DefIf<meta::is_ref<ValueType>>>;
-        using NakedValueType = meta::Naked<ValueType>;
         using BorrowedValueType = ValueType;
         using ConstBorrowedValueType = const ValueType;
+        using NakedValueType = meta::Naked<ValueType>;
         using Pointer = NakedValueType*;
         using ConstPointer = const NakedValueType*;
+        using Self = Box<ValueType, meta::DefIf<meta::is_ref<ValueType>>>;
         using StoredValueType = meta::If<meta::is_const<ValueType>, ConstPointer, Pointer>;
 
         private:
@@ -160,119 +256,41 @@ namespace kstd {
             return *_value;
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> ValueType {
+        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
             assert_false(is_empty());
             return *_value;
         }
 
+        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
+            return borrow();
+        }
+
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {// NOLINT
+            return borrow();
+        }
+
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
-            assert_false(is_empty());
-            return _value;
+            return &borrow();
         }
 
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
-            assert_false(is_empty());
-            return _value;
+            return &borrow();
         }
 
         [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
-            return _value == other._value;
+            return is_empty() == other.is_empty() && _value == other._value;
         }
 
         [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
-            return _value != other._value;
+            return is_empty() != other.is_empty() || _value != other._value;
         }
 
         [[nodiscard]] constexpr auto operator==(ValueType ref) const noexcept -> bool {
-            return _value == &ref;
+            return !is_empty() && _value == &ref;
         }
 
         [[nodiscard]] constexpr auto operator!=(ValueType ref) const noexcept -> bool {
-            return _value != &ref;
-        }
-    };
-
-    /*
-     * Specialization for owned values, uses move semantics
-     */
-    template<typename T>
-    struct Box<T, meta::DefIf<!meta::is_ref<T> && !meta::is_ptr<T>>> final {
-        [[maybe_unused]] static constexpr bool is_pointer = false;
-        [[maybe_unused]] static constexpr bool is_reference = false;
-        [[maybe_unused]] static constexpr bool is_value = true;
-
-        using ValueType = T;
-        using EmptyArrayType = std::array<u8, sizeof(ValueType)>;
-        using VariantType = std::variant<ValueType, EmptyArrayType>;
-        using Self = Box<ValueType, meta::DefIf<!meta::is_ref<ValueType> && !meta::is_ptr<ValueType>>>;
-        using BorrowedValueType = ValueType&;
-        using ConstBorrowedValueType = const ValueType&;
-        using Pointer = ValueType*;
-        using ConstPointer = const ValueType*;
-
-        private:
-        VariantType _value;
-
-        public:
-        KSTD_DEFAULT_MOVE_COPY(Box)
-
-        constexpr Box() noexcept :
-                _value(EmptyArrayType()) {
-        }
-
-        constexpr Box(const ValueType& value) noexcept :// NOLINT
-                _value(value) {
-        }
-
-        constexpr Box(ValueType&& value) noexcept :// NOLINT
-                _value(utils::move(value)) {
-        }
-
-        ~Box() noexcept = default;
-
-        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            return std::holds_alternative<EmptyArrayType>(_value);
-        }
-
-        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
-            assert_false(is_empty());
-            return std::get<ValueType>(_value);
-        }
-
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-            assert_false(is_empty());
-            return std::get<ValueType>(_value);
-        }
-
-        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
-            assert_false(is_empty());
-            return utils::move(std::get<ValueType>(_value));
-        }
-
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
-            assert_false(is_empty());
-            return &std::get<ValueType>(_value);
-        }
-
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
-            assert_false(is_empty());
-            return &std::get<ValueType>(_value);
-        }
-
-        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
-            return std::get<ValueType>(_value) == std::get<ValueType>(other._value);
-        }
-
-        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
-            return std::get<ValueType>(_value) != std::get<ValueType>(other._value);
-        }
-
-        [[nodiscard]] constexpr auto operator==(const ValueType& value) const noexcept -> bool {
-            return std::get<ValueType>(_value) == value;
-        }
-
-        [[nodiscard]] constexpr auto operator!=(const ValueType& value) const noexcept -> bool {
-            return std::get<ValueType>(_value) != value;
+            return is_empty() || _value != &ref;
         }
     };
 
