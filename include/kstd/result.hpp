@@ -48,11 +48,11 @@ namespace kstd {
         }
     };
 
-    enum class ResultType : u8 {
-        OK,
-        ERROR,
-        EMPTY
-    };
+    namespace {
+        struct EmptyType final {
+            u8 value = 0;
+        };
+    }// namespace
 
     template<typename T, typename E = std::string_view>
     struct Result final {
@@ -61,31 +61,27 @@ namespace kstd {
         using BoxedValueType = Box<ValueType>;
 
         private:
-        std::variant<BoxedValueType, E> _value;
-        ResultType _type;
+        std::variant<BoxedValueType, E, EmptyType> _value;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Result)
 
         constexpr Result() noexcept :
-                _value(),
-                _type(ResultType::EMPTY) {
+                _value(EmptyType()) {
         }
 
         explicit constexpr Result(ValueType value) noexcept :// NOLINT
-                _value(BoxedValueType(utils::move_or_copy(value))),
-                _type(ResultType::OK) {
+                _value(BoxedValueType(utils::move_or_copy(value))) {
         }
 
         explicit constexpr Result(Error<E> error) noexcept :// NOLINT
-                _value(utils::move(error.get_error())),
-                _type(ResultType::ERROR) {
+                _value(utils::move(error.get_error())) {
         }
 
         ~Result() noexcept = default;
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            return _type == ResultType::EMPTY;
+            return std::holds_alternative<EmptyType>(_value);
         }
 
         [[nodiscard]] constexpr auto is_ok() const noexcept -> bool {
@@ -93,12 +89,12 @@ namespace kstd {
                 return is_empty();
             }
             else {
-                return _type == ResultType::OK;
+                return std::holds_alternative<BoxedValueType>(_value);
             }
         }
 
         [[nodiscard]] constexpr auto is_error() const noexcept -> bool {
-            return _type == ResultType::ERROR;
+            return std::holds_alternative<E>(_value);
         }
 
         [[nodiscard]] constexpr auto borrow() noexcept -> decltype(auto) {
@@ -119,10 +115,14 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto unwrap() noexcept -> decltype(auto) {
             assert_true(is_ok());
-            _type = ResultType::EMPTY;
 
             if constexpr(!meta::is_void<T>) {
-                return std::get<BoxedValueType>(_value).get();
+                auto value = std::get<BoxedValueType>(_value).get();
+                _value = EmptyType();
+                return value;
+            }
+            else {
+                _value = EmptyType();
             }
         }
 
@@ -131,8 +131,9 @@ namespace kstd {
                 return default_value;
             }
 
-            _type = ResultType::EMPTY;
-            return std::get<BoxedValueType>(_value).get();
+            auto value = std::get<BoxedValueType>(_value).get();
+            _value = EmptyType();
+            return value;
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> decltype(auto) {
