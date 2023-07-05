@@ -188,13 +188,13 @@ namespace kstd {
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
-            return get_head<INDEX, 0, TYPES...>(_inner).borrow();
+        [[nodiscard]] constexpr auto get() noexcept -> meta::PackElement<INDEX, Types>& {
+            return get_head<INDEX, 0, TYPES...>(_inner).get();
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() const noexcept -> decltype(auto) {
-            return get_head<INDEX, 0, TYPES...>(_inner).borrow();
+        [[nodiscard]] constexpr auto get() const noexcept -> const meta::PackElement<INDEX, Types>& {
+            return get_head<INDEX, 0, TYPES...>(_inner).get();
         }
 
         template<usize BEGIN, usize END>

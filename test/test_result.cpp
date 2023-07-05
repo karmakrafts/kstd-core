@@ -28,11 +28,12 @@ TEST(kstd_Result, TestValue) {
     auto result = kstd::make_ok(value);
 
     ASSERT_TRUE(result);
-    ASSERT_EQ(value, result.borrow());
+    ASSERT_EQ(value, *result);
 
-    auto other_value = result.unwrap();
+    auto other_value = *result;
+    result = {};
     ASSERT_TRUE(result.is_empty());
-    ASSERT_EQ(result.unwrap_or("Test"sv), "Test"sv);
+    ASSERT_EQ(result.get_or("Test"sv), "Test"sv);
     ASSERT_EQ(other_value, value);
 
     result = kstd::make_error<std::string_view>("This is an error now!"sv);
@@ -47,12 +48,13 @@ TEST(kstd_Result, TestReference) {
     auto result = kstd::make_ok<std::string_view&>(value);
 
     ASSERT_TRUE(result.is_ok());
-    ASSERT_EQ(value, result.borrow());
+    ASSERT_EQ(value, *result);
 
-    auto other_value = result.unwrap();
+    auto other_value = *result;
+    result = {};
     ASSERT_TRUE(result.is_empty());
     auto value2 = "Test"sv;
-    ASSERT_EQ(result.unwrap_or(value2), value2);
+    ASSERT_EQ(result.get_or(value2), value2);
     ASSERT_EQ(other_value, value);
 
     result = kstd::make_error<std::string_view&>("This is an error now!"sv);
@@ -67,12 +69,13 @@ TEST(kstd_Result, TestPointer) {
     auto result = kstd::make_ok(&value);
 
     ASSERT_TRUE(result.is_ok());
-    ASSERT_EQ(value, *result.borrow());
+    ASSERT_EQ(value, **result);
 
-    auto* other_value = result.unwrap();
+    auto* other_value = *result;
+    result = {};
     ASSERT_TRUE(result.is_empty());
     auto value2 = "Testing!!!1!"sv;
-    ASSERT_EQ(result.unwrap_or(&value2), &value2);
+    ASSERT_EQ(result.get_or(&value2), &value2);
     ASSERT_EQ(*other_value, value);
 
     result = kstd::make_error<std::string_view*>("This is an error now!"sv);

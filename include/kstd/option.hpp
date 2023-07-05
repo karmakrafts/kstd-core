@@ -63,15 +63,11 @@ namespace kstd {
             return !_value.is_empty();
         }
 
-        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
-            return _value.borrow();
+        [[nodiscard]] constexpr auto get() noexcept -> BorrowedValueType {
+            return _value.get();
         }
 
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-            return _value.borrow();
-        }
-
-        [[nodiscard]] constexpr auto get() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto get() const noexcept -> ConstBorrowedValueType {
             return _value.get();
         }
 
@@ -80,19 +76,19 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
-            return borrow();
+            return get();
         }
 
         [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
-            return borrow();
+            return get();
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
-            return &borrow();
+            return &get();
         }
 
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
-            return &borrow();
+            return &get();
         }
     };
 
@@ -134,15 +130,11 @@ namespace kstd {
             return !_value.is_empty();
         }
 
-        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
-            return _value;
-        }
-
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
-            return _value;
-        }
-
         [[nodiscard]] constexpr auto get() noexcept -> BorrowedValueType {
+            return _value;
+        }
+
+        [[nodiscard]] constexpr auto get() const noexcept -> ConstBorrowedValueType {
             return _value;
         }
 
@@ -151,19 +143,19 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
-            return borrow();
+            return get();
         }
 
         [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
-            return borrow();
+            return get();
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
-            return &borrow();
+            return &get();
         }
 
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
-            return &borrow();
+            return &get();
         }
     };
 

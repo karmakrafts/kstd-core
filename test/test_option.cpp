@@ -52,7 +52,7 @@ TEST(kstd_Option, TestPointer) {
 
     auto opt = kstd::make_value(&str);
     ASSERT_TRUE(opt);
-    ASSERT_EQ(*opt.borrow(), str);
+    ASSERT_EQ(**opt, str);
 }
 
 TEST(kstd_Option, TestPointerAssignment) {

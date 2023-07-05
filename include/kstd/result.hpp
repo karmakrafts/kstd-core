@@ -30,21 +30,26 @@
 
 namespace kstd {
     template<typename E>
-    class Error final {
-        E _error;
-
-        public:
+    struct Error final {
         using ErrorType [[maybe_unused]] = E;
 
+        private:
+        ErrorType _error;
+
+        public:
         KSTD_DEFAULT_MOVE_COPY(Error)
 
-        explicit Error(E error) noexcept :
+        explicit Error(ErrorType error) noexcept :
                 _error(utils::move_or_copy(error)) {
         }
 
         ~Error() noexcept = default;
 
-        [[nodiscard]] constexpr auto get() noexcept -> E& {
+        [[nodiscard]] constexpr auto get() noexcept -> ErrorType& {
+            return _error;
+        }
+
+        [[nodiscard]] constexpr auto get() const noexcept -> const ErrorType& {
             return _error;
         }
     };
@@ -75,7 +80,7 @@ namespace kstd {
         }
 
         explicit constexpr Result(ErrorType error) noexcept :// NOLINT
-                _value(utils::move(error)) {
+                _value(utils::move_or_copy(error)) {
         }
 
         ~Result() noexcept = default;
@@ -97,46 +102,46 @@ namespace kstd {
             return std::holds_alternative<ErrorType>(_value);
         }
 
-        [[nodiscard]] constexpr auto borrow() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto get() noexcept -> BorrowedValueType {
             assert_true(is_ok());
 
             if constexpr(!meta::is_void<T>) {
-                return std::get<BoxedValueType>(_value).borrow();
+                return std::get<BoxedValueType>(_value).get();
             }
         }
 
-        [[nodiscard]] constexpr auto borrow() const noexcept -> ConstBorrowedValueType {
+        [[nodiscard]] constexpr auto get() const noexcept -> ConstBorrowedValueType {
             assert_true(is_ok());
 
             if constexpr(!meta::is_void<T>) {
-                return std::get<BoxedValueType>(_value).borrow();
+                return std::get<BoxedValueType>(_value).get();
             }
         }
 
-        [[nodiscard]] constexpr auto unwrap() noexcept -> decltype(auto) {
-            assert_true(is_ok());
-
-            if constexpr(!meta::is_void<T>) {
-                auto value = std::get<BoxedValueType>(_value).get();
-                _value = Void();
-                return value;
-            }
-            else {
-                _value = Void();
-            }
-        }
-
-        [[nodiscard]] constexpr auto unwrap_or(ValueType default_value) noexcept -> decltype(unwrap()) {
+        [[nodiscard]] constexpr auto get_or(ValueType default_value) noexcept -> ValueType {
             if(!is_ok()) {
                 return default_value;
             }
 
-            return unwrap();
+            return get();
         }
 
-        [[nodiscard]] constexpr auto get_error() noexcept -> decltype(auto) {
+        [[nodiscard]] constexpr auto get_or(ValueType default_value) const noexcept -> ValueType {
+            if(!is_ok()) {
+                return default_value;
+            }
+
+            return get();
+        }
+
+        [[nodiscard]] constexpr auto get_error() noexcept -> E& {
             assert_true(is_error());
-            return utils::move(std::get<ErrorType>(_value).get());
+            return std::get<ErrorType>(_value).get();
+        }
+
+        [[nodiscard]] constexpr auto get_error() const noexcept -> const E& {
+            assert_true(is_error());
+            return std::get<ErrorType>(_value).get();
         }
 
         template<typename TT>
@@ -150,21 +155,24 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
-            return borrow();
+            return get();
         }
 
         [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
-            return borrow();
+            return get();
         }
 
         [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
-            return &borrow();
+            return &get();
         }
 
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
-            return &borrow();
+            return &get();
         }
     };
+
+    template<typename T, typename E = std::string_view>
+    Result(T) -> Result<T, E>;
 
     template<typename T, typename E = std::string_view>
     [[nodiscard]] constexpr auto make_ok(T value) noexcept -> Result<T, E> {
@@ -175,4 +183,9 @@ namespace kstd {
     [[nodiscard]] constexpr auto make_error(E error) noexcept -> Result<T, E> {
         return Result<T, E>(Error<E>(utils::move(error)));
     }
+
+#ifdef BUILD_DEBUG
+    static_assert(meta::is_same<typename Result<void>::ValueType, u8>);
+    static_assert(meta::is_same<typename Result<void>::ErrorType, Error<std::string_view>>);
+#endif
 }// namespace kstd

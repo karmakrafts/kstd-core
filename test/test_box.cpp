@@ -63,22 +63,22 @@ TEST(kstd_Box, TestPointerAssignment) {
 TEST(kstd_Box, TestCDCounted) {
     kstd::CDCounterStats stats {};
 
-    kstd::Box<kstd::CDCounter> counter_box = kstd::make_box(kstd::CDCounter(stats));
+    auto counter_box = kstd::make_box(kstd::CDCounter(stats));
     ASSERT_FALSE(counter_box.is_empty());
 
-    ASSERT_EQ(stats.get_constructions(), 1);
-    ASSERT_EQ(stats.get_destructions(), 1);
+    ASSERT_EQ(stats.get_constructions(), 2);
+    ASSERT_EQ(stats.get_destructions(), 2);
 }
 
 TEST(kstd_Box, TestCDCountedAssignment) {
     kstd::CDCounterStats stats {};
 
-    kstd::Box<kstd::CDCounter> counter_box = kstd::make_box(kstd::CDCounter(stats));
+    auto counter_box = kstd::make_box(kstd::CDCounter(stats));
     ASSERT_FALSE(counter_box.is_empty());
 
     counter_box = kstd::make_box(kstd::CDCounter(stats));
     ASSERT_FALSE(counter_box.is_empty());
 
-    ASSERT_EQ(stats.get_constructions(), 2);
-    ASSERT_EQ(stats.get_destructions(), 3);
+    ASSERT_EQ(stats.get_constructions(), 4);
+    ASSERT_EQ(stats.get_destructions(), 5);
 }
