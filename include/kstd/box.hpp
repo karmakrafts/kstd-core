@@ -25,6 +25,7 @@
 #include "defaults.hpp"
 #include "libc.hpp"
 #include "meta.hpp"
+#include "meta_types.hpp"
 #include "utils.hpp"
 #include "void.hpp"
 
@@ -36,6 +37,8 @@ namespace kstd {
      */
     template<typename T>
     struct Box {
+        static_assert(!meta::is_same<meta::Naked<T>, Void>, "Type cannot be Void");
+
         using ValueType = T;
         using Self = Box<ValueType>;
         using BorrowedValueType = ValueType&;
@@ -111,6 +114,8 @@ namespace kstd {
      */
     template<typename T>
     struct Box<T*> final {
+        static_assert(!meta::is_same<meta::Naked<T>, Void>, "Type cannot be Void");
+
         using ValueType = T*;
         using Self = Box<ValueType>;
         using BorrowedValueType = ValueType&;
@@ -186,6 +191,8 @@ namespace kstd {
      */
     template<typename T>
     struct Box<T&> final {
+        static_assert(!meta::is_same<meta::Naked<T>, Void>, "Type cannot be Void");
+
         using ValueType = T&;
         using BorrowedValueType = T&;
         using ConstBorrowedValueType = const T&;

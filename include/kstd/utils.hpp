@@ -26,11 +26,6 @@
 
 namespace kstd::utils {
     template<typename T>
-    [[nodiscard]] constexpr auto forward(T value) noexcept -> T {
-        return value;
-    }
-
-    template<typename T>
     [[nodiscard]] constexpr auto forward(meta::NonRef<T>& value) noexcept -> T&& {
         return static_cast<T&&>(value);
     }
@@ -47,11 +42,11 @@ namespace kstd::utils {
 
     template<typename T>
     [[nodiscard]] constexpr auto move_or_copy(T&& value) noexcept -> decltype(auto) {
-        if constexpr((meta::is_ref<T> || meta::is_ptr<T>) || !meta::is_move_constructible<T>) {
-            return value;
+        if constexpr(!meta::is_ptr<T> && !meta::is_ref<T> && meta::is_move_constructible<T>) {
+            return move(forward<T>(value));
         }
         else {
-            return move(value);
+            return value;
         }
     }
 

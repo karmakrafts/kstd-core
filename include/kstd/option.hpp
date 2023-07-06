@@ -24,6 +24,7 @@
 #include "defaults.hpp"
 #include "libc.hpp"
 #include "meta.hpp"
+#include "meta_types.hpp"
 #include "non_zero.hpp"
 #include "types.hpp"
 #include "utils.hpp"
@@ -31,6 +32,8 @@
 namespace kstd {
     template<typename T>
     struct Option final {
+        static_assert(!meta::is_same<meta::Naked<T>, Void>, "Type cannot be Void");
+
         using ValueType = T;
         using Self [[maybe_unused]] = Option<ValueType>;
         using BoxedValueType = Box<ValueType>;
@@ -113,11 +116,7 @@ namespace kstd {
         }
 
         constexpr Option(NonZeroValueType value) noexcept :// NOLINT
-                _value(utils::move_or_copy(value)) {
-        }
-
-        constexpr Option(ValueType value) noexcept :// NOLINT
-                _value(utils::move_or_copy(value)) {
+                _value(utils::move(value)) {
         }
 
         ~Option() noexcept = default;

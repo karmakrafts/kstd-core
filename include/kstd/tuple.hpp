@@ -34,6 +34,8 @@ namespace kstd {
 
         template<typename HEAD>
         struct TupleInner<HEAD> {
+            static_assert(!meta::is_same<meta::Naked<HEAD>, Void>, "Type cannot be Void");
+
             using ValueType = HEAD;
 
             Box<ValueType> _head;
@@ -53,6 +55,8 @@ namespace kstd {
 
         template<typename HEAD, typename... TAIL>
         struct TupleInner<HEAD, TAIL...> {
+            static_assert(!meta::is_same<meta::Naked<HEAD>, Void>, "Type cannot be Void");
+
             using ValueType = HEAD;
 
             Box<ValueType> _head;
@@ -252,6 +256,11 @@ namespace kstd {
 
     template<typename L, typename M, typename R>
     using Triple = Tuple<L, M, R>;
+
+    template<typename... TYPES>
+    [[nodiscard]] constexpr auto make_tuple(TYPES&&... values) noexcept -> Tuple<TYPES...> {
+        return Tuple<TYPES...>(utils::forward<TYPES>(values)...);
+    }
 }// namespace kstd
 
 // Specializations for std::tuple_size and std::tuple_element to allow structured bindings

@@ -97,17 +97,17 @@ namespace kstd::libc {
 
     template<typename... ARGS>
     constexpr auto fprintf(File* file, const char* format, ARGS&&... args) noexcept {
-        ::fprintf(file, format, utils::forward<ARGS>(args)...);// NOLINT
+        ::fprintf(file, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto printf(const char* format, ARGS&&... args) noexcept {
-        ::printf(format, utils::forward<ARGS>(args)...);// NOLINT
+        ::printf(format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto sprintf(char* buffer, const char* format, ARGS&&... args) noexcept {
-        ::sprintf(buffer, format, utils::forward<ARGS>(args)...);// NOLINT
+        ::sprintf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     // Wide formatting
@@ -115,17 +115,17 @@ namespace kstd::libc {
 
     template<typename... ARGS>
     constexpr auto fwprintf(File* file, const wchar_t* format, ARGS&&... args) noexcept {
-        ::fwprintf(file, format, utils::forward<ARGS>(args)...);// NOLINT
+        ::fwprintf(file, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto wprintf(const wchar_t* format, ARGS&&... args) noexcept {
-        ::wprintf(format, utils::forward<ARGS>(args)...);// NOLINT
+        ::wprintf(format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto wscanf(wchar_t* buffer, const wchar_t* format, ARGS&&... args) noexcept {
-        ::wscanf(buffer, format, utils::forward<ARGS>(args)...);// NOLINT
+        ::wscanf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     // Strings

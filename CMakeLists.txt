@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 project(kstd-core LANGUAGES C CXX)
 
-option(KSTD_CORE_BUILD_TESTS "Build unit tests for kstd-core" ON)
+option(KSTD_CORE_BUILD_TESTS "Build unit tests for kstd-core" TRUE)
 add_compile_definitions(KSTD_CORE_MODULE)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
