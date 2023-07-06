@@ -24,7 +24,7 @@
 namespace kstd::meta {
     // has_add_op
 
-    KSTD_SFINAE_TRAIT(HasAddOp, has_add_op, (is_same<T, Naked<decltype(uneval<T>() + uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasAddOp, has_add_op, (is_same<T, Naked<decltype(val<T>() + val<T>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_add_op<void>);
     static_assert(has_add_op<i32>);
@@ -32,7 +32,7 @@ namespace kstd::meta {
 
     // has_sub_op
 
-    KSTD_SFINAE_TRAIT(HasSubOp, has_sub_op, (is_same<T, Naked<decltype(uneval<T>() - uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasSubOp, has_sub_op, (is_same<T, Naked<decltype(val<T>() - val<T>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_sub_op<void>);
     static_assert(has_sub_op<i32>);
@@ -40,7 +40,7 @@ namespace kstd::meta {
 
     // has_mul_op
 
-    KSTD_SFINAE_TRAIT(HasMulOp, has_mul_op, (is_same<T, Naked<decltype(uneval<T>() * uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasMulOp, has_mul_op, (is_same<T, Naked<decltype(val<T>() * val<T>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_mul_op<void>);
     static_assert(has_mul_op<i32>);
@@ -48,7 +48,7 @@ namespace kstd::meta {
 
     // has_div_op
 
-    KSTD_SFINAE_TRAIT(HasDivOp, has_div_op, (is_same<T, Naked<decltype(uneval<T>() / uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasDivOp, has_div_op, (is_same<T, Naked<decltype(val<T>() / val<T>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_div_op<void>);
     static_assert(has_div_op<i32>);
@@ -56,7 +56,7 @@ namespace kstd::meta {
 
     // has_mod_op
 
-    KSTD_SFINAE_TRAIT(HasModOp, has_mod_op, (is_same<T, Naked<decltype(uneval<T>() % uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasModOp, has_mod_op, (is_same<T, Naked<decltype(val<T>() % val<T>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_mod_op<void>);
     static_assert(has_mod_op<i32>);
@@ -64,7 +64,7 @@ namespace kstd::meta {
 
     // has_shl_op
 
-    KSTD_SFINAE_TRAIT(HasShlOp, has_shl_op, (is_same<T, Naked<decltype(uneval<T>() << uneval<i32>())>>) )
+    KSTD_SFINAE_TRAIT(HasShlOp, has_shl_op, (is_same<T, Naked<decltype(val<T>() << val<i32>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_shl_op<void>);
     static_assert(has_shl_op<i32>);
@@ -72,7 +72,7 @@ namespace kstd::meta {
 
     // has_shr_op
 
-    KSTD_SFINAE_TRAIT(HasShrOp, has_shr_op, (is_same<T, Naked<decltype(uneval<T>() >> uneval<i32>())>>) )
+    KSTD_SFINAE_TRAIT(HasShrOp, has_shr_op, (is_same<T, Naked<decltype(val<T>() >> val<i32>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_shr_op<void>);
     static_assert(has_shr_op<i32>);
@@ -80,7 +80,7 @@ namespace kstd::meta {
 
     // has_and_op
 
-    KSTD_SFINAE_TRAIT(HasAndOp, has_and_op, (is_same<T, Naked<decltype(uneval<T>() & uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasAndOp, has_and_op, (is_same<T, Naked<decltype(val<T>() & val<T>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_and_op<void>);
     static_assert(has_and_op<i32>);
@@ -88,7 +88,7 @@ namespace kstd::meta {
 
     // has_or_op
 
-    KSTD_SFINAE_TRAIT(HasOrOp, has_or_op, (is_same<T, Naked<decltype(uneval<T>() | uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasOrOp, has_or_op, (is_same<T, Naked<decltype(val<T>() | val<T>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_or_op<void>);
     static_assert(has_or_op<i32>);
@@ -96,7 +96,7 @@ namespace kstd::meta {
 
     // has_xor_op
 
-    KSTD_SFINAE_TRAIT(HasXorOp, has_xor_op, (is_same<T, Naked<decltype(uneval<T>() ^ uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasXorOp, has_xor_op, (is_same<T, Naked<decltype(val<T>() ^ val<T>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_xor_op<void>);
     static_assert(has_xor_op<i32>);
@@ -104,7 +104,7 @@ namespace kstd::meta {
 
     // has_inv_op
 
-    KSTD_SFINAE_TRAIT(HasInvOp, has_inv_op, (is_same<T, Naked<decltype(~uneval<T>())>>) )
+    KSTD_SFINAE_TRAIT(HasInvOp, has_inv_op, (is_same<T, Naked<decltype(~val<T>())>>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_inv_op<void>);
     static_assert(has_inv_op<i32>);
@@ -112,7 +112,7 @@ namespace kstd::meta {
 
     // has_equals_op
 
-    KSTD_SFINAE_TRAIT(HasEqualsOp, has_equals_op, (is_same<Naked<decltype(uneval<T>() == uneval<T>())>, bool>) )
+    KSTD_SFINAE_TRAIT(HasEqualsOp, has_equals_op, (is_same<Naked<decltype(val<T>() == val<T>())>, bool>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_equals_op<void>);
     static_assert(has_equals_op<i32>);
@@ -120,7 +120,7 @@ namespace kstd::meta {
 
     // has_not_equals_op
 
-    KSTD_SFINAE_TRAIT(HasNotEqualsOp, has_not_equals_op, (is_same<Naked<decltype(uneval<T>() != uneval<T>())>, bool>) )
+    KSTD_SFINAE_TRAIT(HasNotEqualsOp, has_not_equals_op, (is_same<Naked<decltype(val<T>() != val<T>())>, bool>) )
 #ifdef BUILD_DEBUG
     static_assert(!has_not_equals_op<void>);
     static_assert(has_not_equals_op<i32>);

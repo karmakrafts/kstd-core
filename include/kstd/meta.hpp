@@ -51,7 +51,7 @@ namespace kstd::meta {
     // uneval
 
     template<typename T>
-    [[nodiscard]] constexpr auto uneval() noexcept -> T {
+    [[nodiscard]] constexpr auto val() noexcept -> T {
         throw;// NOLINT: if this is reached at runtime, terminate
     }
 
@@ -203,7 +203,7 @@ namespace kstd::meta {
      */
 
 #if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
-    KSTD_SFINAE_TRAIT(IsDestructible, is_destructible, is_void<decltype(uneval<T>().~T())>)
+    KSTD_SFINAE_TRAIT(IsDestructible, is_destructible, is_void<decltype(val<T>().~T())>)
 #else
     template<typename T>
     struct IsDestructible final {
@@ -460,5 +460,35 @@ namespace kstd::meta {
     static_assert(!is_float<i16>);
     static_assert(is_float<f32>);
     static_assert(!is_float<void>);
+#endif
+
+    // is_convertible
+
+    namespace {
+        template<typename FROM, typename TO>
+        struct IsConvertibleImpl final {
+            constexpr auto operator()() noexcept -> TO {
+                return val<FROM>();
+            }
+        };
+    }// namespace
+
+    template<typename FROM, typename TO>
+    struct IsConvertible : public False {
+        static constexpr bool value =
+                !is_void<FROM> && !is_void<TO> && is_same<decltype(IsConvertibleImpl<FROM, TO>()()), TO>;
+    };
+
+    template<typename FROM, typename TO>
+    constexpr bool is_convertible = IsConvertible<FROM, TO>::value;
+
+#ifdef BUILD_DEBUG
+    static_assert(is_convertible<i32, i32>);
+    static_assert(is_convertible<void*, i32*>);
+    static_assert(is_convertible<i32*, void*>);
+    static_assert(is_convertible<i32*, usize>);
+    static_assert(is_convertible<usize, i32*>);
+    static_assert(!is_convertible<void, i32*>);
+    static_assert(!is_convertible<i32*, void>);
 #endif
 }// namespace kstd::meta
