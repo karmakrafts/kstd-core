@@ -84,8 +84,7 @@ namespace kstd {
 
         template<typename R, typename F>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Option<R> {
-            static_assert(std::is_convertible_v<F, std::function<R(ConstBorrowedValueType)>>,
-                          "Function signature does not match");
+            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
             if(is_empty()) {
                 return {};
             }
