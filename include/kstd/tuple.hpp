@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <type_traits>
+
 #include "box.hpp"
 #include "defaults.hpp"
-#include "meta_ops.hpp"
-#include "meta_pack.hpp"
-#include "meta_types.hpp"
+#include "pack.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 
@@ -34,20 +34,21 @@ namespace kstd {
 
         template<typename HEAD>
         struct TupleInner<HEAD> {
-            static_assert(!meta::is_same<meta::Naked<HEAD>, Void>, "Type cannot be Void");
+            static_assert(!std::is_same_v<std::remove_all_extents_t<HEAD>, Void>, "Type cannot be Void");
 
             using ValueType = HEAD;
+            using Self = TupleInner<ValueType>;
 
             Box<ValueType> _head;
 
-            KSTD_DEFAULT_MOVE_COPY(TupleInner)
+            KSTD_DEFAULT_MOVE_COPY(TupleInner, Self, constexpr)
 
             constexpr TupleInner() noexcept :
                     _head() {
             }
 
             constexpr TupleInner(ValueType head) noexcept :// NOLINT
-                    _head(utils::move_or_copy(head)) {
+                    _head(utils::move_or_pass(head)) {
             }
 
             ~TupleInner() noexcept = default;
@@ -55,14 +56,15 @@ namespace kstd {
 
         template<typename HEAD, typename... TAIL>
         struct TupleInner<HEAD, TAIL...> {
-            static_assert(!meta::is_same<meta::Naked<HEAD>, Void>, "Type cannot be Void");
+            static_assert(!std::is_same_v<std::remove_all_extents_t<HEAD>, Void>, "Type cannot be Void");
 
             using ValueType = HEAD;
+            using Self = TupleInner<ValueType, TAIL...>;
 
             Box<ValueType> _head;
             TupleInner<TAIL...> _tail;
 
-            KSTD_DEFAULT_MOVE_COPY(TupleInner)
+            KSTD_DEFAULT_MOVE_COPY(TupleInner, Self, constexpr)
 
             constexpr TupleInner() noexcept :
                     _head(),
@@ -70,29 +72,39 @@ namespace kstd {
             }
 
             constexpr TupleInner(HEAD head, TAIL&&... tail) noexcept :// NOLINT
-                    _head(utils::move_or_copy(head)),
-                    _tail(utils::forward<TAIL>(tail)...) {
+                    _head(utils::move_or_pass(head)),
+                    _tail(std::forward<TAIL>(tail)...) {
             }
 
             ~TupleInner() noexcept = default;
         };
     }// namespace
 
+    /**
+     * The actual implementation of the tuple type which deduces
+     * the variadic list of types to be constructed from, by using
+     * the given pack of types. This is to allow interfacing with
+     * the pack metaprogramming API.
+     *
+     * @tparam PACK The pack of types to create the tuple from.
+     *  Each type in the given pack will be unrolled into a field
+     *  within the instantiated tuple template type.
+     */
     template<typename PACK>
     struct TupleImpl;
 
     template<typename... TYPES>
-    struct TupleImpl<meta::Pack<TYPES...>> {
+    struct TupleImpl<Pack<TYPES...>> {
         static constexpr usize num_values = sizeof...(TYPES);
 
-        using Types = meta::Pack<TYPES...>;
+        using Types = Pack<TYPES...>;
         using Self [[maybe_unused]] = TupleImpl<Types>;
 
         private:
         TupleInner<TYPES...> _inner;
 
         template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
-        constexpr auto get_head(TupleInner<HEAD, TAIL...>& inner) noexcept -> Box<meta::PackElement<INDEX, Types>>& {
+        constexpr auto get_head(TupleInner<HEAD, TAIL...>& inner) noexcept -> Box<PackElement<INDEX, Types>>& {
             if constexpr(CURRENT == INDEX) {
                 return inner._head;
             }
@@ -103,7 +115,7 @@ namespace kstd {
 
         template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
         constexpr auto get_head(const TupleInner<HEAD, TAIL...>& inner) const noexcept
-                -> const Box<meta::PackElement<INDEX, Types>>& {
+                -> const Box<PackElement<INDEX, Types>>& {
             if constexpr(CURRENT == INDEX) {
                 return inner._head;
             }
@@ -113,7 +125,7 @@ namespace kstd {
         }
 
         template<usize BEGIN, usize END, usize INDEX>
-        constexpr auto slice(TupleImpl<meta::SlicePack<BEGIN, END, Types>>& tuple) const noexcept -> void {
+        constexpr auto slice(TupleImpl<SlicePack<BEGIN, END, Types>>& tuple) const noexcept -> void {
             tuple.template get_head<INDEX>() = get_head<BEGIN + INDEX>();
             if constexpr(INDEX < (END - BEGIN)) {
                 slice<BEGIN, END, INDEX + 1>(tuple);
@@ -123,12 +135,7 @@ namespace kstd {
         template<usize CURRENT, typename HEAD, typename... TAIL>
         constexpr auto equals(const TupleInner<HEAD, TAIL...>& lhs, const TupleInner<HEAD, TAIL...>& rhs,
                               bool& result) const noexcept -> void {
-            if constexpr(meta::has_equals_op<HEAD>) {
-                result = result && (lhs._head == rhs._head);
-            }
-            else {
-                result = result && !(lhs._head != rhs._head);// NOLINT
-            }
+            result = result && (lhs._head == rhs._head);
 
             if constexpr(CURRENT < num_values - 1) {
                 equals<CURRENT + 1, TAIL...>(lhs._tail, rhs._tail, result);
@@ -138,12 +145,7 @@ namespace kstd {
         template<usize CURRENT, typename HEAD, typename... TAIL>
         constexpr auto not_equals(const TupleInner<HEAD, TAIL...>& lhs, const TupleInner<HEAD, TAIL...>& rhs,
                                   bool& result) const noexcept -> void {
-            if constexpr(meta::has_not_equals_op<HEAD>) {
-                result = result || (lhs._head != rhs._head);
-            }
-            else {
-                result = result || !(lhs._head == rhs._head);// NOLINT
-            }
+            result = result || (lhs._head != rhs._head);
 
             if constexpr(CURRENT < num_values - 1) {
                 equals<CURRENT + 1, TAIL...>(lhs._tail, rhs._tail, result);
@@ -151,8 +153,8 @@ namespace kstd {
         }
 
         template<usize NEW_SIZE, usize CURRENT, typename... OTHER_TYPES>
-        constexpr auto concat(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other,
-                              TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>>& result) const noexcept -> void {
+        constexpr auto concat(const TupleImpl<Pack<OTHER_TYPES...>>& other,
+                              TupleImpl<Pack<TYPES..., OTHER_TYPES...>>& result) const noexcept -> void {
             if constexpr(CURRENT < num_values) {
                 result.template get_head<CURRENT>() = get_head<CURRENT>();
             }
@@ -164,15 +166,35 @@ namespace kstd {
             }
         }
 
+        template<typename X>
+        struct GetMutableTransform final {
+            // clang-format off
+            using Type = std::conditional_t<
+                !std::is_pointer_v<X> && !std::is_reference_v<X>,
+                X&,
+                X>;
+            // clang-format on
+        };
+
+        template<typename X>
+        struct GetImmutableTransform final {
+            // clang-format off
+            using Type = std::conditional_t<
+                !std::is_pointer_v<X> && !std::is_reference_v<X>,
+                X const&,
+                X>;
+            // clang-format on
+        };
+
         public:
-        KSTD_DEFAULT_MOVE_COPY(TupleImpl)
+        KSTD_DEFAULT_MOVE_COPY(TupleImpl, Self, constexpr)
 
         constexpr TupleImpl() noexcept :
                 _inner() {
         }
 
         constexpr TupleImpl(TYPES&&... values) noexcept :// NOLINT
-                _inner(utils::forward<TYPES>(values)...) {
+                _inner(std::forward<TYPES>(values)...) {
         }
 
         ~TupleImpl() noexcept = default;
@@ -182,43 +204,44 @@ namespace kstd {
         }
 
         template<usize INDEX>
-        constexpr auto get_head() noexcept -> Box<meta::PackElement<INDEX, Types>>& {
+        [[nodiscard]] constexpr auto get_head() noexcept -> Box<PackElement<INDEX, Types>>& {
             return get_head<INDEX, 0, TYPES...>(_inner);
         }
 
         template<usize INDEX>
-        constexpr auto get_head() const noexcept -> const Box<meta::PackElement<INDEX, Types>>& {
+        [[nodiscard]] constexpr auto get_head() const noexcept -> const Box<PackElement<INDEX, Types>>& {
             return get_head<INDEX, 0, TYPES...>(_inner);
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() noexcept -> meta::PackElement<INDEX, Types>& {
+        [[nodiscard]] constexpr auto get() noexcept -> PackElement<INDEX, TransformPack<GetMutableTransform, Types>> {
             return get_head<INDEX, 0, TYPES...>(_inner).get();
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() const noexcept -> const meta::PackElement<INDEX, Types>& {
+        [[nodiscard]] constexpr auto get() const noexcept
+                -> PackElement<INDEX, TransformPack<GetImmutableTransform, Types>> {
             return get_head<INDEX, 0, TYPES...>(_inner).get();
         }
 
         template<usize BEGIN, usize END>
-        [[nodiscard]] constexpr auto slice() const noexcept -> TupleImpl<meta::SlicePack<BEGIN, END, Types>> {
-            TupleImpl<meta::SlicePack<BEGIN, END, Types>> result;
+        [[nodiscard]] constexpr auto slice() const noexcept -> TupleImpl<SlicePack<BEGIN, END, Types>> {
+            TupleImpl<SlicePack<BEGIN, END, Types>> result;
             slice<BEGIN, END, 0>(result);
             return result;
         }
 
         template<typename... OTHER_TYPES>
-        [[nodiscard]] constexpr auto concat(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept
-                -> TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> {
-            TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> result;
+        [[nodiscard]] constexpr auto concat(const TupleImpl<Pack<OTHER_TYPES...>>& other) const noexcept
+                -> TupleImpl<Pack<TYPES..., OTHER_TYPES...>> {
+            TupleImpl<Pack<TYPES..., OTHER_TYPES...>> result;
             concat<num_values + sizeof...(OTHER_TYPES), 0, OTHER_TYPES...>(other, result);
             return result;
         }
 
         template<typename... OTHER_TYPES>
-        [[nodiscard]] constexpr auto operator+(const TupleImpl<meta::Pack<OTHER_TYPES...>>& other) const noexcept
-                -> TupleImpl<meta::Pack<TYPES..., OTHER_TYPES...>> {
+        [[nodiscard]] constexpr auto operator+(const TupleImpl<Pack<OTHER_TYPES...>>& other) const noexcept
+                -> TupleImpl<Pack<TYPES..., OTHER_TYPES...>> {
             return concat<OTHER_TYPES...>(other);
         }
 
@@ -249,18 +272,13 @@ namespace kstd {
     using PackTuple = TupleImpl<PACK>;
 
     template<typename... TYPES>
-    using Tuple = TupleImpl<meta::Pack<TYPES...>>;
+    using Tuple = TupleImpl<Pack<TYPES...>>;
 
     template<typename L, typename R>
     using Pair = Tuple<L, R>;
 
     template<typename L, typename M, typename R>
     using Triple = Tuple<L, M, R>;
-
-    template<typename... TYPES>
-    [[nodiscard]] constexpr auto make_tuple(TYPES&&... values) noexcept -> Tuple<TYPES...> {
-        return Tuple<TYPES...>(utils::forward<TYPES>(values)...);
-    }
 }// namespace kstd
 
 // Specializations for std::tuple_size and std::tuple_element to allow structured bindings
@@ -269,7 +287,7 @@ namespace std {// @formatter:off
     struct tuple_size<kstd::Tuple<ARGS...>> {// NOLINT
         using value_type = kstd::usize;      // NOLINT: style mismatch
         static constexpr value_type value = sizeof...(ARGS);
-        using type = kstd::meta::Constant<value_type, value>;// NOLINT: style mismatch
+        using type = std::integral_constant<value_type, value>;// NOLINT: style mismatch
 
         [[nodiscard]] constexpr auto operator()() const noexcept -> value_type {
             return value;

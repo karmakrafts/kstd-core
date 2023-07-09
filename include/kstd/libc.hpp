@@ -20,13 +20,13 @@
 #pragma once
 
 #include <algorithm>
+#include <type_traits>
 
 #include "stdio.h" // NOLINT
 #include "stdlib.h"// NOLINT
 #include "string.h"// NOLINT
 #include "wchar.h" // NOLINT
 
-#include "meta.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 
@@ -131,10 +131,10 @@ namespace kstd::libc {
     // Strings
     template<typename T>
     [[nodiscard]] constexpr auto get_string_length(const T* str) noexcept -> usize {
-        if constexpr(meta::is_same<T, char>) {
+        if constexpr(std::is_same_v<T, char>) {
             return strlen(str);
         }
-        else if constexpr(meta::is_same<T, wchar_t>) {
+        else if constexpr(std::is_same_v<T, wchar_t>) {
             return wcslen(str);
         }
         else {
@@ -148,10 +148,10 @@ namespace kstd::libc {
 
     template<typename T>
     constexpr auto copy_string(T* dst, const T* src) noexcept -> void {
-        if constexpr(meta::is_same<T, char>) {
+        if constexpr(std::is_same_v<T, char>) {
             return strcpy(dst, src);
         }
-        else if constexpr(meta::is_same<T, wchar_t>) {
+        else if constexpr(std::is_same_v<T, wchar_t>) {
             return wcscpy(dst, src);
         }
         else {
@@ -164,10 +164,10 @@ namespace kstd::libc {
 
     template<typename T>
     constexpr auto copy_string(T* dst, const T* src, usize size) noexcept -> void {
-        if constexpr(meta::is_same<T, char>) {
+        if constexpr(std::is_same_v<T, char>) {
             strcpy(dst, src);
         }
-        else if constexpr(meta::is_same<T, wchar_t>) {
+        else if constexpr(std::is_same_v<T, wchar_t>) {
             wcscpy(dst, src);
         }
         else {
@@ -180,10 +180,10 @@ namespace kstd::libc {
 
     template<typename T>
     constexpr auto compare_string(const T* lhs, const T* rhs) noexcept -> i32 {
-        if constexpr(meta::is_same<T, char>) {
+        if constexpr(std::is_same_v<T, char>) {
             return strcmp(lhs, rhs);
         }
-        else if constexpr(meta::is_same<T, wchar_t>) {
+        else if constexpr(std::is_same_v<T, wchar_t>) {
             return wcscmp(lhs, rhs);
         }
         else {
@@ -200,10 +200,10 @@ namespace kstd::libc {
 
     template<typename T>
     constexpr auto concat_string(T* dst, const T* src) noexcept -> T* {
-        if constexpr(meta::is_same<T, char>) {
+        if constexpr(std::is_same_v<T, char>) {
             return strcat(dst, src);
         }
-        else if constexpr(meta::is_same<T, wchar_t>) {
+        else if constexpr(std::is_same_v<T, wchar_t>) {
             return wcscat(dst, src);
         }
         else {

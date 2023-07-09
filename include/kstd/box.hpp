@@ -20,44 +20,45 @@
 #pragma once
 
 #include <algorithm>
+#include <type_traits>
 
 #include "assert.hpp"
 #include "defaults.hpp"
 #include "libc.hpp"
-#include "meta.hpp"
-#include "meta_types.hpp"
 #include "utils.hpp"
 #include "void.hpp"
 
 namespace kstd {
-    /*
-     * A Box is a union-friendly way to store a pointer, reference or owned value.
-     * Primarily used for things like kstd::Option and kstd::Result to make the code
-     * a little easier on the eyes and more digestible.
+    /**
+     * A box implementation which is either empty or stores an owned value.
+     * This means that the lifetime of the object contained within the box,
+     * is the same as the box's lifetime itself.
+     *
+     * @tparam T The value type stored within the Box type.
      */
-    template<typename T>
+    template<typename T, typename _ = void>
     struct Box {
-        static_assert(!meta::is_same<meta::Naked<T>, Void>, "Type cannot be Void");
+        static_assert(!std::is_same_v<std::decay_t<T>, Void>, "Type cannot be Void");
 
         using ValueType = T;
-        using Self = Box<ValueType>;
+        using Self = Box<ValueType, _>;
         using BorrowedValueType = ValueType&;
-        using ConstBorrowedValueType = const ValueType&;
+        using ConstBorrowedValueType = ValueType const&;
         using Pointer = ValueType*;
-        using ConstPointer = const ValueType*;
+        using ConstPointer = ValueType const*;
 
         private:
         std::variant<ValueType, Void> _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Box)
+        KSTD_DEFAULT_MOVE_COPY(Box, Self, constexpr)
 
         constexpr Box() noexcept :
                 _value(Void()) {
         }
 
         constexpr Box(ValueType value) noexcept :// NOLINT
-                _value(utils::move_or_copy(value)) {
+                _value(utils::move_or_pass(value)) {
         }
 
         ~Box() noexcept = default;
@@ -109,17 +110,22 @@ namespace kstd {
         }
     };
 
-    /*
-     * Specialization for pointers, always pass-by-value
+    /**
+     * A box implementation which is either empty or stores a pointer value.
+     * This means that the contained value will always be passed by value,
+     * since that most efficient for pointers.
+     *
+     * @tparam T The pointer type stored within the Box type.
      */
     template<typename T>
-    struct Box<T*> final {
-        static_assert(!meta::is_same<meta::Naked<T>, Void>, "Type cannot be Void");
+    struct Box<T, std::enable_if_t<std::is_pointer_v<T>>> final {
+        static_assert(!std::is_same_v<std::decay_t<T>, Void>, "Type cannot be Void");
 
-        using ValueType = T*;
-        using Self = Box<ValueType>;
+        using ValueType = T;
+        using Self = Box<ValueType, std::enable_if_t<std::is_pointer_v<T>>>;
         using BorrowedValueType = ValueType&;
         using ConstBorrowedValueType = ValueType const&;
+        using NakedValueType = std::decay_t<ValueType>;
         using Pointer = ValueType;
         using ConstPointer = const ValueType;
 
@@ -127,7 +133,7 @@ namespace kstd {
         ValueType _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Box)
+        KSTD_DEFAULT_MOVE_COPY(Box, Self, constexpr)
 
         constexpr Box() noexcept :
                 _value(nullptr) {
@@ -186,27 +192,38 @@ namespace kstd {
         }
     };
 
-    /*
-     * Specialization for references, stores a pointer
+    /**
+     * A box implementation which is either empty or stores a reference.
+     * This means that the contained value will always be passed by value,
+     * since that's the only thing that makes sense for references.
+     * This implementation stores a pointer internally, to make this type
+     * trivially copyable;
+     * It takes the address of the given reference upon
+     * construction and dereferences the address when the value is retrieved.
+     * This implies a runtime assertion in debug mode which checks that the
+     * reference is still valid, since we don't the underlying object's lifetime.
+     *
+     * @tparam T The pointer type stored within the Box type.
      */
     template<typename T>
-    struct Box<T&> final {
-        static_assert(!meta::is_same<meta::Naked<T>, Void>, "Type cannot be Void");
+    struct Box<T, std::enable_if_t<std::is_reference_v<T>>> final {
+        static_assert(!std::is_same_v<std::decay_t<T>, Void>, "Type cannot be Void");
 
-        using ValueType = T&;
+        using ValueType = T;
         using BorrowedValueType = T&;
         using ConstBorrowedValueType = const T&;
-        using NakedValueType = meta::Naked<ValueType>;
+        using NakedValueType = std::decay_t<ValueType>;
         using Pointer = NakedValueType*;
         using ConstPointer = const NakedValueType*;
-        using Self = Box<ValueType>;
-        using StoredValueType = meta::If<meta::is_const<ValueType>, ConstPointer, Pointer>;
+        using Self = Box<ValueType, std::enable_if_t<std::is_reference_v<T>>>;
+        using StoredValueType =
+                std::conditional_t<std::is_const_v<std::remove_reference_t<ValueType>>, ConstPointer, Pointer>;
 
         private:
         StoredValueType _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Box)
+        KSTD_DEFAULT_MOVE_COPY(Box, Self, constexpr)
 
         constexpr Box() noexcept :
                 _value(nullptr) {
@@ -264,11 +281,6 @@ namespace kstd {
             return is_empty() || _value != &ref;
         }
     };
-
-    template<typename T>
-    [[nodiscard]] constexpr auto make_box(T value) noexcept -> Box<T> {
-        return Box<T>(utils::move_or_copy(value));
-    }
 #ifdef BUILD_DEBUG
 #endif
 }// namespace kstd

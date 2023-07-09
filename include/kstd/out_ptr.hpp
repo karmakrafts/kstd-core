@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "meta.hpp"
+#include "defaults.hpp"
 
 namespace kstd {
     /*
@@ -38,6 +38,8 @@ namespace kstd {
         ElementType* _new_value;
 
         public:
+        KSTD_NO_MOVE_COPY(OutPtr, Self, constexpr)
+
         explicit constexpr OutPtr(OwnerType& owner) noexcept :
                 _owner(owner),
                 _new_value() {
@@ -49,21 +51,6 @@ namespace kstd {
             }
 
             _owner.reset(_new_value);
-        }
-
-        constexpr OutPtr(const Self& other) noexcept = delete;
-
-        constexpr OutPtr(Self&& other) noexcept :
-                _owner(other._owner),
-                _new_value(other._new_value) {
-        }
-
-        constexpr auto operator=(const Self& other) noexcept -> Self& = delete;
-
-        constexpr auto operator=(Self&& other) noexcept -> Self& {
-            _owner = other._owner;
-            _new_value = other._new_value;
-            return *this;
         }
 
         [[nodiscard]] constexpr operator ElementType**() noexcept {// NOLINT

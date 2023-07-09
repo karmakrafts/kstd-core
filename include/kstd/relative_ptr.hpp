@@ -38,7 +38,7 @@ namespace kstd {
         OffsetType _offset;
 
         public:
-        KSTD_NO_MOVE_COPY(RelativePtr)
+        KSTD_NO_MOVE_COPY(RelativePtr, Self, constexpr)
 
         constexpr RelativePtr() noexcept :
                 _offset(0) {

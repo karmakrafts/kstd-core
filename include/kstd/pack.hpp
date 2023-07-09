@@ -19,11 +19,9 @@
 
 #pragma once
 
-#include "meta.hpp"
+#include <type_traits>
 
-namespace kstd::meta {
-    // Pack
-
+namespace kstd {
     template<typename... TYPES>
     struct Pack final {
         [[maybe_unused]] static constexpr usize size = sizeof...(TYPES);
@@ -50,9 +48,9 @@ namespace kstd::meta {
     using PackElement = typename PackElementImpl<INDEX, PACK>::Type;
 
 #ifdef BUILD_DEBUG
-    static_assert(is_same<PackElement<0, Pack<i32, f32, u32>>, i32>, "Type should be i32");
-    static_assert(is_same<PackElement<1, Pack<i32, f32, u32>>, f32>, "Type should be f32");
-    static_assert(is_same<PackElement<2, Pack<i32, f32, u32>>, u32>, "Type should be u32");
+    static_assert(std::is_same_v<PackElement<0, Pack<i32, f32, u32>>, i32>, "Type should be i32");
+    static_assert(std::is_same_v<PackElement<1, Pack<i32, f32, u32>>, f32>, "Type should be f32");
+    static_assert(std::is_same_v<PackElement<2, Pack<i32, f32, u32>>, u32>, "Type should be u32");
 #endif
 
     // LeftTrimPack
@@ -80,14 +78,15 @@ namespace kstd::meta {
     using LeftTrimPack = typename LeftTrimPackImpl<COUNT, PACK>::Type;
 
 #ifdef BUILD_DEBUG
-    static_assert(is_same<LeftTrimPack<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
-    static_assert(is_same<LeftTrimPack<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<LeftTrimPack<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<LeftTrimPack<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<LeftTrimPack<0, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
+    static_assert(std::is_same_v<LeftTrimPack<0, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
                   "Pack type should be Pack<i32, f32, u64>");
-    static_assert(is_same<LeftTrimPack<1, Pack<i32, f32, u64>>, Pack<f32, u64>>, "Pack type should be Pack<f32, u64>");
-    static_assert(is_same<LeftTrimPack<2, Pack<i32, f32, u64>>, Pack<u64>>, "Pack type should be Pack<u64>");
-    static_assert(is_same<LeftTrimPack<3, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<LeftTrimPack<1, Pack<i32, f32, u64>>, Pack<f32, u64>>,
+                  "Pack type should be Pack<f32, u64>");
+    static_assert(std::is_same_v<LeftTrimPack<2, Pack<i32, f32, u64>>, Pack<u64>>, "Pack type should be Pack<u64>");
+    static_assert(std::is_same_v<LeftTrimPack<3, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
 
     static_assert(LeftTrimPack<0, Pack<i32, f32, u64>>().get_size() == 3, "Pack size should be 3");
     static_assert(LeftTrimPack<1, Pack<i32, f32, u64>>().get_size() == 2, "Pack size should be 2");
@@ -120,14 +119,15 @@ namespace kstd::meta {
     using RightTrimPack = typename RightTrimPackImpl<COUNT, PACK>::Type;
 
 #ifdef BUILD_DEBUG
-    static_assert(is_same<RightTrimPack<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
-    static_assert(is_same<RightTrimPack<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<RightTrimPack<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<RightTrimPack<1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<RightTrimPack<3, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
+    static_assert(std::is_same_v<RightTrimPack<3, Pack<i32, f32, u64>>, Pack<i32, f32, u64>>,
                   "Pack type should be Pack<i32, f32, u64>");
-    static_assert(is_same<RightTrimPack<2, Pack<i32, f32, u64>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<RightTrimPack<1, Pack<i32, f32, u64>>, Pack<i32>>, "Pack type should be Pack<i32>");
-    static_assert(is_same<RightTrimPack<0, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<RightTrimPack<2, Pack<i32, f32, u64>>, Pack<i32, f32>>,
+                  "Pack type should be Pack<i32, f32>");
+    static_assert(std::is_same_v<RightTrimPack<1, Pack<i32, f32, u64>>, Pack<i32>>, "Pack type should be Pack<i32>");
+    static_assert(std::is_same_v<RightTrimPack<0, Pack<i32, f32, u64>>, Pack<>>, "Pack type should be Pack<>");
 
     static_assert(RightTrimPack<0, Pack<i32, f32, u64>>().get_size() == 0, "Pack size should be 0");
     static_assert(RightTrimPack<1, Pack<i32, f32, u64>>().get_size() == 1, "Pack size should be 1");
@@ -155,25 +155,27 @@ namespace kstd::meta {
     using SlicePack = typename SlicePackImpl<BEGIN, END, PACK>::Type;
 
 #ifdef BUILD_DEBUG
-    static_assert(is_same<SlicePack<0, 0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
-    static_assert(is_same<SlicePack<0, 1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
-    static_assert(is_same<SlicePack<1, 2, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<SlicePack<0, 0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<SlicePack<0, 1, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<SlicePack<1, 2, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<SlicePack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
+    static_assert(std::is_same_v<SlicePack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
                   "Pack type should be Pack<i32, f32, u64, u32>");
-    static_assert(is_same<SlicePack<0, 2, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64>>,
+    static_assert(std::is_same_v<SlicePack<0, 2, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64>>,
                   "Pack type should be Pack<i32, f32, u64>");
-    static_assert(is_same<SlicePack<0, 1, Pack<i32, f32, u64, u32>>, Pack<i32, f32>>,
+    static_assert(std::is_same_v<SlicePack<0, 1, Pack<i32, f32, u64, u32>>, Pack<i32, f32>>,
                   "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<SlicePack<0, 0, Pack<i32, f32, u64, u32>>, Pack<i32>>, "Pack type should be Pack<i32>");
+    static_assert(std::is_same_v<SlicePack<0, 0, Pack<i32, f32, u64, u32>>, Pack<i32>>,
+                  "Pack type should be Pack<i32>");
 
-    static_assert(is_same<SlicePack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
+    static_assert(std::is_same_v<SlicePack<0, 3, Pack<i32, f32, u64, u32>>, Pack<i32, f32, u64, u32>>,
                   "Pack type should be Pack<i32, f32, u64, u32>");
-    static_assert(is_same<SlicePack<1, 3, Pack<i32, f32, u64, u32>>, Pack<f32, u64, u32>>,
+    static_assert(std::is_same_v<SlicePack<1, 3, Pack<i32, f32, u64, u32>>, Pack<f32, u64, u32>>,
                   "Pack type should be Pack<f32, u64, u32>");
-    static_assert(is_same<SlicePack<2, 3, Pack<i32, f32, u64, u32>>, Pack<u64, u32>>,
+    static_assert(std::is_same_v<SlicePack<2, 3, Pack<i32, f32, u64, u32>>, Pack<u64, u32>>,
                   "Pack type should be Pack<u64, u32>");
-    static_assert(is_same<SlicePack<3, 3, Pack<i32, f32, u64, u32>>, Pack<u32>>, "Pack type should be Pack<u32>");
+    static_assert(std::is_same_v<SlicePack<3, 3, Pack<i32, f32, u64, u32>>, Pack<u32>>,
+                  "Pack type should be Pack<u32>");
 
     static_assert(SlicePack<0, 3, Pack<i32, f32, u64, u32>>().get_size() == 4, "Pack size should be 4");
     static_assert(SlicePack<0, 2, Pack<i32, f32, u64, u32>>().get_size() == 3, "Pack size should be 3");
@@ -195,11 +197,13 @@ namespace kstd::meta {
     using ConcatPacks = typename ConcatPacksImpl<PACK_A, PACK_B>::Type;
 
 #ifdef BUILD_DEBUG
-    static_assert(is_same<ConcatPacks<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
+    static_assert(std::is_same_v<ConcatPacks<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
 
-    static_assert(is_same<ConcatPacks<Pack<>, Pack<i32, f32>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<ConcatPacks<Pack<i32, f32>, Pack<>>, Pack<i32, f32>>, "Pack type should be Pack<i32, f32>");
-    static_assert(is_same<ConcatPacks<Pack<i32, f32>, Pack<i32, f32>>, Pack<i32, f32, i32, f32>>,
+    static_assert(std::is_same_v<ConcatPacks<Pack<>, Pack<i32, f32>>, Pack<i32, f32>>,
+                  "Pack type should be Pack<i32, f32>");
+    static_assert(std::is_same_v<ConcatPacks<Pack<i32, f32>, Pack<>>, Pack<i32, f32>>,
+                  "Pack type should be Pack<i32, f32>");
+    static_assert(std::is_same_v<ConcatPacks<Pack<i32, f32>, Pack<i32, f32>>, Pack<i32, f32, i32, f32>>,
                   "Pack type should be Pack<i32, f32, i32, f32>");
 #endif
 
@@ -215,4 +219,4 @@ namespace kstd::meta {
 
     template<template<typename> typename TRANSFORM, typename... TYPES>//
     using TransformPack = typename TransformPackImpl<TRANSFORM, TYPES...>::Type;
-}// namespace kstd::meta
+}// namespace kstd

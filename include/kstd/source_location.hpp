@@ -29,7 +29,7 @@ namespace kstd {
         usize _line;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(SourceLocation)
+        KSTD_DEFAULT_MOVE_COPY(SourceLocation, SourceLocation, constexpr)
 
         constexpr SourceLocation(const char* file, const char* function, usize line) noexcept :// NOLINT
                 _file(file),

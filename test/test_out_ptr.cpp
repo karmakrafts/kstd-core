@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 #include <kstd/out_ptr.hpp>
+#include <kstd/types.hpp>
 #include <memory>
 
 // Define function with C-linkage for testing

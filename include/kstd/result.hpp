@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include <type_traits>
+
 #include "assert.hpp"
 #include "box.hpp"
 #include "defaults.hpp"
 #include "libc.hpp"
-#include "meta.hpp"
-#include "meta_types.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 #include "void.hpp"
@@ -32,16 +32,17 @@
 namespace kstd {
     template<typename E>
     struct Error final {
-        using ErrorType [[maybe_unused]] = E;
+        using ErrorType = E;
+        using Self = Error<ErrorType>;
 
         private:
         ErrorType _error;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Error)
+        KSTD_DEFAULT_MOVE_COPY(Error, Self, constexpr)
 
-        explicit Error(ErrorType error) noexcept :
-                _error(utils::move_or_copy(error)) {
+        explicit constexpr Error(ErrorType error) noexcept :
+                _error(utils::move_or_pass(error)) {
         }
 
         ~Error() noexcept = default;
@@ -57,10 +58,10 @@ namespace kstd {
 
     template<typename T, typename E = std::string_view>
     struct Result final {
-        static_assert(!meta::is_same<meta::Naked<T>, Void>, "Type cannot be Void");
+        static_assert(!std::is_same_v<std::remove_all_extents_t<T>, Void>, "Type cannot be Void");
 
-        using Self [[maybe_unused]] = Result<T, E>;
-        using ValueType = meta::If<meta::is_void<T>, u8, T>;
+        using Self = Result<T, E>;
+        using ValueType = std::conditional_t<std::is_void_v<T>, u8, T>;
         using ErrorType = Error<E>;
         using BoxedValueType = Box<ValueType>;
         using BorrowedValueType = typename BoxedValueType::BorrowedValueType;
@@ -72,18 +73,18 @@ namespace kstd {
         std::variant<BoxedValueType, ErrorType, Void> _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Result)
+        KSTD_DEFAULT_MOVE_COPY(Result, Self, constexpr)
 
         constexpr Result() noexcept :
                 _value(Void()) {
         }
 
-        explicit constexpr Result(ValueType value) noexcept :// NOLINT
-                _value(BoxedValueType(utils::move_or_copy(value))) {
+        constexpr Result(ValueType value) noexcept :// NOLINT
+                _value(BoxedValueType(utils::move_or_pass(value))) {
         }
 
-        explicit constexpr Result(ErrorType error) noexcept :// NOLINT
-                _value(utils::move(error)) {
+        constexpr Result(ErrorType error) noexcept :// NOLINT
+                _value(utils::move_or_pass(error)) {
         }
 
         ~Result() noexcept = default;
@@ -93,7 +94,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto is_ok() const noexcept -> bool {
-            if constexpr(meta::is_void<T>) {
+            if constexpr(std::is_void_v<T>) {
                 return is_empty();
             }
             else {
@@ -108,7 +109,7 @@ namespace kstd {
         [[nodiscard]] constexpr auto get() noexcept -> BorrowedValueType {
             assert_true(is_ok());
 
-            if constexpr(!meta::is_void<T>) {
+            if constexpr(!std::is_void_v<T>) {
                 return std::get<BoxedValueType>(_value).get();
             }
         }
@@ -116,7 +117,7 @@ namespace kstd {
         [[nodiscard]] constexpr auto get() const noexcept -> ConstBorrowedValueType {
             assert_true(is_ok());
 
-            if constexpr(!meta::is_void<T>) {
+            if constexpr(!std::is_void_v<T>) {
                 return std::get<BoxedValueType>(_value).get();
             }
         }
@@ -150,7 +151,7 @@ namespace kstd {
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
             assert_true(is_error());
-            return Result<TT, E>(utils::move(std::get<ErrorType>(_value)));
+            return Result<TT, E>(std::move(std::get<ErrorType>(_value)));
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
@@ -177,18 +178,8 @@ namespace kstd {
     template<typename T, typename E = std::string_view>
     Result(T) -> Result<T, E>;
 
-    template<typename T, typename E = std::string_view>
-    [[nodiscard]] constexpr auto make_ok(T value) noexcept -> Result<T, E> {
-        return Result<T, E>(utils::move_or_copy(value));
-    }
-
-    template<typename T, typename E = std::string_view>
-    [[nodiscard]] constexpr auto make_error(E error) noexcept -> Result<T, E> {
-        return Result<T, E>(Error<E>(utils::move_or_copy(error)));
-    }
-
 #ifdef BUILD_DEBUG
-    static_assert(meta::is_same<typename Result<void>::ValueType, u8>);
-    static_assert(meta::is_same<typename Result<void>::ErrorType, Error<std::string_view>>);
+    static_assert(std::is_same_v<typename Result<void>::ValueType, u8>);
+    static_assert(std::is_same_v<typename Result<void>::ErrorType, Error<std::string_view>>);
 #endif
 }// namespace kstd

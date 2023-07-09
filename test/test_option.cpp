@@ -21,7 +21,7 @@
 #include <kstd/option.hpp>
 
 TEST(kstd_Option, TestEmpty) {
-    auto opt = kstd::make_empty<std::string_view>();
+    auto opt = kstd::Option<std::string_view>();
     ASSERT_FALSE(opt);
 }
 
@@ -29,7 +29,7 @@ TEST(kstd_Option, TestValue) {
     using namespace std::string_view_literals;
     constexpr auto str = "Hello World!"sv;
 
-    auto opt = kstd::make_value(str);
+    auto opt = kstd::Option(str);
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, str);
 }
@@ -38,72 +38,111 @@ TEST(kstd_Option, TestValueAssignment) {
     using namespace std::string_view_literals;
     constexpr auto str = "Hello World!"sv;
 
-    auto opt = kstd::make_empty<std::string_view>();
+    auto opt = kstd::Option<std::string_view>();
     ASSERT_FALSE(opt);
 
-    opt = kstd::make_value(str);
+    opt = {str};
     ASSERT_TRUE(opt);
     ASSERT_EQ(opt.get(), str);
 }
 
 TEST(kstd_Option, TestPointer) {
     using namespace std::string_view_literals;
-    constexpr auto str = "Hello World!"sv;
+    auto str = "Hello World!"sv;
 
-    auto opt = kstd::make_value(&str);
+    auto opt = kstd::Option(&str);
     ASSERT_TRUE(opt);
     ASSERT_EQ(**opt, str);
 }
 
 TEST(kstd_Option, TestPointerAssignment) {
     using namespace std::string_view_literals;
-    constexpr auto str = "Hello World!"sv;
+    auto str = "Hello World!"sv;
 
-    auto opt = kstd::make_empty<const std::string_view*>();
+    auto opt = kstd::Option<std::string_view*>();
     ASSERT_FALSE(opt);
 
-    opt = kstd::make_value(&str);
+    opt = {&str};
+    ASSERT_TRUE(opt);
+    ASSERT_EQ(opt.get(), &str);
+}
+
+TEST(kstd_Option, TestConstPointer) {
+    using namespace std::string_view_literals;
+    const auto str = "Hello World!"sv;
+
+    auto opt = kstd::Option(&str);
+    ASSERT_TRUE(opt);
+    ASSERT_EQ(**opt, str);
+}
+
+TEST(kstd_Option, TestConstPointerAssignment) {
+    using namespace std::string_view_literals;
+    const auto str = "Hello World!"sv;
+
+    auto opt = kstd::Option<const std::string_view*>();
+    ASSERT_FALSE(opt);
+
+    opt = {&str};
     ASSERT_TRUE(opt);
     ASSERT_EQ(opt.get(), &str);
 }
 
 TEST(kstd_Option, TestReference) {
     using namespace std::string_view_literals;
-    constexpr auto str = "Hello World!"sv;
-
-    auto opt = kstd::make_value<const std::string_view&>(str);
+    auto str = "Hello World!"sv;
+    auto opt = kstd::Option<std::string_view&>(str);
     ASSERT_TRUE(opt);
 }
 
 TEST(kstd_Option, TestReferenceAssignment) {
     using namespace std::string_view_literals;
-    constexpr auto str = "Hello World!"sv;
+    auto str = "Hello World!"sv;
 
-    auto opt = kstd::make_empty<const std::string_view&>();
+    auto opt = kstd::Option<std::string_view&>();
     ASSERT_FALSE(opt);
 
-    opt = kstd::make_value<const std::string_view&>(str);
+    opt = {str};
+    ASSERT_TRUE(opt);
+    ASSERT_EQ(opt.get(), str);
+}
+
+TEST(kstd_Option, TestConstReference) {
+    using namespace std::string_view_literals;
+    const auto str = "Hello World!"sv;
+    auto opt = kstd::Option<const std::string_view&>(str);
+    ASSERT_TRUE(opt);
+}
+
+TEST(kstd_Option, TestConstReferenceAssignment) {
+    using namespace std::string_view_literals;
+    const auto str = "Hello World!"sv;
+
+    auto opt = kstd::Option<const std::string_view&>();
+    ASSERT_FALSE(opt);
+
+    opt = {str};
     ASSERT_TRUE(opt);
     ASSERT_EQ(opt.get(), str);
 }
 
 TEST(kstd_Option, TestNonZero) {
     using namespace std::string_view_literals;
-    constexpr auto str = "Hello World!"sv;
+    const auto str = "Hello World!"sv;
 
-    auto opt = kstd::make_value(kstd::make_non_zero(&str));
+    auto opt = kstd::Option(kstd::NonZero(&str));
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);
 }
 
 TEST(kstd_Option, TestNonZeroAssignment) {
     using namespace std::string_view_literals;
-    constexpr auto str = "Hello World!"sv;
+    const auto str = "Hello World!"sv;
 
-    auto opt = kstd::make_empty<kstd::NonZero<const std::string_view*>>();
+    auto opt = kstd::Option<kstd::NonZero<const std::string_view*>>();
     ASSERT_FALSE(opt);
 
-    opt = kstd::make_value(kstd::make_non_zero(&str));
+    opt = {kstd::NonZero(&str)};
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);
 }

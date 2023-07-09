@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include <type_traits>
+
 #include "assert.hpp"
 #include "box.hpp"
 #include "defaults.hpp"
 #include "libc.hpp"
-#include "meta.hpp"
-#include "meta_types.hpp"
 #include "non_zero.hpp"
 #include "types.hpp"
 #include "utils.hpp"
@@ -32,10 +32,10 @@
 namespace kstd {
     template<typename T>
     struct Option final {
-        static_assert(!meta::is_same<meta::Naked<T>, Void>, "Type cannot be Void");
+        static_assert(!std::is_same_v<std::decay_t<T>, Void>, "Type cannot be Void");
 
         using ValueType = T;
-        using Self [[maybe_unused]] = Option<ValueType>;
+        using Self = Option<ValueType>;
         using BoxedValueType = Box<ValueType>;
         using BorrowedValueType = typename BoxedValueType::BorrowedValueType;
         using ConstBorrowedValueType = typename BoxedValueType::ConstBorrowedValueType;
@@ -46,14 +46,14 @@ namespace kstd {
         BoxedValueType _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Option)
+        KSTD_DEFAULT_MOVE_COPY(Option, Self, constexpr)
 
         constexpr Option() noexcept :
                 _value() {
         }
 
         constexpr Option(ValueType value) noexcept :// NOLINT
-                _value(utils::move_or_copy(value)) {
+                _value(utils::move_or_pass(value)) {
         }
 
         ~Option() noexcept = default;
@@ -97,26 +97,24 @@ namespace kstd {
 
     template<typename T>
     struct Option<NonZero<T>> final {
+        using NonZeroValueType = NonZero<T>;
         using ValueType = T;
-        using NonZeroValueType = NonZero<ValueType>;
-        using Self [[maybe_unused]] = Option<NonZeroValueType>;
-        using BorrowedValueType = NonZeroValueType&;
-        using ConstBorrowedValueType = const NonZeroValueType&;
-        using Pointer = NonZeroValueType*;
-        using ConstPointer = const NonZeroValueType*;
+        using Self = Option<NonZeroValueType>;
+        using Pointer = ValueType*;
+        using ConstPointer = const ValueType*;
 
         private:
         NonZeroValueType _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Option)
+        KSTD_DEFAULT_MOVE_COPY(Option, Self, constexpr)
 
         constexpr Option() noexcept :
                 _value() {
         }
 
-        constexpr Option(NonZeroValueType value) noexcept :// NOLINT
-                _value(utils::move(value)) {
+        constexpr Option(ValueType value) noexcept :// NOLINT
+                _value(value) {
         }
 
         ~Option() noexcept = default;
@@ -129,42 +127,16 @@ namespace kstd {
             return !_value.is_empty();
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> BorrowedValueType {
-            return _value;
-        }
-
-        [[nodiscard]] constexpr auto get() const noexcept -> ConstBorrowedValueType {
-            return _value;
+        [[nodiscard]] constexpr auto get() const noexcept -> ValueType {
+            return _value.get();
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
             return has_value();
         }
 
-        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ValueType {
             return get();
-        }
-
-        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
-            return get();
-        }
-
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
-            return &get();
-        }
-
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
-            return &get();
         }
     };
-
-    template<typename T>
-    [[nodiscard]] constexpr auto make_empty() noexcept -> Option<T> {
-        return Option<T>();
-    }
-
-    template<typename T>
-    [[nodiscard]] constexpr auto make_value(T value) noexcept -> Option<T> {
-        return Option<T>(utils::move_or_copy(value));
-    }
 }// namespace kstd

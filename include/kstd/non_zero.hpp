@@ -21,15 +21,20 @@
 
 #include "assert.hpp"
 #include "defaults.hpp"
-#include "meta.hpp"
 
 namespace kstd {
+    /**
+     * Non-zero can be used for either runtime validation of pointers or parameters,
+     * as well as an optimization in conjunction with types like kstd::Option in certain cases.
+     *
+     * @tparam T The type of integer or pointer to be stored within the non-zero type.
+     */
     template<typename T>
     struct NonZero final {
-        static_assert(meta::is_integral<T> || meta::is_ptr<T>, "Type is neither an integer nor a pointer");
+        static_assert(std::is_integral_v<T> || std::is_pointer_v<T>, "Type is neither an integer nor a pointer");
 
         using ValueType = T;
-        using Self [[maybe_unused]] = NonZero<T>;
+        using Self = NonZero<T>;
         using BorrowedValueType = ValueType&;
         using ConstBorrowedValueType = const ValueType&;
 
@@ -37,7 +42,7 @@ namespace kstd {
         ValueType _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(NonZero)
+        KSTD_DEFAULT_MOVE_COPY(NonZero, Self, constexpr)
 
         constexpr NonZero() noexcept :
                 _value(static_cast<ValueType>(0)) {
@@ -68,9 +73,4 @@ namespace kstd {
             return _value;
         }
     };
-
-    template<typename T>
-    [[nodiscard]] constexpr auto make_non_zero(T value) noexcept -> NonZero<T> {
-        return NonZero<T>(value);
-    }
 }// namespace kstd

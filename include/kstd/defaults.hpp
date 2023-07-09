@@ -23,22 +23,22 @@
 
 // clang-format off
 // NOLINTBEGIN
-#define KSTD_DEFAULT_MOVE(n) inline n(n&&) noexcept = default; \
-inline auto operator =(n&&) noexcept -> n& = default;
+#define KSTD_DEFAULT_MOVE(n, t, ...) __VA_ARGS__ n(t&&) noexcept = default; \
+__VA_ARGS__ auto operator =(t&&) noexcept -> t& = default;
 
-#define KSTD_DEFAULT_COPY(n) inline n(const n&) noexcept = default; \
-inline auto operator =(const n&) noexcept -> n& = default;
+#define KSTD_DEFAULT_COPY(n, t, ...) __VA_ARGS__ n(const t&) noexcept = default; \
+__VA_ARGS__ auto operator =(const t&) noexcept -> t& = default;
 
-#define KSTD_DEFAULT_MOVE_COPY(n) KSTD_DEFAULT_MOVE(n) \
-KSTD_DEFAULT_COPY(n)
+#define KSTD_DEFAULT_MOVE_COPY(n, t, ...) KSTD_DEFAULT_MOVE(n, t, __VA_ARGS__) \
+KSTD_DEFAULT_COPY(n, t, __VA_ARGS__)
 
-#define KSTD_NO_MOVE(n) inline n(n&&) noexcept = delete; \
-inline auto operator =(n&&) noexcept -> n& = delete;
+#define KSTD_NO_MOVE(n, t, ...) __VA_ARGS__ n(t&&) noexcept = delete; \
+__VA_ARGS__ auto operator =(t&&) noexcept -> t& = delete;
 
-#define KSTD_NO_COPY(n) inline n(const n&) noexcept = delete; \
-inline auto operator =(const n&) noexcept -> n& = delete;
+#define KSTD_NO_COPY(n, t, ...) __VA_ARGS__ n(const t&) noexcept = delete; \
+__VA_ARGS__ auto operator =(const t&) noexcept -> t& = delete;
 
-#define KSTD_NO_MOVE_COPY(n) KSTD_NO_MOVE(n) \
-KSTD_NO_COPY(n)
+#define KSTD_NO_MOVE_COPY(n, t, ...) KSTD_NO_MOVE(n, t, __VA_ARGS__) \
+KSTD_NO_COPY(n, t, __VA_ARGS__)
 // NOLINTEND
 // clang-format on
