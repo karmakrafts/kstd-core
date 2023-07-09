@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <functional>
 #include <type_traits>
 
 #include "assert.hpp"
@@ -132,8 +133,10 @@ namespace kstd {
 
         template<typename R, typename F>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, ErrorType> {
+            static_assert(std::is_convertible_v<F, std::function<R(ConstBorrowedValueType)>>,
+                          "Function signature does not match");
             if(is_ok()) {
-                return {function(get())};
+                return function(get());
             }
             if(is_error()) {
                 return forward_error<R>();
@@ -243,6 +246,7 @@ namespace kstd {
 
     template<typename R, typename F>
     [[nodiscard]] constexpr auto try_to(F&& function) noexcept -> Result<R> {
+        static_assert(std::is_convertible_v<F, std::function<R()>>, "Function return type does not match");
         try {
             if constexpr(std::is_void_v<R>) {
                 function();
