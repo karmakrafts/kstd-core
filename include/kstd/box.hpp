@@ -108,6 +108,10 @@ namespace kstd {
         [[nodiscard]] constexpr auto operator!=(const ValueType& value) const noexcept -> bool {
             return is_empty() || std::get<ValueType>(_value) != value;
         }
+
+        [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
+            return !is_empty();
+        }
     };
 
     /**
@@ -187,6 +191,10 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto operator!=(ConstPointer pointer) const noexcept -> bool {
             return is_empty() || _value != pointer;
+        }
+
+        [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
+            return !is_empty();
         }
     };
 
@@ -277,6 +285,10 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto operator!=(ValueType ref) const noexcept -> bool {
             return is_empty() || _value != &ref;
+        }
+
+        [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
+            return !is_empty();
         }
     };
 #ifdef BUILD_DEBUG
