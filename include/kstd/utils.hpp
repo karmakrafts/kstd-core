@@ -25,17 +25,6 @@
 #include <utility>
 
 namespace kstd::utils {
-    template<typename T>
-    [[nodiscard]] constexpr auto move_or_pass(T&& value) noexcept
-            -> std::conditional_t<std::is_reference_v<T> || std::is_pointer_v<T>, T, std::remove_reference_t<T>&&> {
-        if constexpr(std::is_reference_v<T> || std::is_pointer_v<T>) {
-            return value;
-        }
-        else {
-            return std::move(std::forward<T>(value));
-        }
-    }
-
     /**
      * Transmutes the type of the given value while retaining the exact memory layout.
      * This is equal to performing an std::bitcast, but since that function is not portable

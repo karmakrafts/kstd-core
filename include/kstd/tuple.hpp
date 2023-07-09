@@ -48,7 +48,7 @@ namespace kstd {
             }
 
             constexpr TupleInner(ValueType head) noexcept :// NOLINT
-                    _head(utils::move_or_pass(head)) {
+                    _head(std::forward<ValueType>(head)) {
             }
 
             ~TupleInner() noexcept = default;
@@ -72,7 +72,7 @@ namespace kstd {
             }
 
             constexpr TupleInner(HEAD head, TAIL&&... tail) noexcept :// NOLINT
-                    _head(utils::move_or_pass(head)),
+                    _head(std::forward<ValueType>(head)),
                     _tail(std::forward<TAIL>(tail)...) {
             }
 

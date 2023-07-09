@@ -36,14 +36,14 @@ TEST(kstd_Option, TestValue) {
 
 TEST(kstd_Option, TestValueAssignment) {
     using namespace std::string_view_literals;
-    constexpr auto str = "Hello World!"sv;
+    auto str = "Hello World!"sv;
 
     auto opt = kstd::Option<std::string_view>();
     ASSERT_FALSE(opt);
 
     opt = {str};
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.get(), str);
+    ASSERT_EQ(*opt, str);
 }
 
 TEST(kstd_Option, TestPointer) {
@@ -64,7 +64,7 @@ TEST(kstd_Option, TestPointerAssignment) {
 
     opt = {&str};
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.get(), &str);
+    ASSERT_EQ(*opt, &str);
 }
 
 TEST(kstd_Option, TestConstPointer) {
@@ -85,7 +85,7 @@ TEST(kstd_Option, TestConstPointerAssignment) {
 
     opt = {&str};
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.get(), &str);
+    ASSERT_EQ(*opt, &str);
 }
 
 TEST(kstd_Option, TestReference) {
@@ -104,7 +104,7 @@ TEST(kstd_Option, TestReferenceAssignment) {
 
     opt = {str};
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.get(), str);
+    ASSERT_EQ(*opt, str);
 }
 
 TEST(kstd_Option, TestConstReference) {
@@ -123,7 +123,7 @@ TEST(kstd_Option, TestConstReferenceAssignment) {
 
     opt = {str};
     ASSERT_TRUE(opt);
-    ASSERT_EQ(opt.get(), str);
+    ASSERT_EQ(*opt, str);
 }
 
 TEST(kstd_Option, TestNonZero) {

@@ -53,7 +53,7 @@ namespace kstd {
         }
 
         constexpr Option(ValueType value) noexcept :// NOLINT
-                _value(utils::move_or_pass(value)) {
+                _value(std::forward<ValueType>(value)) {
         }
 
         ~Option() noexcept = default;
@@ -92,51 +92,6 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return &get();
-        }
-    };
-
-    template<typename T>
-    struct Option<NonZero<T>> final {
-        using NonZeroValueType = NonZero<T>;
-        using ValueType = T;
-        using Self = Option<NonZeroValueType>;
-        using Pointer = ValueType*;
-        using ConstPointer = const ValueType*;
-
-        private:
-        NonZeroValueType _value;
-
-        public:
-        KSTD_DEFAULT_MOVE_COPY(Option, Self, constexpr)
-
-        constexpr Option() noexcept :
-                _value() {
-        }
-
-        constexpr Option(ValueType value) noexcept :// NOLINT
-                _value(value) {
-        }
-
-        ~Option() noexcept = default;
-
-        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            return _value.is_empty();
-        }
-
-        [[nodiscard]] constexpr auto has_value() const noexcept -> bool {
-            return !_value.is_empty();
-        }
-
-        [[nodiscard]] constexpr auto get() const noexcept -> ValueType {
-            return _value.get();
-        }
-
-        [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
-            return has_value();
-        }
-
-        [[nodiscard]] constexpr auto operator*() const noexcept -> ValueType {
-            return get();
         }
     };
 }// namespace kstd

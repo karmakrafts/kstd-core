@@ -58,7 +58,7 @@ namespace kstd {
         }
 
         constexpr Box(ValueType value) noexcept :// NOLINT
-                _value(utils::move_or_pass(value)) {
+                _value(std::move(value)) {
         }
 
         ~Box() noexcept = default;

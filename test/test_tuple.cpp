@@ -25,13 +25,13 @@ TEST(kstd_Tuple, TestValues) {
     kstd::Pair<kstd::i32, kstd::f32> pair(1337, 3.141F);
 
     // Template get<>
-    const auto& a = pair.get<0>();
-    static_assert(std::is_same_v<std::decay_t<decltype(a)>, kstd::i32>);
-    ASSERT_EQ(a, 1337);
+    const auto& ref_a = pair.get<0>();
+    static_assert(std::is_same_v<std::decay_t<decltype(ref_a)>, kstd::i32>);
+    ASSERT_EQ(ref_a, 1337);
 
-    const auto& b = pair.get<1>();
-    static_assert(std::is_same_v<std::decay_t<decltype(b)>, kstd::f32>);
-    ASSERT_EQ(b, 3.141F);
+    const auto& ref_b = pair.get<1>();
+    static_assert(std::is_same_v<std::decay_t<decltype(ref_b)>, kstd::f32>);
+    ASSERT_EQ(ref_b, 3.141F);
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
@@ -77,18 +77,18 @@ TEST(kstd_Tuple, TestValues) {
 }
 
 TEST(kstd_Tuple, TestReferences) {
-    kstd::i32 valueA = 1337;
-    kstd::f32 valueB = 3.141F;
-    kstd::Pair<kstd::i32&, kstd::f32&> pair(valueA, valueB);
+    kstd::i32 value_a = 1337;
+    kstd::f32 value_b = 3.141F;
+    kstd::Pair<kstd::i32&, kstd::f32&> pair(value_a, value_b);
 
     // Template get<>
     const auto x_a = pair.get<0>();
     static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, kstd::i32>);
-    ASSERT_EQ(valueA, 1337);
+    ASSERT_EQ(value_a, 1337);
 
     const auto x_b = pair.get<1>();
     static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, kstd::f32>);
-    ASSERT_EQ(valueB, 3.141F);
+    ASSERT_EQ(value_b, 3.141F);
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
@@ -102,12 +102,12 @@ TEST(kstd_Tuple, TestReferences) {
     ASSERT_EQ(y, 3.141F);
 
     // Equality
-    kstd::Pair<kstd::i32&, kstd::f32&> pair2(valueA, valueB);
+    kstd::Pair<kstd::i32&, kstd::f32&> pair2(value_a, value_b);
     ASSERT_TRUE(pair == pair2);
 
-    kstd::i32 valueA2 = 13;
-    kstd::f32 valueB2 = 3.1F;
-    kstd::Pair<kstd::i32&, kstd::f32&> pair3(valueA2, valueB2);
+    kstd::i32 value_a2 = 13;
+    kstd::f32 value_b2 = 3.1F;
+    kstd::Pair<kstd::i32&, kstd::f32&> pair3(value_a2, value_b2);
     ASSERT_TRUE(pair != pair3);
 
     // Concat
@@ -127,23 +127,23 @@ TEST(kstd_Tuple, TestReferences) {
     qx = 200;
     qy = 6.21F;
 
-    ASSERT_EQ(valueA, 200);
-    ASSERT_EQ(valueB, 6.21F);
+    ASSERT_EQ(value_a, 200);
+    ASSERT_EQ(value_b, 6.21F);
 }
 
 TEST(kstd_Tuple, TestConstReferences) {
-    kstd::i32 valueA = 1337;
-    kstd::f32 valueB = 3.141F;
-    kstd::Pair<const kstd::i32&, const kstd::f32&> pair(valueA, valueB);
+    kstd::i32 value_a = 1337;
+    kstd::f32 value_b = 3.141F;
+    kstd::Pair<const kstd::i32&, const kstd::f32&> pair(value_a, value_b);
 
     // Template get<>
     const auto& x_a = pair.get<0>();
     static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, kstd::i32>);
-    ASSERT_EQ(valueA, 1337);
+    ASSERT_EQ(value_a, 1337);
 
     const auto& x_b = pair.get<1>();
     static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, kstd::f32>);
-    ASSERT_EQ(valueB, 3.141F);
+    ASSERT_EQ(value_b, 3.141F);
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
@@ -157,12 +157,12 @@ TEST(kstd_Tuple, TestConstReferences) {
     ASSERT_EQ(y, 3.141F);
 
     // Equality
-    kstd::Pair<const kstd::i32&, const kstd::f32&> pair2(valueA, valueB);
+    kstd::Pair<const kstd::i32&, const kstd::f32&> pair2(value_a, value_b);
     ASSERT_TRUE(pair == pair2);
 
-    kstd::i32 valueA2 = 13;
-    kstd::f32 valueB2 = 3.1F;
-    kstd::Pair<const kstd::i32&, const kstd::f32&> pair3(valueA2, valueB2);
+    kstd::i32 value_a2 = 13;
+    kstd::f32 value_b2 = 3.1F;
+    kstd::Pair<const kstd::i32&, const kstd::f32&> pair3(value_a2, value_b2);
     ASSERT_TRUE(pair != pair3);
 
     // Concat
@@ -181,18 +181,18 @@ TEST(kstd_Tuple, TestConstReferences) {
 }
 
 TEST(kstd_Tuple, TestPointers) {
-    kstd::i32 valueA = 1337;
-    kstd::f32 valueB = 3.141F;
-    kstd::Pair<kstd::i32*, kstd::f32*> pair(&valueA, &valueB);
+    kstd::i32 value_a = 1337;
+    kstd::f32 value_b = 3.141F;
+    kstd::Pair<kstd::i32*, kstd::f32*> pair(&value_a, &value_b);
 
     // Template get<>
     const auto* x_a = pair.get<0>();
     static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, const kstd::i32*>);
-    ASSERT_EQ(valueA, 1337);
+    ASSERT_EQ(value_a, 1337);
 
     const auto* x_b = pair.get<1>();
     static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, const kstd::f32*>);
-    ASSERT_EQ(valueB, 3.141F);
+    ASSERT_EQ(value_b, 3.141F);
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
@@ -206,10 +206,10 @@ TEST(kstd_Tuple, TestPointers) {
     ASSERT_EQ(*y, 3.141F);
 
     // Equality
-    kstd::Pair<kstd::i32*, kstd::f32*> pair2(&valueA, &valueB);
+    kstd::Pair<kstd::i32*, kstd::f32*> pair2(&value_a, &value_b);
     ASSERT_TRUE(pair == pair2);
 
-    kstd::Pair<kstd::i32*, kstd::f32*> pair3(&valueA, nullptr);
+    kstd::Pair<kstd::i32*, kstd::f32*> pair3(&value_a, nullptr);
     ASSERT_TRUE(pair != pair3);
 
     // Concat
@@ -229,23 +229,23 @@ TEST(kstd_Tuple, TestPointers) {
     *qx = 200;
     *qy = 6.21F;
 
-    ASSERT_EQ(valueA, 200);
-    ASSERT_EQ(valueB, 6.21F);
+    ASSERT_EQ(value_a, 200);
+    ASSERT_EQ(value_b, 6.21F);
 }
 
 TEST(kstd_Tuple, TestConstPointers) {
-    kstd::i32 valueA = 1337;
-    kstd::f32 valueB = 3.141F;
-    kstd::Pair<const kstd::i32*, const kstd::f32*> pair(&valueA, &valueB);
+    kstd::i32 value_a = 1337;
+    kstd::f32 value_b = 3.141F;
+    kstd::Pair<const kstd::i32*, const kstd::f32*> pair(&value_a, &value_b);
 
     // Template get<>
     const auto* x_a = pair.get<0>();
     static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, const kstd::i32*>);
-    ASSERT_EQ(valueA, 1337);
+    ASSERT_EQ(value_a, 1337);
 
     const auto* x_b = pair.get<1>();
     static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, const kstd::f32*>);
-    ASSERT_EQ(valueB, 3.141F);
+    ASSERT_EQ(value_b, 3.141F);
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
@@ -259,10 +259,10 @@ TEST(kstd_Tuple, TestConstPointers) {
     ASSERT_EQ(*y, 3.141F);
 
     // Equality
-    kstd::Pair<const kstd::i32*, const kstd::f32*> pair2(&valueA, &valueB);
+    kstd::Pair<const kstd::i32*, const kstd::f32*> pair2(&value_a, &value_b);
     ASSERT_TRUE(pair == pair2);
 
-    kstd::Pair<const kstd::i32*, const kstd::f32*> pair3(&valueA, nullptr);
+    kstd::Pair<const kstd::i32*, const kstd::f32*> pair3(&value_a, nullptr);
     ASSERT_TRUE(pair != pair3);
 
     // Concat

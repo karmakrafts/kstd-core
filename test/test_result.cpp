@@ -203,7 +203,7 @@ TEST(kstd_Result, TestConstPointerAssignment) {
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
 
-    auto* other_value = *result;
+    const auto* other_value = *result;
     result = {};
     ASSERT_TRUE(result.is_empty());
     auto value2 = "Testing!!!1!"sv;
