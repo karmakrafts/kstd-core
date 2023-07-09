@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <functional>
 #include <type_traits>
 
 #include "assert.hpp"
@@ -72,6 +73,22 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get() const noexcept -> ConstBorrowedValueType {
             return _value.get();
+        }
+
+        [[nodiscard]] constexpr auto get_or(ValueType default_value) noexcept -> ValueType {
+            if(has_value()) {
+                return get();
+            }
+            return default_value;
+        }
+
+        template<typename R, typename F>
+        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Option<R> {
+            static_assert(std::is_convertible_v<F, std::function<R(ConstBorrowedValueType)>>);
+            if(is_empty()) {
+                return {};
+            }
+            return {function(get())};
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT

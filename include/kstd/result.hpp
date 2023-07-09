@@ -122,7 +122,7 @@ namespace kstd {
             }
         }
 
-        [[nodiscard]] constexpr auto get_or(ValueType default_value) noexcept -> ValueType {
+        [[nodiscard]] constexpr auto get_or(ValueType default_value) const noexcept -> ValueType {
             if(!is_ok()) {
                 return default_value;
             }
@@ -130,12 +130,15 @@ namespace kstd {
             return get();
         }
 
-        [[nodiscard]] constexpr auto get_or(ValueType default_value) const noexcept -> ValueType {
-            if(!is_ok()) {
-                return default_value;
+        template<typename R, typename F>
+        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, ErrorType> {
+            if(is_ok()) {
+                return {function(get())};
             }
-
-            return get();
+            if(is_error()) {
+                return forward_error<R>();
+            }
+            return {};
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E& {
@@ -151,7 +154,7 @@ namespace kstd {
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
             assert_true(is_error());
-            return Result<TT, E>(std::move(std::get<ErrorType>(_value)));
+            return {std::get<ErrorType>(_value)};
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
@@ -222,7 +225,7 @@ namespace kstd {
         template<typename TT>
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
             assert_true(is_error());
-            return Result<TT, E>(std::move(std::get<ErrorType>(_value)));
+            return {std::get<ErrorType>(_value)};
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
