@@ -240,4 +240,19 @@ namespace kstd {
     static_assert(std::is_same_v<typename Result<void>::ValueType, void>);
     static_assert(std::is_same_v<typename Result<void>::ErrorType, Error<std::string_view>>);
 #endif
+
+    template<typename R, typename F>
+    [[nodiscard]] constexpr auto try_to(F&& function) noexcept -> Result<R> {
+        try {
+            if constexpr(std::is_void_v<R>) {
+                function();
+            }
+            else {
+                return function();
+            }
+        }
+        catch(const std::exception& error) {
+            return Error(std::string_view(error.what()));
+        }
+    }
 }// namespace kstd

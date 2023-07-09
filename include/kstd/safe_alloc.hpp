@@ -28,45 +28,29 @@
 namespace kstd {
     template<typename T, typename... ARGS>
     [[nodiscard]] constexpr auto try_construct(ARGS&&... args) noexcept -> Result<T> {
-        try {
+        return try_to<T>([&args...] {
             return T(std::forward<ARGS>(args)...);
-        }
-        catch(const std::exception& error) {
-            return Error(std::string_view(error.what()));
-        }
+        });
     }
 
     template<typename T, typename... ARGS>
     [[nodiscard]] constexpr auto try_new(ARGS&&... args) noexcept -> Result<T*> {
-        try {
-            auto* address = new T(std::forward<ARGS>(args)...);
-            if(address == nullptr) {
-                return {};// Return empty result instead of nullptr
-            }
-            return address;
-        }
-        catch(const std::exception& error) {
-            return Error(std::string_view(error.what()));
-        }
+        return try_to<T*>([&args...] {
+            return new T(std::forward<ARGS>(args)...);
+        });
     }
 
     template<typename T, typename... ARGS>
     [[nodiscard]] constexpr auto try_make_unique(ARGS&&... args) noexcept -> Result<std::unique_ptr<T>> {
-        try {
-            return {std::make_unique<T>(std::forward<ARGS>(args)...)};
-        }
-        catch(const std::exception& error) {
-            return Error(std::string_view(error.what()));
-        }
+        return try_to<std::unique_ptr<T>>([&args...] {
+            return std::make_unique<T>(std::forward<ARGS>(args)...);
+        });
     }
 
     template<typename T, typename... ARGS>
     [[nodiscard]] constexpr auto try_make_shared(ARGS&&... args) noexcept -> Result<std::shared_ptr<T>> {
-        try {
+        return try_to<std::shared_ptr<T>>([&args...] {
             return std::make_shared<T>(std::forward<ARGS>(args)...);
-        }
-        catch(const std::exception& error) {
-            return Error(std::string_view(error.what()));
-        }
+        });
     }
 }// namespace kstd
