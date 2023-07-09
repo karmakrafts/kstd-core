@@ -142,9 +142,12 @@ namespace kstd {
         }
 
         template<typename TT>
-        [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
+        [[nodiscard]] constexpr auto forward() const noexcept -> Result<TT, E> {
+            if(is_empty()) {
+                return {};
+            }
             assert_true(is_error());
-            return {std::get<ErrorType>(_value)};
+            return std::get<ErrorType>(_value);
         }
 
         template<typename R, typename F>
@@ -154,7 +157,7 @@ namespace kstd {
                 return function(get());
             }
             if(is_error()) {
-                return forward_error<R>();
+                return forward<R>();
             }
             return {};
         }
@@ -225,9 +228,12 @@ namespace kstd {
         }
 
         template<typename TT>
-        [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
+        [[nodiscard]] constexpr auto forward() const noexcept -> Result<TT, E> {
+            if(is_empty()) {
+                return {};
+            }
             assert_true(is_error());
-            return {std::get<ErrorType>(_value)};
+            return std::get<ErrorType>(_value);
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
