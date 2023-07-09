@@ -131,18 +131,6 @@ namespace kstd {
             return get();
         }
 
-        template<typename R, typename F>
-        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, ErrorType> {
-            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
-            if(is_ok()) {
-                return function(get());
-            }
-            if(is_error()) {
-                return forward_error<R>();
-            }
-            return {};
-        }
-
         [[nodiscard]] constexpr auto get_error() noexcept -> E& {
             assert_true(is_error());
             return std::get<ErrorType>(_value).get();
@@ -157,6 +145,18 @@ namespace kstd {
         [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
             assert_true(is_error());
             return {std::get<ErrorType>(_value)};
+        }
+
+        template<typename R, typename F>
+        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, E> {
+            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
+            if(is_ok()) {
+                return function(get());
+            }
+            if(is_error()) {
+                return forward_error<R>();
+            }
+            return {};
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
