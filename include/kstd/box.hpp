@@ -150,12 +150,10 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> BorrowedValueType {
-            assert_false(is_empty());
             return _value;
         }
 
         [[nodiscard]] constexpr auto get() const noexcept -> ConstBorrowedValueType {
-            assert_false(is_empty());
             return _value;
         }
 

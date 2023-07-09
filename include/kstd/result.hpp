@@ -175,11 +175,66 @@ namespace kstd {
         }
     };
 
+    template<typename E>
+    struct Result<void, E> final {
+        using Self = Result<void, E>;
+        using ValueType = void;
+        using ErrorType = Error<E>;
+
+        private:
+        std::variant<ErrorType, Void> _value;
+
+        public:
+        KSTD_DEFAULT_MOVE_COPY(Result, Self, constexpr)
+
+        constexpr Result() noexcept :
+                _value(Void()) {
+        }
+
+        constexpr Result(ErrorType error) noexcept :// NOLINT
+                _value(std::move(error)) {
+        }
+
+        ~Result() noexcept = default;
+
+        [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
+            return std::holds_alternative<Void>(_value);
+        }
+
+        [[nodiscard]] constexpr auto is_ok() const noexcept -> bool {
+            return is_empty();
+        }
+
+        [[nodiscard]] constexpr auto is_error() const noexcept -> bool {
+            return std::holds_alternative<ErrorType>(_value);
+        }
+
+        [[nodiscard]] constexpr auto get_error() noexcept -> E& {
+            assert_true(is_error());
+            return std::get<ErrorType>(_value).get();
+        }
+
+        [[nodiscard]] constexpr auto get_error() const noexcept -> const E& {
+            assert_true(is_error());
+            return std::get<ErrorType>(_value).get();
+        }
+
+        template<typename TT>
+        [[nodiscard]] constexpr auto forward_error() const noexcept -> Result<TT, E> {
+            assert_true(is_error());
+            return Result<TT, E>(std::move(std::get<ErrorType>(_value)));
+        }
+
+        [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
+            return is_ok();
+        }
+    };
+
     template<typename T, typename E = std::string_view>
     Result(T) -> Result<T, E>;
 
 #ifdef BUILD_DEBUG
-    static_assert(std::is_same_v<typename Result<void>::ValueType, u8>);
+    static_assert(std::is_same_v<typename Result<void>::ValueType, void>);
     static_assert(std::is_same_v<typename Result<void>::ErrorType, Error<std::string_view>>);
 #endif
 }// namespace kstd
