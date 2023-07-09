@@ -49,7 +49,7 @@ namespace kstd {
 
         template<typename F>
         [[nodiscard]] constexpr auto some(F&& function) noexcept -> Self& {
-            if(_address->is_ok()) {
+            if(!_return_value && _address->is_ok()) {
                 if constexpr(std::is_void_v<ValueType>) {
                     _return_value = function();
                 }
@@ -62,7 +62,7 @@ namespace kstd {
 
         template<typename F>
         [[nodiscard]] constexpr auto none(F&& function) noexcept -> Self& {
-            if(_address->is_empty()) {
+            if(!_return_value && _address->is_empty()) {
                 _return_value = function();
             }
             return *this;
@@ -70,7 +70,7 @@ namespace kstd {
 
         template<typename F>
         [[nodiscard]] constexpr auto error(F&& function) noexcept -> Self& {
-            if(_address->is_error()) {
+            if(!_return_value && _address->is_error()) {
                 _return_value = function(_address->get_error());
             }
             return *this;
@@ -91,41 +91,46 @@ namespace kstd {
 
         private:
         Result<ValueType, ErrorType>* _address;
+        bool _is_evaluated;
 
         public:
         KSTD_NO_MOVE_COPY(ResultWhenScope, Self, constexpr)
 
         explicit constexpr ResultWhenScope(Result<ValueType, ErrorType>* address) noexcept :
-                _address(address) {
+                _address(address),
+                _is_evaluated(false) {
         }
 
         ~ResultWhenScope() noexcept = default;
 
         template<typename F>
         [[nodiscard]] constexpr auto some(F&& function) noexcept -> Self& {
-            if(_address->is_ok()) {
+            if(!_is_evaluated && _address->is_ok()) {
                 if constexpr(std::is_void_v<ValueType>) {
                     function();
                 }
                 else {
                     function(_address->get());
                 }
+                _is_evaluated = true;
             }
             return *this;
         }
 
         template<typename F>
         [[nodiscard]] constexpr auto none(F&& function) noexcept -> Self& {
-            if(_address->is_empty()) {
+            if(!_is_evaluated && _address->is_empty()) {
                 function();
+                _is_evaluated = true;
             }
             return *this;
         }
 
         template<typename F>
         [[nodiscard]] constexpr auto error(F&& function) noexcept -> Self& {
-            if(_address->is_error()) {
+            if(!_is_evaluated && _address->is_error()) {
                 function(_address->get_error());
+                _is_evaluated = true;
             }
             return *this;
         }
