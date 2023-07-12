@@ -34,18 +34,18 @@ namespace kstd {
     // PackElement
 
     template<usize INDEX, typename PACK>
-    struct PackElementImpl;
+    struct PackElement;
 
     template<usize INDEX, typename HEAD, typename... TAIL>
-    struct PackElementImpl<INDEX, Pack<HEAD, TAIL...>> : public PackElementImpl<INDEX - 1, Pack<TAIL...>> {};
+    struct PackElement<INDEX, Pack<HEAD, TAIL...>> : public PackElement<INDEX - 1, Pack<TAIL...>> {};
 
     template<typename HEAD, typename... TAIL>
-    struct PackElementImpl<0, Pack<HEAD, TAIL...>> {
+    struct PackElement<0, Pack<HEAD, TAIL...>> {
         using type = HEAD;
     };
 
     template<usize INDEX, typename PACK>//
-    using pack_element = typename PackElementImpl<INDEX, PACK>::type;
+    using pack_element = typename PackElement<INDEX, PACK>::type;
 
 #ifdef BUILD_DEBUG
     static_assert(std::is_same_v<pack_element<0, Pack<i32, f32, u32>>, i32>, "Type should be i32");
@@ -56,26 +56,26 @@ namespace kstd {
     // LeftTrimPack
 
     template<usize COUNT, typename PACK, typename = Pack<>>
-    struct LeftTrimPackImpl {
+    struct LeftTrimPack {
         using type = Pack<>;
     };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... SKIPPED>
-    struct LeftTrimPackImpl<COUNT, Pack<HEAD, TAIL...>, Pack<SKIPPED...>>
-            : public LeftTrimPackImpl<COUNT - 1, Pack<TAIL...>, Pack<SKIPPED..., HEAD>> {};
+    struct LeftTrimPack<COUNT, Pack<HEAD, TAIL...>, Pack<SKIPPED...>>
+            : public LeftTrimPack<COUNT - 1, Pack<TAIL...>, Pack<SKIPPED..., HEAD>> {};
 
     template<typename HEAD, typename... TAIL, typename... SKIPPED>
-    struct LeftTrimPackImpl<0, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> {
+    struct LeftTrimPack<0, Pack<HEAD, TAIL...>, Pack<SKIPPED...>> {
         using type = Pack<HEAD, TAIL...>;
     };
 
     template<typename... SKIPPED>
-    struct LeftTrimPackImpl<0, Pack<>, Pack<SKIPPED...>> {
+    struct LeftTrimPack<0, Pack<>, Pack<SKIPPED...>> {
         using type = Pack<>;
     };
 
     template<usize COUNT, typename PACK>//
-    using left_trim_pack = typename LeftTrimPackImpl<COUNT, PACK>::type;
+    using left_trim_pack = typename LeftTrimPack<COUNT, PACK>::type;
 
 #ifdef BUILD_DEBUG
     static_assert(std::is_same_v<left_trim_pack<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
@@ -97,26 +97,26 @@ namespace kstd {
     // RightTrimPack
 
     template<usize COUNT, typename PACK, typename = Pack<>>
-    struct RightTrimPackImpl {
+    struct RightTrimPack {
         using type = Pack<>;
     };
 
     template<usize COUNT, typename HEAD, typename... TAIL, typename... ACCUMULATED>
-    struct RightTrimPackImpl<COUNT, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>>
-            : public RightTrimPackImpl<COUNT - 1, Pack<TAIL...>, Pack<ACCUMULATED..., HEAD>> {};
+    struct RightTrimPack<COUNT, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>>
+            : public RightTrimPack<COUNT - 1, Pack<TAIL...>, Pack<ACCUMULATED..., HEAD>> {};
 
     template<typename HEAD, typename... TAIL, typename... ACCUMULATED>
-    struct RightTrimPackImpl<0, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> {
+    struct RightTrimPack<0, Pack<HEAD, TAIL...>, Pack<ACCUMULATED...>> {
         using type = Pack<ACCUMULATED...>;
     };
 
     template<typename... ACCUMULATED>
-    struct RightTrimPackImpl<0, Pack<>, Pack<ACCUMULATED...>> {
+    struct RightTrimPack<0, Pack<>, Pack<ACCUMULATED...>> {
         using type = Pack<ACCUMULATED...>;
     };
 
     template<usize COUNT, typename PACK>//
-    using right_trim_pack = typename RightTrimPackImpl<COUNT, PACK>::type;
+    using right_trim_pack = typename RightTrimPack<COUNT, PACK>::type;
 
 #ifdef BUILD_DEBUG
     static_assert(std::is_same_v<right_trim_pack<0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
@@ -139,20 +139,20 @@ namespace kstd {
     // SlicePack
 
     template<usize BEGIN, usize END, typename PACK>
-    struct SlicePackImpl;
+    struct SlicePack;
 
     template<usize BEGIN, usize END, typename... TYPES>
-    struct SlicePackImpl<BEGIN, END, Pack<TYPES...>> {
+    struct SlicePack<BEGIN, END, Pack<TYPES...>> {
         using type = right_trim_pack<END + 1 - BEGIN, left_trim_pack<BEGIN, Pack<TYPES...>>>;
     };
 
     template<usize BEGIN, usize END>
-    struct SlicePackImpl<BEGIN, END, Pack<>> {
+    struct SlicePack<BEGIN, END, Pack<>> {
         using type = Pack<>;
     };
 
     template<usize BEGIN, usize END, typename PACK>//
-    using slice_pack = typename SlicePackImpl<BEGIN, END, PACK>::type;
+    using slice_pack = typename SlicePack<BEGIN, END, PACK>::type;
 
 #ifdef BUILD_DEBUG
     static_assert(std::is_same_v<slice_pack<0, 0, Pack<>>, Pack<>>, "Pack type should be Pack<>");
@@ -186,15 +186,15 @@ namespace kstd {
     // ConcatPacks
 
     template<typename PACK_A, typename PACK_B>
-    struct ConcatPacksImpl;
+    struct ConcatPacks;
 
     template<typename... TYPES_A, typename... TYPES_B>
-    struct ConcatPacksImpl<Pack<TYPES_A...>, Pack<TYPES_B...>> {
+    struct ConcatPacks<Pack<TYPES_A...>, Pack<TYPES_B...>> {
         using type = Pack<TYPES_A..., TYPES_B...>;
     };
 
     template<typename PACK_A, typename PACK_B>//
-    using concat_packs = typename ConcatPacksImpl<PACK_A, PACK_B>::type;
+    using concat_packs = typename ConcatPacks<PACK_A, PACK_B>::type;
 
 #ifdef BUILD_DEBUG
     static_assert(std::is_same_v<concat_packs<Pack<>, Pack<>>, Pack<>>, "Pack type should be Pack<>");
@@ -210,13 +210,13 @@ namespace kstd {
     // TransformPack
 
     template<template<typename> typename TRANSFORM, typename PACK>
-    struct TransformPackImpl;
+    struct TransformPack;
 
     template<template<typename> typename TRANSFORM, typename... TYPES>//
-    struct TransformPackImpl<TRANSFORM, Pack<TYPES...>> {
+    struct TransformPack<TRANSFORM, Pack<TYPES...>> {
         using type = Pack<typename TRANSFORM<TYPES>::type...>;
     };
 
     template<template<typename> typename TRANSFORM, typename... TYPES>//
-    using transform_pack = typename TransformPackImpl<TRANSFORM, TYPES...>::type;
+    using transform_pack = typename TransformPack<TRANSFORM, TYPES...>::type;
 }// namespace kstd
