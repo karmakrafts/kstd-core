@@ -36,19 +36,21 @@ namespace kstd {
         struct TupleInner<HEAD> {
             static_assert(!std::is_same_v<std::remove_all_extents_t<HEAD>, Void>, "Type cannot be Void");
 
-            using ValueType = HEAD;
-            using Self = TupleInner<ValueType>;
+            // clang-format off
+            using head_type = HEAD;
+            using self      = TupleInner<head_type>;
+            // clang-format on
 
-            Box<ValueType> _head;
+            Box<head_type> _head;
 
-            KSTD_DEFAULT_MOVE_COPY(TupleInner, Self, constexpr)
+            KSTD_DEFAULT_MOVE_COPY(TupleInner, self, constexpr)
 
             constexpr TupleInner() noexcept :
                     _head() {
             }
 
-            constexpr TupleInner(ValueType head) noexcept :// NOLINT
-                    _head(std::forward<ValueType>(head)) {
+            constexpr TupleInner(head_type head) noexcept :// NOLINT
+                    _head(std::forward<head_type>(head)) {
             }
 
             ~TupleInner() noexcept = default;
@@ -58,21 +60,23 @@ namespace kstd {
         struct TupleInner<HEAD, TAIL...> {
             static_assert(!std::is_same_v<std::remove_all_extents_t<HEAD>, Void>, "Type cannot be Void");
 
-            using ValueType = HEAD;
-            using Self = TupleInner<ValueType, TAIL...>;
+            // clang-format off
+            using head_type = HEAD;
+            using self      = TupleInner<head_type, TAIL...>;
+            // clang-format on
 
-            Box<ValueType> _head;
+            Box<head_type> _head;
             TupleInner<TAIL...> _tail;
 
-            KSTD_DEFAULT_MOVE_COPY(TupleInner, Self, constexpr)
+            KSTD_DEFAULT_MOVE_COPY(TupleInner, self, constexpr)
 
             constexpr TupleInner() noexcept :
                     _head(),
                     _tail() {
             }
 
-            constexpr TupleInner(ValueType head, TAIL... tail) noexcept :// NOLINT
-                    _head(std::forward<ValueType>(head)),
+            constexpr TupleInner(head_type head, TAIL... tail) noexcept :// NOLINT
+                    _head(std::forward<head_type>(head)),
                     _tail(std::forward<TAIL>(tail)...) {
             }
 
@@ -97,14 +101,16 @@ namespace kstd {
     struct TupleImpl<Pack<TYPES...>> {
         static constexpr usize num_values = sizeof...(TYPES);
 
-        using Types = Pack<TYPES...>;
-        using Self [[maybe_unused]] = TupleImpl<Types>;
+        // clang-format off
+        using types = Pack<TYPES...>;
+        using self  = TupleImpl<types>;
+        // clang-format on
 
         private:
         TupleInner<TYPES...> _inner;
 
         template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
-        constexpr auto get_head(TupleInner<HEAD, TAIL...>& inner) noexcept -> Box<PackElement<INDEX, Types>>& {
+        constexpr auto get_head(TupleInner<HEAD, TAIL...>& inner) noexcept -> Box<pack_element<INDEX, types>>& {
             if constexpr(CURRENT == INDEX) {
                 return inner._head;
             }
@@ -115,7 +121,7 @@ namespace kstd {
 
         template<usize INDEX, usize CURRENT, typename HEAD, typename... TAIL>
         constexpr auto get_head(const TupleInner<HEAD, TAIL...>& inner) const noexcept
-                -> const Box<PackElement<INDEX, Types>>& {
+                -> const Box<pack_element<INDEX, types>>& {
             if constexpr(CURRENT == INDEX) {
                 return inner._head;
             }
@@ -125,7 +131,7 @@ namespace kstd {
         }
 
         template<usize BEGIN, usize END, usize INDEX>
-        constexpr auto slice(TupleImpl<SlicePack<BEGIN, END, Types>>& tuple) const noexcept -> void {
+        constexpr auto slice(TupleImpl<slice_pack<BEGIN, END, types>>& tuple) const noexcept -> void {
             tuple.template get_head<INDEX>() = get_head<BEGIN + INDEX>();
             if constexpr(INDEX < (END - BEGIN)) {
                 slice<BEGIN, END, INDEX + 1>(tuple);
@@ -169,7 +175,7 @@ namespace kstd {
         template<typename X>
         struct GetMutableTransform final {
             // clang-format off
-            using Type = std::conditional_t<
+            using type = std::conditional_t<
                 !std::is_pointer_v<X> && !std::is_reference_v<X>,
                 X&,
                 X>;
@@ -179,7 +185,7 @@ namespace kstd {
         template<typename X>
         struct GetImmutableTransform final {
             // clang-format off
-            using Type = std::conditional_t<
+            using type = std::conditional_t<
                 !std::is_pointer_v<X> && !std::is_reference_v<X>,
                 X const&,
                 X>;
@@ -187,7 +193,7 @@ namespace kstd {
         };
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(TupleImpl, Self, constexpr)
+        KSTD_DEFAULT_MOVE_COPY(TupleImpl, self, constexpr)
 
         constexpr TupleImpl() noexcept :
                 _inner() {
@@ -204,29 +210,29 @@ namespace kstd {
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get_head() noexcept -> Box<PackElement<INDEX, Types>>& {
+        [[nodiscard]] constexpr auto get_head() noexcept -> Box<pack_element<INDEX, types>>& {
             return get_head<INDEX, 0, TYPES...>(_inner);
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get_head() const noexcept -> const Box<PackElement<INDEX, Types>>& {
+        [[nodiscard]] constexpr auto get_head() const noexcept -> const Box<pack_element<INDEX, types>>& {
             return get_head<INDEX, 0, TYPES...>(_inner);
         }
 
         template<usize INDEX>
-        [[nodiscard]] constexpr auto get() noexcept -> PackElement<INDEX, TransformPack<GetMutableTransform, Types>> {
+        [[nodiscard]] constexpr auto get() noexcept -> pack_element<INDEX, transform_pack<GetMutableTransform, types>> {
             return get_head<INDEX, 0, TYPES...>(_inner).get();
         }
 
         template<usize INDEX>
         [[nodiscard]] constexpr auto get() const noexcept
-                -> PackElement<INDEX, TransformPack<GetImmutableTransform, Types>> {
+                -> pack_element<INDEX, transform_pack<GetImmutableTransform, types>> {
             return get_head<INDEX, 0, TYPES...>(_inner).get();
         }
 
         template<usize BEGIN, usize END>
-        [[nodiscard]] constexpr auto slice() const noexcept -> TupleImpl<SlicePack<BEGIN, END, Types>> {
-            TupleImpl<SlicePack<BEGIN, END, Types>> result;
+        [[nodiscard]] constexpr auto slice() const noexcept -> TupleImpl<slice_pack<BEGIN, END, types>> {
+            TupleImpl<slice_pack<BEGIN, END, types>> result;
             slice<BEGIN, END, 0>(result);
             return result;
         }
@@ -250,7 +256,7 @@ namespace kstd {
             return false;
         }
 
-        [[nodiscard]] constexpr auto operator==(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==(const self& other) const noexcept -> bool {
             bool result = true;
             equals<0>(_inner, other._inner, result);
             return result;
@@ -261,7 +267,7 @@ namespace kstd {
             return true;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const Self& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=(const self& other) const noexcept -> bool {
             bool result = false;
             not_equals<0>(_inner, other._inner, result);
             return !result;
@@ -282,28 +288,27 @@ namespace kstd {
 }// namespace kstd
 
 // Specializations for std::tuple_size and std::tuple_element to allow structured bindings
-namespace std {// @formatter:off
+namespace std {
     template<typename... ARGS>
-    struct tuple_size<kstd::Tuple<ARGS...>> {// NOLINT
-        using value_type = kstd::usize;      // NOLINT: style mismatch
+    struct tuple_size<kstd::Tuple<ARGS...>> {
+        using value_type = kstd::usize;
         static constexpr value_type value = sizeof...(ARGS);
-        using type = std::integral_constant<value_type, value>;// NOLINT: style mismatch
+        using type = std::integral_constant<value_type, value>;
 
         [[nodiscard]] constexpr auto operator()() const noexcept -> value_type {
             return value;
         }
 
-        [[nodiscard]] constexpr operator value_type() const noexcept {// NOLINT
+        [[nodiscard]] constexpr operator value_type() const noexcept {
             return value;
         }
     };
 
     template<size_t INDEX, typename HEAD, typename... TAIL>
-    struct tuple_element<INDEX, kstd::Tuple<HEAD, TAIL...>> : tuple_element<INDEX - 1, kstd::Tuple<TAIL...>> {// NOLINT
-    };
+    struct tuple_element<INDEX, kstd::Tuple<HEAD, TAIL...>> : tuple_element<INDEX - 1, kstd::Tuple<TAIL...>> {};
 
     template<typename HEAD, typename... TAIL>
-    struct tuple_element<0, kstd::Tuple<HEAD, TAIL...>> {// NOLINT
-        using type = HEAD;                               // NOLINT: style mismatch
+    struct tuple_element<0, kstd::Tuple<HEAD, TAIL...>> {
+        using type = HEAD;
     };
 }// namespace std

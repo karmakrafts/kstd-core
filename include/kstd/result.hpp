@@ -33,26 +33,28 @@
 namespace kstd {
     template<typename E>
     struct Error final {
-        using ErrorType = E;
-        using Self = Error<ErrorType>;
+        // clang-format off
+        using value_type    = E;
+        using self          = Error<value_type>;
+        // clang-format on
 
         private:
-        ErrorType _error;
+        value_type _error;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Error, Self, constexpr)
+        KSTD_DEFAULT_MOVE_COPY(Error, self, constexpr)
 
-        explicit constexpr Error(ErrorType error) noexcept :
-                _error(std::forward<ErrorType>(error)) {
+        explicit constexpr Error(value_type error) noexcept :
+                _error(std::forward<value_type>(error)) {
         }
 
         ~Error() noexcept = default;
 
-        [[nodiscard]] constexpr auto get() noexcept -> ErrorType& {
+        [[nodiscard]] constexpr auto get() noexcept -> value_type& {
             return _error;
         }
 
-        [[nodiscard]] constexpr auto get() const noexcept -> const ErrorType& {
+        [[nodiscard]] constexpr auto get() const noexcept -> const value_type& {
             return _error;
         }
     };
@@ -61,30 +63,34 @@ namespace kstd {
     struct Result final {
         static_assert(!std::is_same_v<std::remove_all_extents_t<T>, Void>, "Type cannot be Void");
 
-        using Self = Result<T, E>;
-        using ValueType = std::conditional_t<std::is_void_v<T>, u8, T>;
-        using ErrorType = Error<E>;
-        using BoxedValueType = Box<ValueType>;
-        using BorrowedValueType = typename BoxedValueType::BorrowedValueType;
-        using ConstBorrowedValueType = typename BoxedValueType::ConstBorrowedValueType;
-        using Pointer = typename BoxedValueType::Pointer;
-        using ConstPointer = typename BoxedValueType::ConstBorrowedValueType;
+        // clang-format off
+        using value_type            = T;
+        using error_type            = E;
+        using wrapped_error_type    = Error<error_type>;
+        using nv_value_type         = std::conditional_t<std::is_void_v<value_type>, u8, value_type>;
+        using self                  = Result<value_type, error_type>;
+        using boxed_value_type      = Box<nv_value_type>;
+        using reference             = typename boxed_value_type::reference;
+        using const_reference       = typename boxed_value_type::const_reference;
+        using pointer               = typename boxed_value_type::pointer;
+        using const_pointer         = typename boxed_value_type::const_reference;
+        // clang-format on
 
         private:
-        std::variant<BoxedValueType, ErrorType, Void> _value;
+        std::variant<boxed_value_type, wrapped_error_type, Void> _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Result, Self, constexpr)
+        KSTD_DEFAULT_MOVE_COPY(Result, self, constexpr)
 
         constexpr Result() noexcept :
                 _value(Void()) {
         }
 
-        constexpr Result(ValueType value) noexcept :// NOLINT
-                _value(BoxedValueType(std::forward<ValueType>(value))) {
+        constexpr Result(nv_value_type value) noexcept :// NOLINT
+                _value(boxed_value_type(std::forward<nv_value_type>(value))) {
         }
 
-        constexpr Result(ErrorType error) noexcept :// NOLINT
+        constexpr Result(wrapped_error_type error) noexcept :// NOLINT
                 _value(std::move(error)) {
         }
 
@@ -99,31 +105,31 @@ namespace kstd {
                 return is_empty();
             }
             else {
-                return std::holds_alternative<BoxedValueType>(_value);
+                return std::holds_alternative<boxed_value_type>(_value);
             }
         }
 
         [[nodiscard]] constexpr auto is_error() const noexcept -> bool {
-            return std::holds_alternative<ErrorType>(_value);
+            return std::holds_alternative<wrapped_error_type>(_value);
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto get() noexcept -> reference {
             assert_true(is_ok());
 
             if constexpr(!std::is_void_v<T>) {
-                return std::get<BoxedValueType>(_value).get();
+                return std::get<boxed_value_type>(_value).get();
             }
         }
 
-        [[nodiscard]] constexpr auto get() const noexcept -> ConstBorrowedValueType {
+        [[nodiscard]] constexpr auto get() const noexcept -> const_reference {
             assert_true(is_ok());
 
             if constexpr(!std::is_void_v<T>) {
-                return std::get<BoxedValueType>(_value).get();
+                return std::get<boxed_value_type>(_value).get();
             }
         }
 
-        [[nodiscard]] constexpr auto get_or(ValueType default_value) const noexcept -> ValueType {
+        [[nodiscard]] constexpr auto get_or(nv_value_type default_value) const noexcept -> nv_value_type {
             if(!is_ok()) {
                 return default_value;
             }
@@ -133,12 +139,12 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E& {
             assert_true(is_error());
-            return std::get<ErrorType>(_value).get();
+            return std::get<wrapped_error_type>(_value).get();
         }
 
         [[nodiscard]] constexpr auto get_error() const noexcept -> const E& {
             assert_true(is_error());
-            return std::get<ErrorType>(_value).get();
+            return std::get<wrapped_error_type>(_value).get();
         }
 
         template<typename TT>
@@ -147,12 +153,13 @@ namespace kstd {
                 return {};
             }
             assert_true(is_error());
-            return std::get<ErrorType>(_value);
+            return std::get<wrapped_error_type>(_value);
         }
 
         template<typename R, typename F>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, E> {
-            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
+            static_assert(std::is_convertible_v<F, std::function<R(nv_value_type)>>,
+                          "Function signature does not match");
             if(is_ok()) {
                 return function(get());
             }
@@ -166,40 +173,43 @@ namespace kstd {
             return is_ok();
         }
 
-        [[nodiscard]] constexpr auto operator*() noexcept -> BorrowedValueType {
+        [[nodiscard]] constexpr auto operator*() noexcept -> reference {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstBorrowedValueType {
+        [[nodiscard]] constexpr auto operator*() const noexcept -> const_reference {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> pointer {
             return &get();
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> const_pointer {
             return &get();
         }
     };
 
     template<typename E>
     struct Result<void, E> final {
-        using Self = Result<void, E>;
-        using ValueType = void;
-        using ErrorType = Error<E>;
+        // clang-format off
+        using value_type            = void;
+        using error_type            = E;
+        using wrapped_error_type    = Error<error_type>;
+        using self                  = Result<value_type, error_type>;
+        // clang-format on
 
         private:
-        std::variant<ErrorType, Void> _value;
+        std::variant<wrapped_error_type, Void> _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Result, Self, constexpr)
+        KSTD_DEFAULT_MOVE_COPY(Result, self, constexpr)
 
         constexpr Result() noexcept :
                 _value(Void()) {
         }
 
-        constexpr Result(ErrorType error) noexcept :// NOLINT
+        constexpr Result(wrapped_error_type error) noexcept :// NOLINT
                 _value(std::move(error)) {
         }
 
@@ -214,17 +224,17 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto is_error() const noexcept -> bool {
-            return std::holds_alternative<ErrorType>(_value);
+            return std::holds_alternative<wrapped_error_type>(_value);
         }
 
         [[nodiscard]] constexpr auto get_error() noexcept -> E& {
             assert_true(is_error());
-            return std::get<ErrorType>(_value).get();
+            return std::get<wrapped_error_type>(_value).get();
         }
 
         [[nodiscard]] constexpr auto get_error() const noexcept -> const E& {
             assert_true(is_error());
-            return std::get<ErrorType>(_value).get();
+            return std::get<wrapped_error_type>(_value).get();
         }
 
         template<typename TT>
@@ -233,7 +243,7 @@ namespace kstd {
                 return {};
             }
             assert_true(is_error());
-            return std::get<ErrorType>(_value);
+            return std::get<wrapped_error_type>(_value);
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
@@ -245,8 +255,8 @@ namespace kstd {
     Result(T) -> Result<T, E>;
 
 #ifdef BUILD_DEBUG
-    static_assert(std::is_same_v<typename Result<void>::ValueType, void>);
-    static_assert(std::is_same_v<typename Result<void>::ErrorType, Error<std::string_view>>);
+    static_assert(std::is_same_v<typename Result<void>::value_type, void>);
+    static_assert(std::is_same_v<typename Result<void>::wrapped_error_type, Error<std::string_view>>);
 #endif
 
     template<typename R, typename F>

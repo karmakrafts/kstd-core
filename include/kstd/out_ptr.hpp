@@ -20,6 +20,7 @@
 #pragma once
 
 #include "defaults.hpp"
+#include "types.hpp"
 
 namespace kstd {
     /*
@@ -29,19 +30,21 @@ namespace kstd {
      */
     template<typename P>// @formatter:off
     struct OutPtr final {
-        using OwnerType = P;
-        using ElementType = typename OwnerType::element_type;
-        using Self = OutPtr<OwnerType>;
+        // clang-format off
+        using owner_type    = P;
+        using element_type  = typename owner_type::element_type;
+        using self          = OutPtr<owner_type>;
+        // clang-format on
 
         private:
-        OwnerType& _owner;// NOLINT
-        ElementType* _new_value;
+        owner_type* _owner;
+        element_type* _new_value;
 
         public:
-        KSTD_NO_MOVE_COPY(OutPtr, Self, constexpr)
+        KSTD_NO_MOVE_COPY(OutPtr, self, constexpr)
 
-        explicit constexpr OutPtr(OwnerType& owner) noexcept :
-                _owner(owner),
+        explicit constexpr OutPtr(owner_type& owner) noexcept :
+                _owner(&owner),
                 _new_value() {
         }
 
@@ -50,10 +53,10 @@ namespace kstd {
                 return;
             }
 
-            _owner.reset(_new_value);
+            _owner->reset(_new_value);
         }
 
-        [[nodiscard]] constexpr operator ElementType**() noexcept {// NOLINT
+        [[nodiscard]] constexpr operator element_type**() noexcept {// NOLINT
             return &_new_value;
         }
     };
