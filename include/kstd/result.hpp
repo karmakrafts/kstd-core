@@ -197,6 +197,10 @@ namespace kstd {
         using error_type            = E;
         using wrapped_error_type    = Error<error_type>;
         using self                  = Result<value_type, error_type>;
+        using reference             = value_type;
+        using const_reference       = value_type;
+        using pointer               = value_type;
+        using const_pointer         = value_type;
         // clang-format on
 
         private:

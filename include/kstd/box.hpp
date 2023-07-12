@@ -44,9 +44,9 @@ namespace kstd {
         using value_type        = T;
         using self              = Box<value_type, _>;
         using reference         = value_type&;
-        using const_reference   = value_type const&;
+        using const_reference   = const value_type&;
         using pointer           = value_type*;
-        using const_pointer     = value_type const*;
+        using const_pointer     = const value_type*;
         // clang-format on
 
         private:
@@ -132,7 +132,7 @@ namespace kstd {
         using naked_value_type  = std::decay_t<value_type>;
         using self              = Box<value_type, std::enable_if_t<std::is_pointer_v<T>>>;
         using reference         = value_type&;
-        using const_reference   = value_type const&;
+        using const_reference   = const value_type&;
         using pointer           = value_type;
         using const_pointer     = const value_type;
         // clang-format on
@@ -221,8 +221,8 @@ namespace kstd {
 
         // clang-format off
         using value_type        = T;
-        using reference         = T&;
-        using const_reference   = const T&;
+        using reference         = value_type&;
+        using const_reference   = const value_type&;
         using naked_value_type  = std::decay_t<value_type>;
         using pointer           = naked_value_type*;
         using const_pointer     = const naked_value_type*;
