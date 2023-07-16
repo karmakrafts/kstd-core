@@ -7,4 +7,3 @@ on:
 jobs:
   build-and-test:
     uses: karmakrafts/workflows/.github/workflows/cpp-17-20.yml@master
-    
