@@ -33,7 +33,7 @@ namespace kstd {
 
             public:
             explicit inline AssertionMessage(const char* data) noexcept :
-                    _data() {
+                    _data {} {
                 const auto size = libc::strlen(data) + 1;
                 _data = static_cast<char*>(libc::malloc(size));// NOLINT
                 libc::memset(_data, 0, size);
@@ -68,7 +68,7 @@ namespace kstd {
             auto* buffer_data = buffer.data();
             libc::sprintf(buffer_data, "%s:%zu [%s]", location.get_file(), location.get_line(),
                           location.get_function());
-            return AssertionMessage(buffer_data);
+            return AssertionMessage {buffer_data};
         }
     }// namespace
 

@@ -56,11 +56,11 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Box, self, constexpr)
 
         constexpr Box() noexcept :
-                _value(Void()) {
+                _value {Void()} {
         }
 
         constexpr Box(value_type value) noexcept :// NOLINT
-                _value(std::move(value)) {
+                _value {std::move(value)} {
         }
 
         ~Box() noexcept = default;
@@ -144,11 +144,11 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Box, self, constexpr)
 
         constexpr Box() noexcept :
-                _value(nullptr) {
+                _value {nullptr} {
         }
 
         constexpr Box(value_type value) noexcept :// NOLINT
-                _value(value) {
+                _value {value} {
         }
 
         ~Box() noexcept = default;
@@ -238,11 +238,11 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Box, self, constexpr)
 
         constexpr Box() noexcept :
-                _value(nullptr) {
+                _value {nullptr} {
         }
 
         constexpr Box(value_type value) noexcept :// NOLINT
-                _value(&value) {
+                _value {&value} {
         }
 
         ~Box() noexcept = default;

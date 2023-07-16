@@ -45,7 +45,7 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Error, self, constexpr)
 
         explicit constexpr Error(value_type error) noexcept :
-                _error(std::forward<value_type>(error)) {
+                _error {std::forward<value_type>(error)} {
         }
 
         ~Error() noexcept = default;
@@ -83,15 +83,15 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Result, self, constexpr)
 
         constexpr Result() noexcept :
-                _value(Void()) {
+                _value {Void()} {
         }
 
         constexpr Result(nv_value_type value) noexcept :// NOLINT
-                _value(boxed_value_type(std::forward<nv_value_type>(value))) {
+                _value {boxed_value_type(std::forward<nv_value_type>(value))} {
         }
 
         constexpr Result(wrapped_error_type error) noexcept :// NOLINT
-                _value(std::move(error)) {
+                _value {std::move(error)} {
         }
 
         ~Result() noexcept = default;
@@ -210,11 +210,11 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Result, self, constexpr)
 
         constexpr Result() noexcept :
-                _value(Void()) {
+                _value {Void()} {
         }
 
         constexpr Result(wrapped_error_type error) noexcept :// NOLINT
-                _value(std::move(error)) {
+                _value {std::move(error)} {
         }
 
         ~Result() noexcept = default;

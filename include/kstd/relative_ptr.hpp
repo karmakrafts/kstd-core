@@ -43,7 +43,7 @@ namespace kstd {
         KSTD_NO_MOVE_COPY(RelativePtr, self, constexpr)
 
         constexpr RelativePtr() noexcept :
-                _offset(0) {
+                _offset {0} {
         }
 
         ~RelativePtr() noexcept = default;

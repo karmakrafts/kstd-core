@@ -52,11 +52,11 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Option, self, constexpr)
 
         constexpr Option() noexcept :
-                _value() {
+                _value {} {
         }
 
         constexpr Option(value_type value) noexcept :// NOLINT
-                _value(std::forward<value_type>(value)) {
+                _value {std::forward<value_type>(value)} {
         }
 
         ~Option() noexcept = default;
@@ -90,7 +90,7 @@ namespace kstd {
             if(is_empty()) {
                 return {};
             }
-            return {function(get())};
+            return function(get());
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT

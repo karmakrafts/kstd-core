@@ -44,8 +44,8 @@ namespace kstd {
         KSTD_NO_MOVE_COPY(OutPtr, self, constexpr)
 
         explicit constexpr OutPtr(owner_type& owner) noexcept :
-                _owner(&owner),
-                _new_value() {
+                _owner {&owner},
+                _new_value {} {
         }
 
         ~OutPtr() noexcept {

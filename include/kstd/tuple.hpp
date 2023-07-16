@@ -46,11 +46,11 @@ namespace kstd {
             KSTD_DEFAULT_MOVE_COPY(TupleInner, self, constexpr)
 
             constexpr TupleInner() noexcept :
-                    _head() {
+                    _head {} {
             }
 
             constexpr TupleInner(head_type head) noexcept :// NOLINT
-                    _head(std::forward<head_type>(head)) {
+                    _head {std::forward<head_type>(head)} {
             }
 
             ~TupleInner() noexcept = default;
@@ -71,13 +71,13 @@ namespace kstd {
             KSTD_DEFAULT_MOVE_COPY(TupleInner, self, constexpr)
 
             constexpr TupleInner() noexcept :
-                    _head(),
-                    _tail() {
+                    _head {},
+                    _tail {} {
             }
 
             constexpr TupleInner(head_type head, TAIL... tail) noexcept :// NOLINT
-                    _head(std::forward<head_type>(head)),
-                    _tail(std::forward<TAIL>(tail)...) {
+                    _head {std::forward<head_type>(head)},
+                    _tail {std::forward<TAIL>(tail)...} {
             }
 
             ~TupleInner() noexcept = default;
@@ -196,11 +196,11 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(TupleImpl, self, constexpr)
 
         constexpr TupleImpl() noexcept :
-                _inner() {
+                _inner {} {
         }
 
         constexpr TupleImpl(TYPES... values) noexcept :// NOLINT
-                _inner(std::forward<TYPES>(values)...) {
+                _inner {std::forward<TYPES>(values)...} {
         }
 
         ~TupleImpl() noexcept = default;
@@ -232,7 +232,7 @@ namespace kstd {
 
         template<usize BEGIN, usize END>
         [[nodiscard]] constexpr auto slice() const noexcept -> TupleImpl<slice_pack<BEGIN, END, types>> {
-            TupleImpl<slice_pack<BEGIN, END, types>> result;
+            TupleImpl<slice_pack<BEGIN, END, types>> result {};
             slice<BEGIN, END, 0>(result);
             return result;
         }
@@ -240,7 +240,7 @@ namespace kstd {
         template<typename... OTHER_TYPES>
         [[nodiscard]] constexpr auto concat(const TupleImpl<Pack<OTHER_TYPES...>>& other) const noexcept
                 -> TupleImpl<Pack<TYPES..., OTHER_TYPES...>> {
-            TupleImpl<Pack<TYPES..., OTHER_TYPES...>> result;
+            TupleImpl<Pack<TYPES..., OTHER_TYPES...>> result {};
             concat<num_values + sizeof...(OTHER_TYPES), 0, OTHER_TYPES...>(other, result);
             return result;
         }
@@ -274,6 +274,7 @@ namespace kstd {
         }
     };
 
+    // NOLINTBEGIN
     template<typename PACK>
     using PackTuple = TupleImpl<PACK>;
 
@@ -285,6 +286,7 @@ namespace kstd {
 
     template<typename L, typename M, typename R>
     using Triple = Tuple<L, M, R>;
+    // NOLINTEND
 }// namespace kstd
 
 // Specializations for std::tuple_size and std::tuple_element to allow structured bindings

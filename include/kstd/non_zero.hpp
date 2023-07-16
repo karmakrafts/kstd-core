@@ -48,11 +48,11 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(NonZero, self, constexpr)
 
         constexpr NonZero() noexcept :
-                _value(static_cast<value_type>(0)) {
+                _value {static_cast<value_type>(0)} {
         }
 
         explicit constexpr NonZero(value_type value) noexcept :// NOLINT
-                _value(value) {
+                _value {value} {
             assert_true(value != static_cast<value_type>(0));
         }
 
@@ -101,11 +101,11 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Box, self, constexpr);
 
         constexpr Box() noexcept :
-                _value() {
+                _value {} {
         }
 
         constexpr Box(nz_value_type value) noexcept :
-                _value(std::move(value)) {
+                _value {std::move(value)} {
         }
 
         ~Box() noexcept = default;
