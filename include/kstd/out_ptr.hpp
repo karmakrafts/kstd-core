@@ -60,9 +60,4 @@ namespace kstd {
             return &_new_value;
         }
     };
-
-    template<typename P>
-    [[nodiscard]] constexpr auto make_out(P& pointer) noexcept -> OutPtr<P> {
-        return OutPtr<P>(pointer);
-    }
 }// namespace kstd

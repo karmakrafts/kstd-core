@@ -23,17 +23,17 @@
 #include <string_view>
 
 TEST(kstd_Option, TestEmpty) {
-    auto opt = kstd::Option<std::string_view>();
+    kstd::Option<std::string_view> opt {};
     ASSERT_FALSE(opt);
 }
 
 TEST(kstd_Option, TestMapEmpty) {
     using namespace std::string_literals;
 
-    auto opt = kstd::Option<std::string_view>();
+    kstd::Option<std::string_view> opt {};
     ASSERT_FALSE(opt);
 
-    auto mapped_opt = opt.map<std::string>([](auto value) {
+    auto mapped_opt = opt.map([](auto value) {
         return std::string(value) + ", appended!";
     });
 
@@ -45,7 +45,7 @@ TEST(kstd_Option, TestValue) {
 
     constexpr auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option(str);
+    kstd::Option opt {str};
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, str);
 }
@@ -54,7 +54,7 @@ TEST(kstd_Option, TestValueAssignment) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option<std::string_view>();
+    kstd::Option<std::string_view> opt {};
     ASSERT_FALSE(opt);
 
     opt = {str};
@@ -68,11 +68,11 @@ TEST(kstd_Option, TestMapValue) {
 
     constexpr auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option(str);
+    kstd::Option opt {str};
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, str);
 
-    auto mapped_opt = opt.map<std::string>([](auto value) {
+    auto mapped_opt = opt.map([](auto value) {
         return std::string(value) + " Appended!";
     });
 
@@ -84,7 +84,7 @@ TEST(kstd_Option, TestPointer) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option(&str);
+    kstd::Option opt {&str};
     ASSERT_TRUE(opt);
     ASSERT_EQ(**opt, str);
 }
@@ -93,7 +93,7 @@ TEST(kstd_Option, TestPointerAssignment) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option<std::string_view*>();
+    kstd::Option<std::string_view*> opt {};
     ASSERT_FALSE(opt);
 
     opt = {&str};
@@ -107,11 +107,11 @@ TEST(kstd_Option, TestMapPointer) {
 
     auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option(&str);
+    kstd::Option opt {&str};
     ASSERT_TRUE(opt);
     ASSERT_EQ(**opt, str);
 
-    auto mapped_opt = opt.map<std::string>([](auto value) {
+    auto mapped_opt = opt.map([](auto value) {
         return std::string(*value) + " Appended!";
     });
 
@@ -123,7 +123,7 @@ TEST(kstd_Option, TestConstPointer) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option(&str);
+    kstd::Option opt {&str};
     ASSERT_TRUE(opt);
     ASSERT_EQ(**opt, str);
 }
@@ -132,7 +132,7 @@ TEST(kstd_Option, TestConstPointerAssignment) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option<const std::string_view*>();
+    kstd::Option<const std::string_view*> opt {};
     ASSERT_FALSE(opt);
 
     opt = {&str};
@@ -146,11 +146,11 @@ TEST(kstd_Option, TestMapConstPointer) {
 
     const auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option(&str);
+    kstd::Option opt {&str};
     ASSERT_TRUE(opt);
     ASSERT_EQ(**opt, str);
 
-    auto mapped_opt = opt.map<std::string>([](auto value) {
+    auto mapped_opt = opt.map([](auto value) {
         return std::string(*value) + " Appended!";
     });
 
@@ -161,7 +161,7 @@ TEST(kstd_Option, TestMapConstPointer) {
 TEST(kstd_Option, TestReference) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
-    auto opt = kstd::Option<std::string_view&>(str);
+    kstd::Option<std::string_view&> opt {str};
     ASSERT_TRUE(opt);
 }
 
@@ -169,7 +169,7 @@ TEST(kstd_Option, TestReferenceAssignment) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option<std::string_view&>();
+    kstd::Option<std::string_view&> opt {};
     ASSERT_FALSE(opt);
 
     opt = {str};
@@ -182,10 +182,10 @@ TEST(kstd_Option, TestMapReference) {
     using namespace std::string_literals;
 
     auto str = "Hello World!"sv;
-    auto opt = kstd::Option<std::string_view&>(str);
+    kstd::Option<std::string_view&> opt {str};
     ASSERT_TRUE(opt);
 
-    auto mapped_opt = opt.map<std::string>([](auto value) {
+    auto mapped_opt = opt.map([](auto value) {
         return std::string(value) + " Appended!";
     });
 
@@ -196,7 +196,7 @@ TEST(kstd_Option, TestMapReference) {
 TEST(kstd_Option, TestConstReference) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
-    auto opt = kstd::Option<const std::string_view&>(str);
+    kstd::Option<const std::string_view&> opt {str};
     ASSERT_TRUE(opt);
 }
 
@@ -204,7 +204,7 @@ TEST(kstd_Option, TestConstReferenceAssignment) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option<const std::string_view&>();
+    kstd::Option<const std::string_view&> opt {};
     ASSERT_FALSE(opt);
 
     opt = {str};
@@ -217,10 +217,10 @@ TEST(kstd_Option, TestMapConstReference) {
     using namespace std::string_literals;
 
     const auto str = "Hello World!"sv;
-    auto opt = kstd::Option<const std::string_view&>(str);
+    kstd::Option<const std::string_view&> opt {str};
     ASSERT_TRUE(opt);
 
-    auto mapped_opt = opt.map<std::string>([](auto value) {
+    auto mapped_opt = opt.map([](auto value) {
         return std::string(value) + " Appended!";
     });
 
@@ -232,7 +232,7 @@ TEST(kstd_Option, TestNonZero) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option(kstd::NonZero(&str));
+    kstd::Option opt {kstd::NonZero {&str}};
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);
 }
@@ -241,10 +241,10 @@ TEST(kstd_Option, TestNonZeroAssignment) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option<kstd::NonZero<const std::string_view*>>();
+    kstd::Option<kstd::NonZero<const std::string_view*>> opt {};
     ASSERT_FALSE(opt);
 
-    opt = {kstd::NonZero(&str)};
+    opt = {kstd::NonZero {&str}};
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);
 }
@@ -255,11 +255,11 @@ TEST(kstd_Option, TestMapNonZero) {
 
     const auto str = "Hello World!"sv;
 
-    auto opt = kstd::Option(kstd::NonZero(&str));
+    kstd::Option opt {kstd::NonZero {&str}};
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);
 
-    auto mapped_opt = opt.map<std::string>([](auto value) {
+    auto mapped_opt = opt.map([](auto value) {
         return std::string(*value) + " Appended!";
     });
 

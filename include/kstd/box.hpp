@@ -56,7 +56,7 @@ namespace kstd {
         KSTD_DEFAULT_MOVE_COPY(Box, self, constexpr)
 
         constexpr Box() noexcept :
-                _value {Void()} {
+                _value {Void {}} {
         }
 
         constexpr Box(value_type value) noexcept :// NOLINT
@@ -138,13 +138,13 @@ namespace kstd {
         // clang-format on
 
         private:
-        value_type _value;
+        std::variant<value_type, Void> _value;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Box, self, constexpr)
 
         constexpr Box() noexcept :
-                _value {nullptr} {
+                _value {Void {}} {
         }
 
         constexpr Box(value_type value) noexcept :// NOLINT
@@ -154,15 +154,17 @@ namespace kstd {
         ~Box() noexcept = default;
 
         [[nodiscard]] constexpr auto is_empty() const noexcept -> bool {
-            return _value == nullptr;
+            return std::holds_alternative<Void>(_value);
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> reference {
-            return _value;
+            assert_false(is_empty());
+            return std::get<value_type>(_value);
         }
 
         [[nodiscard]] constexpr auto get() const noexcept -> const_reference {
-            return _value;
+            assert_false(is_empty());
+            return std::get<value_type>(_value);
         }
 
         [[nodiscard]] constexpr auto operator*() noexcept -> reference {
@@ -182,19 +184,19 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator==(const self& other) const noexcept -> bool {
-            return is_empty() == other.is_empty() && _value == other._value;
+            return is_empty() == other.is_empty() && std::get<value_type>(_value) == std::get<value_type>(other._value);
         }
 
         [[nodiscard]] constexpr auto operator!=(const self& other) const noexcept -> bool {
-            return is_empty() != other.is_empty() || _value != other._value;
+            return is_empty() != other.is_empty() || std::get<value_type>(_value) != std::get<value_type>(other._value);
         }
 
         [[nodiscard]] constexpr auto operator==(const_pointer pointer) const noexcept -> bool {
-            return !is_empty() && _value == pointer;
+            return !is_empty() && std::get<value_type>(_value) == pointer;
         }
 
         [[nodiscard]] constexpr auto operator!=(const_pointer pointer) const noexcept -> bool {
-            return is_empty() || _value != pointer;
+            return is_empty() || std::get<value_type>(_value) != pointer;
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT

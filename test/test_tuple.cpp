@@ -22,7 +22,7 @@
 #include <type_traits>
 
 TEST(kstd_Tuple, TestValues) {
-    kstd::Pair<kstd::i32, kstd::f32> pair(1337, 3.141F);
+    kstd::Pair<kstd::i32, kstd::f32> pair {1337, 3.141F};
 
     // Template get<>
     const auto& ref_a = pair.get<0>();
@@ -45,10 +45,10 @@ TEST(kstd_Tuple, TestValues) {
     ASSERT_EQ(y, 3.141F);
 
     // Equality
-    kstd::Pair<kstd::i32, kstd::f32> pair2(1337, 3.141F);
+    kstd::Pair<kstd::i32, kstd::f32> pair2 {1337, 3.141F};
     ASSERT_TRUE(pair == pair2);
 
-    kstd::Pair<kstd::i32, kstd::f32> pair3(13, 3.1F);
+    kstd::Pair<kstd::i32, kstd::f32> pair3 {13, 3.1F};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
@@ -79,7 +79,7 @@ TEST(kstd_Tuple, TestValues) {
 TEST(kstd_Tuple, TestReferences) {
     kstd::i32 value_a = 1337;
     kstd::f32 value_b = 3.141F;
-    kstd::Pair<kstd::i32&, kstd::f32&> pair(value_a, value_b);
+    kstd::Pair<kstd::i32&, kstd::f32&> pair {value_a, value_b};
 
     // Template get<>
     const auto x_a = pair.get<0>();
@@ -102,12 +102,12 @@ TEST(kstd_Tuple, TestReferences) {
     ASSERT_EQ(y, 3.141F);
 
     // Equality
-    kstd::Pair<kstd::i32&, kstd::f32&> pair2(value_a, value_b);
+    kstd::Pair<kstd::i32&, kstd::f32&> pair2 {value_a, value_b};
     ASSERT_TRUE(pair == pair2);
 
     kstd::i32 value_a2 = 13;
     kstd::f32 value_b2 = 3.1F;
-    kstd::Pair<kstd::i32&, kstd::f32&> pair3(value_a2, value_b2);
+    kstd::Pair<kstd::i32&, kstd::f32&> pair3 {value_a2, value_b2};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
@@ -134,7 +134,7 @@ TEST(kstd_Tuple, TestReferences) {
 TEST(kstd_Tuple, TestConstReferences) {
     kstd::i32 value_a = 1337;
     kstd::f32 value_b = 3.141F;
-    kstd::Pair<const kstd::i32&, const kstd::f32&> pair(value_a, value_b);
+    kstd::Pair<const kstd::i32&, const kstd::f32&> pair {value_a, value_b};
 
     // Template get<>
     const auto& x_a = pair.get<0>();
@@ -157,12 +157,12 @@ TEST(kstd_Tuple, TestConstReferences) {
     ASSERT_EQ(y, 3.141F);
 
     // Equality
-    kstd::Pair<const kstd::i32&, const kstd::f32&> pair2(value_a, value_b);
+    kstd::Pair<const kstd::i32&, const kstd::f32&> pair2 {value_a, value_b};
     ASSERT_TRUE(pair == pair2);
 
     kstd::i32 value_a2 = 13;
     kstd::f32 value_b2 = 3.1F;
-    kstd::Pair<const kstd::i32&, const kstd::f32&> pair3(value_a2, value_b2);
+    kstd::Pair<const kstd::i32&, const kstd::f32&> pair3 {value_a2, value_b2};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
@@ -183,7 +183,7 @@ TEST(kstd_Tuple, TestConstReferences) {
 TEST(kstd_Tuple, TestPointers) {
     kstd::i32 value_a = 1337;
     kstd::f32 value_b = 3.141F;
-    kstd::Pair<kstd::i32*, kstd::f32*> pair(&value_a, &value_b);
+    kstd::Pair<kstd::i32*, kstd::f32*> pair {&value_a, &value_b};
 
     // Template get<>
     const auto* x_a = pair.get<0>();
@@ -206,10 +206,10 @@ TEST(kstd_Tuple, TestPointers) {
     ASSERT_EQ(*y, 3.141F);
 
     // Equality
-    kstd::Pair<kstd::i32*, kstd::f32*> pair2(&value_a, &value_b);
+    kstd::Pair<kstd::i32*, kstd::f32*> pair2 {&value_a, &value_b};
     ASSERT_TRUE(pair == pair2);
 
-    kstd::Pair<kstd::i32*, kstd::f32*> pair3(&value_a, nullptr);
+    kstd::Pair<kstd::i32*, kstd::f32*> pair3 {&value_a, nullptr};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
@@ -236,7 +236,7 @@ TEST(kstd_Tuple, TestPointers) {
 TEST(kstd_Tuple, TestConstPointers) {
     kstd::i32 value_a = 1337;
     kstd::f32 value_b = 3.141F;
-    kstd::Pair<const kstd::i32*, const kstd::f32*> pair(&value_a, &value_b);
+    kstd::Pair<const kstd::i32*, const kstd::f32*> pair {&value_a, &value_b};
 
     // Template get<>
     const auto* x_a = pair.get<0>();
@@ -259,10 +259,10 @@ TEST(kstd_Tuple, TestConstPointers) {
     ASSERT_EQ(*y, 3.141F);
 
     // Equality
-    kstd::Pair<const kstd::i32*, const kstd::f32*> pair2(&value_a, &value_b);
+    kstd::Pair<const kstd::i32*, const kstd::f32*> pair2 {&value_a, &value_b};
     ASSERT_TRUE(pair == pair2);
 
-    kstd::Pair<const kstd::i32*, const kstd::f32*> pair3(&value_a, nullptr);
+    kstd::Pair<const kstd::i32*, const kstd::f32*> pair3 {&value_a, nullptr};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
@@ -281,7 +281,7 @@ TEST(kstd_Tuple, TestConstPointers) {
 }
 
 TEST(kstd_Tuple, TestSlice) {
-    kstd::Tuple<kstd::i8, kstd::i16, kstd::i32, kstd::i64> tuple(1, 2, 3, 4);
+    kstd::Tuple<kstd::i8, kstd::i16, kstd::i32, kstd::i64> tuple {1, 2, 3, 4};
 
     const auto [x, y] = tuple.slice<0, 1>();
     static_assert(std::is_same_v<std::decay_t<decltype(x)>, kstd::i8>);

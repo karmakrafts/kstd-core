@@ -22,7 +22,7 @@
 
 TEST(kstd_Box, TestValue) {
     kstd::i32 value = 1337;
-    kstd::Box<kstd::i32> val_box(value);
+    kstd::Box<kstd::i32> val_box {value};
     ASSERT_EQ(*val_box, value);
 }
 
@@ -35,7 +35,7 @@ TEST(kstd_Box, TestValueAssignment) {
 
 TEST(kstd_Box, TestReference) {
     kstd::i32 value = 1337;
-    kstd::Box<kstd::i32&> ref_box(value);
+    kstd::Box<kstd::i32&> ref_box {value};
     ASSERT_EQ(*ref_box, value);
 }
 
@@ -48,7 +48,7 @@ TEST(kstd_Box, TestReferenceAssignment) {
 
 TEST(kstd_Box, TestConstReference) {
     kstd::i32 value = 1337;
-    kstd::Box<const kstd::i32&> ref_box(value);
+    kstd::Box<const kstd::i32&> ref_box {value};
     ASSERT_EQ(*ref_box, value);
 }
 
@@ -59,9 +59,21 @@ TEST(kstd_Box, TestConstReferenceAssignment) {
     ASSERT_EQ(*ref_box, value);
 }
 
+TEST(kstd_Box, TestNullPointer) {
+    kstd::Box<kstd::i32*> ptr_box {nullptr};
+    ASSERT_EQ(*ptr_box, nullptr);
+}
+
+TEST(kstd_Box, TestNullPointerAssignment) {
+    kstd::i32 value = 1337;
+    kstd::Box<kstd::i32*> ptr_box {&value};
+    ptr_box = {nullptr};
+    ASSERT_EQ(*ptr_box, nullptr);
+}
+
 TEST(kstd_Box, TestPointer) {
     kstd::i32 value = 1337;
-    kstd::Box<kstd::i32*> ptr_box(&value);
+    kstd::Box<kstd::i32*> ptr_box {&value};
     ASSERT_EQ(**ptr_box, value);
 }
 
@@ -74,7 +86,7 @@ TEST(kstd_Box, TestPointerAssignment) {
 
 TEST(kstd_Box, TestConstPointer) {
     kstd::i32 value = 1337;
-    kstd::Box<const kstd::i32*> ptr_box(&value);
+    kstd::Box<const kstd::i32*> ptr_box {&value};
     ASSERT_EQ(**ptr_box, value);
 }
 

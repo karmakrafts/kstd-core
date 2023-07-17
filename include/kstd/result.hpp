@@ -156,7 +156,7 @@ namespace kstd {
             return std::get<wrapped_error_type>(_value);
         }
 
-        template<typename R, typename F>
+        template<typename F, typename R = std::invoke_result_t<F, reference>>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, E> {
             static_assert(std::is_convertible_v<F, std::function<R(nv_value_type)>>,
                           "Function signature does not match");

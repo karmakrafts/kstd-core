@@ -32,6 +32,6 @@ TEST(kstd_OutPtr, TestOutPtr) {
     auto the_data = std::unique_ptr<kstd::i32>(nullptr);
     ASSERT_TRUE(the_data == nullptr);
 
-    the_c_function(kstd::make_out(the_data));
+    the_c_function(kstd::OutPtr {the_data});
     ASSERT_EQ(*the_data, 420);
 }

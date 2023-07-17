@@ -84,7 +84,7 @@ namespace kstd {
             return default_value;
         }
 
-        template<typename R, typename F>
+        template<typename F, typename R = std::invoke_result_t<F, reference>>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Option<R> {
             static_assert(std::is_convertible_v<F, std::function<R(value_type)>>, "Function signature does not match");
             if(is_empty()) {
