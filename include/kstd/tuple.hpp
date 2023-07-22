@@ -75,7 +75,7 @@ namespace kstd {
                     _tail {} {
             }
 
-            constexpr TupleInner(head_type head, TAIL... tail) noexcept :// NOLINT
+            constexpr TupleInner(head_type head, TAIL&&... tail) noexcept :// NOLINT
                     _head {std::forward<head_type>(head)},
                     _tail {std::forward<TAIL>(tail)...} {
             }
@@ -199,7 +199,7 @@ namespace kstd {
                 _inner {} {
         }
 
-        constexpr TupleImpl(TYPES... values) noexcept :// NOLINT
+        constexpr TupleImpl(TYPES&&... values) noexcept :// NOLINT
                 _inner {std::forward<TYPES>(values)...} {
         }
 
@@ -273,6 +273,9 @@ namespace kstd {
             return !result;
         }
     };
+
+    template<typename... TYPES>
+    TupleImpl(TYPES...) -> TupleImpl<Pack<TYPES...>>;
 
     // NOLINTBEGIN
     template<typename PACK>
