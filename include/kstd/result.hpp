@@ -129,8 +129,9 @@ namespace kstd {
             }
         }
 
-        [[nodiscard]] constexpr auto get_or(std::remove_cvref_t<nv_value_type> default_value) const noexcept
-                -> std::remove_cvref_t<nv_value_type> {
+        [[nodiscard]] constexpr auto
+        get_or(std::remove_reference_t<std::remove_cv_t<nv_value_type>> default_value) const noexcept
+                -> std::remove_reference_t<std::remove_cv_t<nv_value_type>> {
             if(!is_ok()) {
                 return default_value;
             }

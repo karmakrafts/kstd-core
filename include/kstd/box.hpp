@@ -226,7 +226,7 @@ namespace kstd {
 
         // clang-format off
         using value_type        = T;
-        using naked_value_type  = std::remove_cvref_t<std::decay_t<value_type>>;
+        using naked_value_type  = std::remove_reference_t<std::remove_cv_t<std::decay_t<value_type>>>;
         using const_reference   = const naked_value_type&;
         using reference         = std::conditional_t<std::is_const_v<std::remove_reference_t<value_type>>,
                                     const_reference,
