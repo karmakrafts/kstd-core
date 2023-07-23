@@ -73,7 +73,7 @@ namespace kstd {
         using reference             = typename boxed_value_type::reference;
         using const_reference       = typename boxed_value_type::const_reference;
         using pointer               = typename boxed_value_type::pointer;
-        using const_pointer         = typename boxed_value_type::const_reference;
+        using const_pointer         = typename boxed_value_type::const_pointer;
         // clang-format on
 
         private:
@@ -129,7 +129,8 @@ namespace kstd {
             }
         }
 
-        [[nodiscard]] constexpr auto get_or(nv_value_type default_value) const noexcept -> nv_value_type {
+        [[nodiscard]] constexpr auto get_or(std::remove_cvref_t<nv_value_type> default_value) const noexcept
+                -> std::remove_cvref_t<nv_value_type> {
             if(!is_ok()) {
                 return default_value;
             }

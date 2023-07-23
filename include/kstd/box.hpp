@@ -42,15 +42,16 @@ namespace kstd {
 
         // clang-format off
         using value_type        = T;
+        using naked_value_type  = std::remove_const_t<value_type>;
         using self              = Box<value_type, _>;
-        using reference         = value_type&;
-        using const_reference   = const value_type&;
-        using pointer           = value_type*;
-        using const_pointer     = const value_type*;
+        using reference         = naked_value_type&;
+        using const_reference   = const naked_value_type&;
+        using pointer           = naked_value_type*;
+        using const_pointer     = const naked_value_type*;
         // clang-format on
 
         private:
-        std::variant<value_type, Void> _value;
+        std::variant<naked_value_type, Void> _value;
 
         public:
         KSTD_DEFAULT_MOVE_COPY(Box, self, constexpr)
@@ -71,12 +72,12 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get() noexcept -> reference {
             assert_false(is_empty());
-            return std::get<value_type>(_value);
+            return std::get<naked_value_type>(_value);
         }
 
         [[nodiscard]] constexpr auto get() const noexcept -> const_reference {
             assert_false(is_empty());
-            return std::get<value_type>(_value);
+            return std::get<naked_value_type>(_value);
         }
 
         [[nodiscard]] constexpr auto operator*() noexcept -> reference {
@@ -96,19 +97,21 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto operator==(const self& other) const noexcept -> bool {
-            return is_empty() == other.is_empty() && std::get<value_type>(_value) == std::get<value_type>(other._value);
+            return is_empty() == other.is_empty() &&
+                   std::get<naked_value_type>(_value) == std::get<naked_value_type>(other._value);
         }
 
         [[nodiscard]] constexpr auto operator!=(const self& other) const noexcept -> bool {
-            return is_empty() != other.is_empty() || std::get<value_type>(_value) != std::get<value_type>(other._value);
+            return is_empty() != other.is_empty() ||
+                   std::get<naked_value_type>(_value) != std::get<naked_value_type>(other._value);
         }
 
-        [[nodiscard]] constexpr auto operator==(const value_type& value) const noexcept -> bool {
-            return !is_empty() && std::get<value_type>(_value) == value;
+        [[nodiscard]] constexpr auto operator==(const_reference value) const noexcept -> bool {
+            return !is_empty() && std::get<naked_value_type>(_value) == value;
         }
 
-        [[nodiscard]] constexpr auto operator!=(const value_type& value) const noexcept -> bool {
-            return is_empty() || std::get<value_type>(_value) != value;
+        [[nodiscard]] constexpr auto operator!=(const_reference value) const noexcept -> bool {
+            return is_empty() || std::get<naked_value_type>(_value) != value;
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
@@ -129,12 +132,12 @@ namespace kstd {
 
         // clang-format off
         using value_type        = T;
-        using naked_value_type  = std::decay_t<value_type>;
+        using naked_value_type  = std::remove_cv_t<std::remove_pointer_t<value_type>>;
         using self              = Box<value_type, std::enable_if_t<std::is_pointer_v<T>>>;
         using reference         = value_type&;
         using const_reference   = const value_type&;
-        using pointer           = value_type;
-        using const_pointer     = const value_type;
+        using pointer           = naked_value_type*;
+        using const_pointer     = const naked_value_type*;
         // clang-format on
 
         private:
@@ -223,14 +226,18 @@ namespace kstd {
 
         // clang-format off
         using value_type        = T;
-        using reference         = value_type&;
-        using const_reference   = const value_type&;
-        using naked_value_type  = std::decay_t<value_type>;
-        using pointer           = naked_value_type*;
+        using naked_value_type  = std::remove_cvref_t<std::decay_t<value_type>>;
+        using const_reference   = const naked_value_type&;
+        using reference         = std::conditional_t<std::is_const_v<std::remove_reference_t<value_type>>,
+                                    const_reference,
+                                    naked_value_type&>;
         using const_pointer     = const naked_value_type*;
+        using pointer           = std::conditional_t<std::is_const_v<std::remove_reference_t<value_type>>,
+                                    const_pointer,
+                                    naked_value_type*>;
         using self              = Box<value_type, std::enable_if_t<std::is_reference_v<T>>>;
         using stored_type       = std::conditional_t<std::is_const_v<std::remove_reference_t<value_type>>,
-                                                    const_pointer, pointer>;
+                                    const_pointer, pointer>;
         // clang-format on
 
         private:

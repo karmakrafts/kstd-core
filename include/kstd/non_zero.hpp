@@ -88,10 +88,10 @@ namespace kstd {
         using value_type        = T;
         using nz_value_type     = NonZero<value_type>;
         using self              = Box<nz_value_type, void>;
-        using reference         = value_type&;
-        using const_reference   = const value_type&;
-        using pointer           = value_type*;
-        using const_pointer     = const value_type*;
+        using reference         = nz_value_type&;
+        using const_reference   = const nz_value_type&;
+        using pointer           = nz_value_type*;
+        using const_pointer     = const nz_value_type*;
         // clang-format on
 
         private:
@@ -116,20 +116,20 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get() noexcept -> reference {
             assert_false(is_empty());
-            return _value.get();
+            return _value;
         }
 
         [[nodiscard]] constexpr auto get() const noexcept -> const_reference {
             assert_false(is_empty());
-            return _value.get();
+            return _value;
         }
 
         [[nodiscard]] constexpr auto operator*() noexcept -> reference {
-            return get();
+            return &_value;
         }
 
         [[nodiscard]] constexpr auto operator*() const noexcept -> const_reference {
-            return get();
+            return &_value;
         }
 
         [[nodiscard]] constexpr auto operator==(const self& other) const noexcept -> bool {

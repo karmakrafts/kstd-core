@@ -38,7 +38,7 @@ namespace kstd {
         // clang-format off
         using value_type        = T;
         using self              = Option<value_type>;
-        using boxed_value_type  = Box<value_type>;
+        using boxed_value_type  = Box<std::remove_const_t<value_type>>;
         using reference         = typename boxed_value_type::reference;
         using const_reference   = typename boxed_value_type::const_reference;
         using pointer           = typename boxed_value_type::pointer;
