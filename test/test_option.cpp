@@ -25,11 +25,11 @@
 TEST(kstd_Option, TestEmpty) {
     kstd::Option<std::string_view> opt {};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_FALSE(opt);
 }
@@ -39,11 +39,11 @@ TEST(kstd_Option, TestMapEmpty) {
 
     kstd::Option<std::string_view> opt {};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_FALSE(opt);
 
@@ -61,11 +61,11 @@ TEST(kstd_Option, TestValue) {
 
     kstd::Option opt {str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, str);
@@ -77,11 +77,11 @@ TEST(kstd_Option, TestValueAssignment) {
 
     kstd::Option<std::string_view> opt {};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_FALSE(opt);
 
@@ -98,11 +98,11 @@ TEST(kstd_Option, TestMapValue) {
 
     kstd::Option opt {str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, str);
@@ -121,11 +121,11 @@ TEST(kstd_Option, TestPointer) {
 
     kstd::Option opt {&str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(**opt, str);
@@ -137,11 +137,11 @@ TEST(kstd_Option, TestPointerAssignment) {
 
     kstd::Option<std::string_view*> opt {};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_FALSE(opt);
 
@@ -158,11 +158,11 @@ TEST(kstd_Option, TestMapPointer) {
 
     kstd::Option opt {&str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(**opt, str);
@@ -181,11 +181,11 @@ TEST(kstd_Option, TestConstPointer) {
 
     kstd::Option opt {&str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, const std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(**opt, str);
@@ -197,11 +197,11 @@ TEST(kstd_Option, TestConstPointerAssignment) {
 
     kstd::Option<const std::string_view*> opt {};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, const std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_FALSE(opt);
 
@@ -218,11 +218,11 @@ TEST(kstd_Option, TestMapConstPointer) {
 
     kstd::Option opt {&str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, const std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(**opt, str);
@@ -240,11 +240,11 @@ TEST(kstd_Option, TestReference) {
     auto str = "Hello World!"sv;
     kstd::Option<std::string_view&> opt {str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
 }
@@ -255,11 +255,11 @@ TEST(kstd_Option, TestReferenceAssignment) {
 
     kstd::Option<std::string_view&> opt {};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_FALSE(opt);
 
@@ -275,11 +275,11 @@ TEST(kstd_Option, TestMapReference) {
     auto str = "Hello World!"sv;
     kstd::Option<std::string_view&> opt {str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
 
@@ -296,11 +296,11 @@ TEST(kstd_Option, TestConstReference) {
     const auto str = "Hello World!"sv;
     kstd::Option<const std::string_view&> opt {str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
 }
@@ -311,11 +311,11 @@ TEST(kstd_Option, TestConstReferenceAssignment) {
 
     kstd::Option<const std::string_view&> opt {};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_FALSE(opt);
 
@@ -331,11 +331,11 @@ TEST(kstd_Option, TestMapConstReference) {
     const auto str = "Hello World!"sv;
     kstd::Option<const std::string_view&> opt {str};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(opt);
 
@@ -353,12 +353,12 @@ TEST(kstd_Option, TestNonZero) {
 
     kstd::Option opt {kstd::NonZero {&str}};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, kstd::NonZero<const std::string_view*>>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, kstd::NonZero<const std::string_view*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, kstd::NonZero<const std::string_view*>>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, kstd::NonZero<const std::string_view*>&>);
     static_assert(
-            std::is_same_v<typename decltype(opt)::const_reference, const kstd::NonZero<const std::string_view*>&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, kstd::NonZero<const std::string_view*>*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const kstd::NonZero<const std::string_view*>*>);
+            std::is_same_v<typename decltype(opt)::ConstReference, const kstd::NonZero<const std::string_view*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, kstd::NonZero<const std::string_view*>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const kstd::NonZero<const std::string_view*>*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);
@@ -370,12 +370,12 @@ TEST(kstd_Option, TestNonZeroAssignment) {
 
     kstd::Option<kstd::NonZero<const std::string_view*>> opt {};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, kstd::NonZero<const std::string_view*>>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, kstd::NonZero<const std::string_view*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, kstd::NonZero<const std::string_view*>>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, kstd::NonZero<const std::string_view*>&>);
     static_assert(
-            std::is_same_v<typename decltype(opt)::const_reference, const kstd::NonZero<const std::string_view*>&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, kstd::NonZero<const std::string_view*>*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const kstd::NonZero<const std::string_view*>*>);
+            std::is_same_v<typename decltype(opt)::ConstReference, const kstd::NonZero<const std::string_view*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, kstd::NonZero<const std::string_view*>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const kstd::NonZero<const std::string_view*>*>);
 
     ASSERT_FALSE(opt);
 
@@ -392,12 +392,12 @@ TEST(kstd_Option, TestMapNonZero) {
 
     kstd::Option opt {kstd::NonZero {&str}};
 
-    static_assert(std::is_same_v<typename decltype(opt)::value_type, kstd::NonZero<const std::string_view*>>);
-    static_assert(std::is_same_v<typename decltype(opt)::reference, kstd::NonZero<const std::string_view*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, kstd::NonZero<const std::string_view*>>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, kstd::NonZero<const std::string_view*>&>);
     static_assert(
-            std::is_same_v<typename decltype(opt)::const_reference, const kstd::NonZero<const std::string_view*>&>);
-    static_assert(std::is_same_v<typename decltype(opt)::pointer, kstd::NonZero<const std::string_view*>*>);
-    static_assert(std::is_same_v<typename decltype(opt)::const_pointer, const kstd::NonZero<const std::string_view*>*>);
+            std::is_same_v<typename decltype(opt)::ConstReference, const kstd::NonZero<const std::string_view*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, kstd::NonZero<const std::string_view*>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const kstd::NonZero<const std::string_view*>*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);

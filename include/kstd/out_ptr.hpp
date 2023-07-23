@@ -31,19 +31,19 @@ namespace kstd {
     template<typename P>// @formatter:off
     struct OutPtr final {
         // clang-format off
-        using owner_type    = P;
-        using element_type  = typename owner_type::element_type;
-        using self          = OutPtr<owner_type>;
+        using OwnerType     = P;
+        using ElementType   = typename OwnerType::element_type;
+        using Self          = OutPtr<OwnerType>;
         // clang-format on
 
         private:
-        owner_type* _owner;
-        element_type* _new_value;
+        OwnerType* _owner;
+        ElementType* _new_value;
 
         public:
-        KSTD_NO_MOVE_COPY(OutPtr, self, constexpr)
+        KSTD_NO_MOVE_COPY(OutPtr, Self, constexpr)
 
-        explicit constexpr OutPtr(owner_type& owner) noexcept :
+        explicit constexpr OutPtr(OwnerType& owner) noexcept :
                 _owner {&owner},
                 _new_value {} {
         }
@@ -56,7 +56,7 @@ namespace kstd {
             _owner->reset(_new_value);
         }
 
-        [[nodiscard]] constexpr operator element_type**() noexcept {// NOLINT
+        [[nodiscard]] constexpr operator ElementType**() noexcept {// NOLINT
             return &_new_value;
         }
     };

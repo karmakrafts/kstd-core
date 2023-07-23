@@ -26,21 +26,21 @@ namespace kstd {
     template<typename T, typename OFFSET = u32>
     struct RelativePtr final {
         // clang-format off
-        using element_type      = T;
-        using offset_type       = OFFSET;
-        using self              = RelativePtr<element_type, offset_type>;
-        using pointer           = element_type*;
-        using const_pointer     = const element_type*;
-        using reference         = element_type&;
-        using const_reference   = const element_type&;
-        using size_type         = usize;
+        using ElementType       = T;
+        using OffsetType        = OFFSET;
+        using Self              = RelativePtr<ElementType, OffsetType>;
+        using Pointer           = ElementType*;
+        using ConstPointer      = const ElementType*;
+        using Reference         = ElementType&;
+        using ConstReference    = const ElementType&;
+        using SizeType          = usize;
         // clang-format on
 
         private:
-        offset_type _offset;
+        OffsetType _offset;
 
         public:
-        KSTD_NO_MOVE_COPY(RelativePtr, self, constexpr)
+        KSTD_NO_MOVE_COPY(RelativePtr, Self, constexpr)
 
         constexpr RelativePtr() noexcept :
                 _offset {0} {
@@ -48,28 +48,28 @@ namespace kstd {
 
         ~RelativePtr() noexcept = default;
 
-        constexpr auto operator=(pointer value) noexcept -> self& {
+        constexpr auto operator=(Pointer value) noexcept -> Self& {
             set(value);
             return *this;
         }
 
-        constexpr auto set(element_type* value) noexcept -> void {
-            _offset = static_cast<offset_type>(reinterpret_cast<u8*>(value) - reinterpret_cast<u8*>(this));// NOLINT
+        constexpr auto set(ElementType* value) noexcept -> void {
+            _offset = static_cast<OffsetType>(reinterpret_cast<u8*>(value) - reinterpret_cast<u8*>(this));// NOLINT
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> pointer {
-            return reinterpret_cast<element_type*>(reinterpret_cast<u8*>(this) + _offset);// NOLINT
+        [[nodiscard]] constexpr auto get() noexcept -> Pointer {
+            return reinterpret_cast<ElementType*>(reinterpret_cast<u8*>(this) + _offset);// NOLINT
         }
 
-        [[nodiscard]] constexpr auto get() const noexcept -> const_pointer {
-            return reinterpret_cast<element_type*>(reinterpret_cast<u8*>(this) + _offset);// NOLINT
+        [[nodiscard]] constexpr auto get() const noexcept -> ConstPointer {
+            return reinterpret_cast<ElementType*>(reinterpret_cast<u8*>(this) + _offset);// NOLINT
         }
 
-        [[nodiscard]] constexpr operator pointer() noexcept {// NOLINT
+        [[nodiscard]] constexpr operator Pointer() noexcept {// NOLINT
             return get();
         }
 
-        [[nodiscard]] constexpr operator const_pointer() const noexcept {// NOLINT
+        [[nodiscard]] constexpr operator ConstPointer() const noexcept {// NOLINT
             return get();
         }
 
@@ -77,27 +77,27 @@ namespace kstd {
             return _offset != 0;
         }
 
-        [[nodiscard]] constexpr auto operator*() noexcept -> reference {
+        [[nodiscard]] constexpr auto operator*() noexcept -> Reference {
             return *get();
         }
 
-        [[nodiscard]] constexpr auto operator*() const noexcept -> const_reference {
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstReference {
             return *get();
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> const_pointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator[](size_type index) noexcept -> reference {
+        [[nodiscard]] constexpr auto operator[](SizeType index) noexcept -> Reference {
             return get()[index];
         }
 
-        [[nodiscard]] constexpr auto operator[](size_type index) const noexcept -> const_reference {
+        [[nodiscard]] constexpr auto operator[](SizeType index) const noexcept -> ConstReference {
             return get()[index];
         }
     };

@@ -27,11 +27,11 @@ TEST(kstd_Result, TestValue) {
     const auto value = "Hello World!"sv;
     kstd::Result result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result);
     ASSERT_EQ(value, *result);
@@ -43,11 +43,11 @@ TEST(kstd_Result, TestValueAssignment) {
     const auto value = "Hello World!"sv;
     kstd::Result result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result);
     ASSERT_EQ(value, *result);
@@ -65,11 +65,11 @@ TEST(kstd_Result, TestValueErrorAssignment) {
     const auto value = "Hello World!"sv;
     kstd::Result result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result);
     ASSERT_EQ(value, *result);
@@ -86,11 +86,11 @@ TEST(kstd_Result, TestMapValue) {
     const auto value = "Hello World!"sv;
     kstd::Result result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result);
     ASSERT_EQ(value, *result);
@@ -109,11 +109,11 @@ TEST(kstd_Result, TestReference) {
     auto value = "Hello World!"sv;
     kstd::Result<std::string_view&> result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result);
@@ -125,11 +125,11 @@ TEST(kstd_Result, TestReferenceAssignment) {
     auto value = "Hello World!"sv;
     kstd::Result<std::string_view&> result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result);
@@ -148,11 +148,11 @@ TEST(kstd_Result, TestReferenceErrorAssignment) {
     auto value = "Hello World!"sv;
     kstd::Result<std::string_view&> result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result);
@@ -169,11 +169,11 @@ TEST(kstd_Result, TestMapReference) {
     auto value = "Hello World!"sv;
     kstd::Result<std::string_view&> result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result);
@@ -192,11 +192,11 @@ TEST(kstd_Result, TestConstReference) {
     auto value = "Hello World!"sv;
     kstd::Result<const std::string_view&> result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result);
@@ -208,11 +208,11 @@ TEST(kstd_Result, TestConstReferenceAssignment) {
     auto value = "Hello World!"sv;
     kstd::Result<const std::string_view&> result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result);
@@ -231,11 +231,11 @@ TEST(kstd_Result, TestConstReferenceErrorAssignment) {
     auto value = "Hello World!"sv;
     kstd::Result<const std::string_view&> result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result);
@@ -252,11 +252,11 @@ TEST(kstd_Result, TestMapConstReference) {
     auto value = "Hello World!"sv;
     kstd::Result<const std::string_view&> result {value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, *result);
@@ -275,11 +275,11 @@ TEST(kstd_Result, TestPointer) {
     auto value = "Hello World!"sv;
     kstd::Result result {&value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
@@ -291,11 +291,11 @@ TEST(kstd_Result, TestPointerAssignment) {
     auto value = "Hello World!"sv;
     kstd::Result result {&value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
@@ -314,11 +314,11 @@ TEST(kstd_Result, TestPointerErrorAssignment) {
     auto value = "Hello World!"sv;
     kstd::Result result {&value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
@@ -335,11 +335,11 @@ TEST(kstd_Result, TestMapPointer) {
     auto value = "Hello World!"sv;
     kstd::Result result {&value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
@@ -358,11 +358,11 @@ TEST(kstd_Result, TestConstPointer) {
     const auto value = "Hello World!"sv;
     kstd::Result result {&value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, const std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, const std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
@@ -374,11 +374,11 @@ TEST(kstd_Result, TestConstPointerAssignment) {
     const auto value = "Hello World!"sv;
     kstd::Result result {&value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, const std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, const std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
@@ -397,11 +397,11 @@ TEST(kstd_Result, TestConstPointerErrorAssignment) {
     const auto value = "Hello World!"sv;
     kstd::Result result {&value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, const std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, const std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
@@ -418,11 +418,11 @@ TEST(kstd_Result, TestMapConstPointer) {
     const auto value = "Hello World!"sv;
     kstd::Result result {&value};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, const std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, const std::string_view*&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view* const&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, const std::string_view*&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view* const&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
@@ -440,11 +440,11 @@ TEST(kstd_Result, TestVoid) {
 
     kstd::Result<void> result {};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, void>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, void>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, void>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, void>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, void>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, void>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, void>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, void>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, void>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, void>);
 
     ASSERT_TRUE(result.is_ok());
 
@@ -458,11 +458,11 @@ TEST(kstd_Result, TestEmpty) {
 
     kstd::Result<std::string_view> result {};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_empty());
 }
@@ -472,11 +472,11 @@ TEST(kstd_Result, TestEmptyAssignment) {
 
     kstd::Result<std::string_view> result {};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_empty());
 
@@ -490,11 +490,11 @@ TEST(kstd_Result, TestEmptyErrorAssignment) {
 
     kstd::Result<std::string_view> result {};
 
-    static_assert(std::is_same_v<typename decltype(result)::value_type, std::string_view>);
-    static_assert(std::is_same_v<typename decltype(result)::reference, std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::const_reference, const std::string_view&>);
-    static_assert(std::is_same_v<typename decltype(result)::pointer, std::string_view*>);
-    static_assert(std::is_same_v<typename decltype(result)::const_pointer, const std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string_view>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string_view&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string_view*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string_view*>);
 
     ASSERT_TRUE(result.is_empty());
 

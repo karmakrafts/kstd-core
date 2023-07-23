@@ -36,27 +36,27 @@ namespace kstd {
         static_assert(!std::is_same_v<std::decay_t<T>, Void>, "Type cannot be Void");
 
         // clang-format off
-        using value_type        = T;
-        using self              = Option<value_type>;
-        using boxed_value_type  = Box<std::remove_const_t<value_type>>;
-        using reference         = typename boxed_value_type::reference;
-        using const_reference   = typename boxed_value_type::const_reference;
-        using pointer           = typename boxed_value_type::pointer;
-        using const_pointer     = typename boxed_value_type::const_pointer;
+        using ValueType         = T;
+        using Self              = Option<ValueType>;
+        using BoxType           = Box<std::remove_const_t<ValueType>>;
+        using Reference         = typename BoxType::Reference;
+        using ConstReference    = typename BoxType::ConstReference;
+        using Pointer           = typename BoxType::Pointer;
+        using ConstPointer      = typename BoxType::ConstPointer;
         // clang-format on
 
         private:
-        boxed_value_type _value;
+        BoxType _value;
 
         public:
-        KSTD_DEFAULT_MOVE_COPY(Option, self, constexpr)
+        KSTD_DEFAULT_MOVE_COPY(Option, Self, constexpr)
 
         constexpr Option() noexcept :
                 _value {} {
         }
 
-        constexpr Option(value_type value) noexcept :// NOLINT
-                _value {std::forward<value_type>(value)} {
+        constexpr Option(ValueType value) noexcept :// NOLINT
+                _value {std::forward<ValueType>(value)} {
         }
 
         ~Option() noexcept = default;
@@ -69,24 +69,24 @@ namespace kstd {
             return !_value.is_empty();
         }
 
-        [[nodiscard]] constexpr auto get() noexcept -> reference {
+        [[nodiscard]] constexpr auto get() noexcept -> Reference {
             return _value.get();
         }
 
-        [[nodiscard]] constexpr auto get() const noexcept -> const_reference {
+        [[nodiscard]] constexpr auto get() const noexcept -> ConstReference {
             return _value.get();
         }
 
-        [[nodiscard]] constexpr auto get_or(value_type default_value) noexcept -> value_type {
+        [[nodiscard]] constexpr auto get_or(ValueType default_value) noexcept -> ValueType {
             if(has_value()) {
                 return get();
             }
             return default_value;
         }
 
-        template<typename F, typename R = std::invoke_result_t<F, reference>>
+        template<typename F, typename R = std::invoke_result_t<F, Reference>>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Option<R> {
-            static_assert(std::is_convertible_v<F, std::function<R(value_type)>>, "Function signature does not match");
+            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
             if(is_empty()) {
                 return {};
             }
@@ -97,19 +97,19 @@ namespace kstd {
             return has_value();
         }
 
-        [[nodiscard]] constexpr auto operator*() noexcept -> reference {
+        [[nodiscard]] constexpr auto operator*() noexcept -> Reference {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator*() const noexcept -> const_reference {
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstReference {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator->() noexcept -> pointer {
+        [[nodiscard]] constexpr auto operator->() noexcept -> Pointer {
             return &get();
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> const_pointer {
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return &get();
         }
     };
