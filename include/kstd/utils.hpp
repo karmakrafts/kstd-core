@@ -169,7 +169,7 @@ namespace kstd::utils {
         result.resize(mbstowcs(result.data(), value, size));
 
         setlocale(LC_ALL, locale.c_str());
-        return result;
 #endif
+        return result;
     }
 }// namespace kstd::utils
