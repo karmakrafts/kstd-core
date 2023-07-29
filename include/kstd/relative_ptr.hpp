@@ -25,16 +25,14 @@
 namespace kstd {
     template<typename T, typename OFFSET = u32>
     struct RelativePtr final {
-        // clang-format off
-        using ElementType       = T;
-        using OffsetType        = OFFSET;
-        using Self              = RelativePtr<ElementType, OffsetType>;
-        using Pointer           = ElementType*;
-        using ConstPointer      = const ElementType*;
-        using Reference         = ElementType&;
-        using ConstReference    = const ElementType&;
-        using SizeType          = usize;
-        // clang-format on
+        using ElementType = T;
+        using OffsetType = OFFSET;
+        using Self = RelativePtr<ElementType, OffsetType>;
+        using Pointer = ElementType*;
+        using ConstPointer = const ElementType*;
+        using Reference = ElementType&;
+        using ConstReference = const ElementType&;
+        using SizeType = usize;
 
         private:
         OffsetType _offset;

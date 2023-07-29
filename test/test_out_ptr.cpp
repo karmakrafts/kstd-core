@@ -28,7 +28,7 @@ extern "C" auto the_c_function(kstd::i32** data_to_set) -> void {
     *(*data_to_set) = 420;
 }
 
-TEST(kstd_OutPtr, TestOutPtr) {
+TEST(kstd_OutPtr, test_out_ptr) {
     auto the_data = std::unique_ptr<kstd::i32>(nullptr);
     ASSERT_TRUE(the_data == nullptr);
 

@@ -52,11 +52,9 @@ namespace kstd {
         }
     };
 
-    // @formatter:off
     [[nodiscard]] constexpr auto current_location(const char* file = __builtin_FILE(),
                                                   const char* function = __builtin_FUNCTION(),
                                                   usize line = __builtin_LINE()) noexcept -> SourceLocation {
         return {file, function, line};
     }
-    // @formatter:on
 }// namespace kstd

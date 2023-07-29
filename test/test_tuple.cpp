@@ -21,7 +21,7 @@
 #include <kstd/tuple.hpp>
 #include <type_traits>
 
-TEST(kstd_Tuple, TestValues) {
+TEST(kstd_Tuple, test_values) {
     kstd::Tuple<kstd::i32, kstd::f32> pair {1337, 3.141F};
 
     // Template get<>
@@ -76,7 +76,7 @@ TEST(kstd_Tuple, TestValues) {
     ASSERT_EQ(quad.get<3>(), 6.21F);
 }
 
-TEST(kstd_Tuple, TestReferences) {
+TEST(kstd_Tuple, test_references) {
     kstd::i32 value_a = 1337;
     kstd::f32 value_b = 3.141F;
     kstd::Tuple<kstd::i32&, kstd::f32&> pair {value_a, value_b};
@@ -131,7 +131,7 @@ TEST(kstd_Tuple, TestReferences) {
     ASSERT_EQ(value_b, 6.21F);
 }
 
-TEST(kstd_Tuple, TestConstReferences) {
+TEST(kstd_Tuple, test_const_references) {
     kstd::i32 value_a = 1337;
     kstd::f32 value_b = 3.141F;
     kstd::Tuple<const kstd::i32&, const kstd::f32&> pair {value_a, value_b};
@@ -180,7 +180,7 @@ TEST(kstd_Tuple, TestConstReferences) {
     ASSERT_EQ(qw, 3.141F);
 }
 
-TEST(kstd_Tuple, TestPointers) {
+TEST(kstd_Tuple, test_pointers) {
     kstd::i32 value_a = 1337;
     kstd::f32 value_b = 3.141F;
     kstd::Tuple<kstd::i32*, kstd::f32*> pair {&value_a, &value_b};
@@ -233,7 +233,7 @@ TEST(kstd_Tuple, TestPointers) {
     ASSERT_EQ(value_b, 6.21F);
 }
 
-TEST(kstd_Tuple, TestConstPointers) {
+TEST(kstd_Tuple, test_const_pointers) {
     kstd::i32 value_a = 1337;
     kstd::f32 value_b = 3.141F;
     kstd::Tuple<const kstd::i32*, const kstd::f32*> pair {&value_a, &value_b};
@@ -280,7 +280,7 @@ TEST(kstd_Tuple, TestConstPointers) {
     ASSERT_EQ(*qw, 3.141F);
 }
 
-TEST(kstd_Tuple, TestSlice) {
+TEST(kstd_Tuple, test_slice) {
     kstd::Tuple<kstd::i8, kstd::i16, kstd::i32, kstd::i64> tuple {1, 2, 3, 4};
 
     const auto [x, y] = tuple.slice<0, 1>();

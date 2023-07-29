@@ -30,11 +30,9 @@ namespace kstd {
      */
     template<typename P>// @formatter:off
     struct OutPtr final {
-        // clang-format off
-        using OwnerType     = P;
-        using ElementType   = typename OwnerType::element_type;
-        using Self          = OutPtr<OwnerType>;
-        // clang-format on
+        using OwnerType = P;
+        using ElementType = typename OwnerType::element_type;
+        using Self = OutPtr<OwnerType>;
 
         private:
         OwnerType* _owner;

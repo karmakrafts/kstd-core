@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include <kstd/types.hpp>
 
-TEST(kstd, TestSignedTypes) {
+TEST(kstd, test_signed_types) {
     ASSERT_TRUE(sizeof(kstd::i8) == 1);
     ASSERT_TRUE(sizeof(kstd::i16) == 2);
     ASSERT_TRUE(sizeof(kstd::i32) == 4);
@@ -28,7 +28,7 @@ TEST(kstd, TestSignedTypes) {
     ASSERT_TRUE(sizeof(kstd::isize) == sizeof(void*));
 }
 
-TEST(kstd, TestUnsignedTypes) {
+TEST(kstd, test_unsigned_types) {
     ASSERT_TRUE(sizeof(kstd::u8) == 1);
     ASSERT_TRUE(sizeof(kstd::u16) == 2);
     ASSERT_TRUE(sizeof(kstd::u32) == 4);
@@ -36,7 +36,7 @@ TEST(kstd, TestUnsignedTypes) {
     ASSERT_TRUE(sizeof(kstd::usize) == sizeof(void*));
 }
 
-TEST(kstd, TestFloatTypes) {
+TEST(kstd, test_float_types) {
     ASSERT_TRUE(sizeof(kstd::f32) == 4);
     ASSERT_TRUE(sizeof(kstd::f64) == 8);
     constexpr auto f64ex_size = sizeof(kstd::f64ex);

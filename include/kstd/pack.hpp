@@ -214,7 +214,7 @@ namespace kstd {
 
     template<template<typename> typename TRANSFORM, typename... TYPES>//
     struct TransformPack<TRANSFORM, Pack<TYPES...>> {
-        using Type = Pack<typename TRANSFORM<TYPES>::type...>;
+        using Type = Pack<typename TRANSFORM<TYPES>::Type...>;
     };
 
     template<template<typename> typename TRANSFORM, typename... TYPES>//

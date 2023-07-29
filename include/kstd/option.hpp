@@ -35,15 +35,13 @@ namespace kstd {
     struct Option final {
         static_assert(!std::is_same_v<std::decay_t<T>, Void>, "Type cannot be Void");
 
-        // clang-format off
-        using ValueType         = T;
-        using Self              = Option<ValueType>;
-        using BoxType           = Box<std::remove_const_t<ValueType>>;
-        using Reference         = typename BoxType::Reference;
-        using ConstReference    = typename BoxType::ConstReference;
-        using Pointer           = typename BoxType::Pointer;
-        using ConstPointer      = typename BoxType::ConstPointer;
-        // clang-format on
+        using ValueType = T;
+        using Self = Option<ValueType>;
+        using BoxType = Box<std::remove_const_t<ValueType>>;
+        using Reference = typename BoxType::Reference;
+        using ConstReference = typename BoxType::ConstReference;
+        using Pointer = typename BoxType::Pointer;
+        using ConstPointer = typename BoxType::ConstPointer;
 
         private:
         BoxType _value;

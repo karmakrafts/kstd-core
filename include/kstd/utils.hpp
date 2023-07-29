@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <cstring>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -56,42 +57,84 @@ namespace kstd::utils {
     }
 
     /**
-     * Creates a new UTF-8 string from the contents of the given UTF-16 string.
+     * Creates a new multibyte UTF-8 string from the contents of the given wide UTF-8 string.
      *
-     * @param value The UTF-16 string to copy data from into the newly created string.
-     * @return A new UTF-8 string with the contents of the given UTF-16 string.
+     * @param value The wide UTF-8 string to copy data from into the newly created string.
+     * @return A new multibyte UTF-8 string with the contents of the given wide UTF-8 string.
      */
-    [[nodiscard]] inline auto to_utf8(const std::wstring& value) noexcept -> std::string {
-        return {value.begin(), value.end()};
+    [[nodiscard]] inline auto to_mbs(const std::wstring& value) noexcept -> std::string {
+        const auto length = value.size();
+        const auto terminated_length = length + 1;
+        const auto size = terminated_length * sizeof(wchar_t);
+
+        const std::string locale = std::setlocale(LC_ALL, nullptr);
+        std::setlocale(LC_ALL, "en_US.UTF-8");
+
+        std::string result(size, ' ');
+        result.resize(std::wcstombs(result.data(), value.c_str(), size));
+
+        std::setlocale(LC_ALL, locale.c_str());
+        return result;
     }
 
     /**
-     * Creates a new UTF-8 string from the contents of the given UTF-16 string view.
+     * Creates a new multibyte UTF-8 string from the contents of the given wide UTF-8 C-string.
      *
-     * @param value The UTF-16 string view to copy data from into the newly created string.
-     * @return A new UTF-8 string with the contents of the given UTF-16 string view.
+     * @param value The wide UTF-8 C-string to copy data from into the newly created string.
+     * @return A new multibyte UTF-8 string with the contents of the given wide UTF-8 C-string.
      */
-    [[nodiscard]] inline auto to_utf8(std::wstring_view value) noexcept -> std::string {
-        return {value.begin(), value.end()};
+    [[nodiscard]] inline auto to_mbs(const wchar_t* value) noexcept -> std::string {
+        const auto length = std::wcslen(value);
+        const auto terminated_length = length + 1;
+        const auto size = terminated_length * sizeof(wchar_t);
+
+        const std::string locale = std::setlocale(LC_ALL, nullptr);
+        std::setlocale(LC_ALL, "en_US.UTF-8");
+
+        std::string result(size, ' ');
+        result.resize(std::wcstombs(result.data(), value, size));
+
+        std::setlocale(LC_ALL, locale.c_str());
+        return result;
     }
 
     /**
-     * Creates a new UTF-16 string from the contents of the given UTF-8 string.
+     * Creates a new wide UTF-8 string from the contents of the given UTF-8 string.
      *
-     * @param value The UTF-8 string to copy data from into the newly created string.
-     * @return A new UTF-16 string with the contents of the given UTF-8 string.
+     * @param value The multibyte UTF-8 string to copy data from into the newly created string.
+     * @return A new wide UTF-8 string with the contents of the given multibyte UTF-8 string.
      */
-    [[nodiscard]] inline auto to_utf16(const std::string& value) noexcept -> std::wstring {
-        return {value.begin(), value.end()};
+    [[nodiscard]] inline auto to_wcs(const std::string& value) noexcept -> std::wstring {
+        const auto length = value.size();
+        const auto size = length + 1;
+
+        const std::string locale = std::setlocale(LC_ALL, nullptr);
+        std::setlocale(LC_ALL, "en_US.UTF-8");
+
+        std::wstring result(size, ' ');
+        result.resize(std::mbstowcs(result.data(), value.c_str(), size));
+
+        std::setlocale(LC_ALL, locale.c_str());
+        return result;
     }
 
     /**
-     * Creates a new UTF-16 string from the contents of the given UTF-8 string view.
+     * Creates a new wide UTF-8 string from the contents of the given UTF-8 C-string.
      *
-     * @param value The UTF-8 string view to copy data from into the newly created string.
-     * @return A new UTF-16 string with the contents of the given UTF-8 string view.
+     * @param value The multibyte UTF-8 C-string to copy data from into the newly created string.
+     * @return A new wide UTF-8 string with the contents of the given multibyte UTF-8 C-string.
      */
-    [[nodiscard]] inline auto to_utf16(std::string_view value) noexcept -> std::wstring {
-        return {value.begin(), value.end()};
+    [[nodiscard]] inline auto to_wcs(const char* value) noexcept -> std::wstring {
+        const auto length = std::strlen(value);
+        const auto size = length + 1;
+
+        const std::string locale = std::setlocale(LC_ALL, nullptr);
+        std::setlocale(LC_ALL, "en_US.UTF-8");
+
+        std::wstring result(size, ' ');
+        result.resize(std::mbstowcs(result.data(), value, size));
+
+        std::setlocale(LC_ALL, locale.c_str());
+        return result;
     }
 }// namespace kstd::utils

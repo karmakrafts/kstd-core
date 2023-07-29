@@ -19,8 +19,9 @@
 
 #include <gtest/gtest.h>
 #include <kstd/box.hpp>
+#include <memory>
 
-TEST(kstd_Box, TestValue) {
+TEST(kstd_Box, test_value) {
     kstd::i32 value = 1337;
     kstd::Box<kstd::i32> val_box {value};
 
@@ -34,7 +35,7 @@ TEST(kstd_Box, TestValue) {
     ASSERT_EQ(*val_box, value);
 }
 
-TEST(kstd_Box, TestValueAssignment) {
+TEST(kstd_Box, test_value_assignment) {
     kstd::i32 value = 1337;
     kstd::Box<kstd::i32> val_box;
 
@@ -49,7 +50,42 @@ TEST(kstd_Box, TestValueAssignment) {
     ASSERT_EQ(*val_box, value);
 }
 
-TEST(kstd_Box, TestReference) {
+TEST(kstd_Box, test_no_copy_value) {
+    kstd::i32 value = 1337;
+    kstd::Box<std::unique_ptr<kstd::i32>> val_box {std::make_unique<kstd::i32>(value)};
+
+    static_assert(std::is_same_v<typename decltype(val_box)::ValueType, std::unique_ptr<kstd::i32>>);
+    static_assert(std::is_same_v<typename decltype(val_box)::NakedValueType, std::unique_ptr<kstd::i32>>);
+    static_assert(std::is_same_v<typename decltype(val_box)::Reference, std::unique_ptr<kstd::i32>&>);
+    static_assert(std::is_same_v<typename decltype(val_box)::ConstReference, const std::unique_ptr<kstd::i32>&>);
+    static_assert(std::is_same_v<typename decltype(val_box)::Pointer, std::unique_ptr<kstd::i32>*>);
+    static_assert(std::is_same_v<typename decltype(val_box)::ConstPointer, const std::unique_ptr<kstd::i32>*>);
+
+    ASSERT_EQ(**val_box, value);
+
+    auto ptr = std::move(*val_box);
+    ASSERT_EQ(*ptr, value);
+}
+
+TEST(kstd_Box, test_no_copy_value_assignment) {
+    kstd::i32 value = 1337;
+    kstd::Box<std::unique_ptr<kstd::i32>> val_box;
+
+    static_assert(std::is_same_v<typename decltype(val_box)::ValueType, std::unique_ptr<kstd::i32>>);
+    static_assert(std::is_same_v<typename decltype(val_box)::NakedValueType, std::unique_ptr<kstd::i32>>);
+    static_assert(std::is_same_v<typename decltype(val_box)::Reference, std::unique_ptr<kstd::i32>&>);
+    static_assert(std::is_same_v<typename decltype(val_box)::ConstReference, const std::unique_ptr<kstd::i32>&>);
+    static_assert(std::is_same_v<typename decltype(val_box)::Pointer, std::unique_ptr<kstd::i32>*>);
+    static_assert(std::is_same_v<typename decltype(val_box)::ConstPointer, const std::unique_ptr<kstd::i32>*>);
+
+    val_box = {std::make_unique<kstd::i32>(value)};
+    ASSERT_EQ(**val_box, value);
+
+    auto ptr = std::move(*val_box);
+    ASSERT_EQ(*ptr, value);
+}
+
+TEST(kstd_Box, test_reference) {
     kstd::i32 value = 1337;
     kstd::Box<kstd::i32&> ref_box {value};
 
@@ -63,7 +99,7 @@ TEST(kstd_Box, TestReference) {
     ASSERT_EQ(*ref_box, value);
 }
 
-TEST(kstd_Box, TestReferenceAssignment) {
+TEST(kstd_Box, test_reference_assignment) {
     kstd::i32 value = 1337;
     kstd::Box<kstd::i32&> ref_box;
 
@@ -78,7 +114,7 @@ TEST(kstd_Box, TestReferenceAssignment) {
     ASSERT_EQ(*ref_box, value);
 }
 
-TEST(kstd_Box, TestConstReference) {
+TEST(kstd_Box, test_const_reference) {
     kstd::i32 value = 1337;
     kstd::Box<const kstd::i32&> ref_box {value};
 
@@ -92,7 +128,7 @@ TEST(kstd_Box, TestConstReference) {
     ASSERT_EQ(*ref_box, value);
 }
 
-TEST(kstd_Box, TestConstReferenceAssignment) {
+TEST(kstd_Box, test_const_reference_assignment) {
     kstd::i32 value = 1337;
     kstd::Box<const kstd::i32&> ref_box;
 
@@ -107,7 +143,7 @@ TEST(kstd_Box, TestConstReferenceAssignment) {
     ASSERT_EQ(*ref_box, value);
 }
 
-TEST(kstd_Box, TestNullPointer) {
+TEST(kstd_Box, test_null_pointer) {
     kstd::Box<kstd::i32*> ptr_box {nullptr};
 
     static_assert(std::is_same_v<typename decltype(ptr_box)::ValueType, kstd::i32*>);
@@ -120,7 +156,7 @@ TEST(kstd_Box, TestNullPointer) {
     ASSERT_EQ(*ptr_box, nullptr);
 }
 
-TEST(kstd_Box, TestNullPointerAssignment) {
+TEST(kstd_Box, test_null_pointer_assignment) {
     kstd::i32 value = 1337;
     kstd::Box<kstd::i32*> ptr_box {&value};
 
@@ -135,7 +171,7 @@ TEST(kstd_Box, TestNullPointerAssignment) {
     ASSERT_EQ(*ptr_box, nullptr);
 }
 
-TEST(kstd_Box, TestPointer) {
+TEST(kstd_Box, test_pointer) {
     kstd::i32 value = 1337;
     kstd::Box<kstd::i32*> ptr_box {&value};
 
@@ -149,7 +185,7 @@ TEST(kstd_Box, TestPointer) {
     ASSERT_EQ(**ptr_box, value);
 }
 
-TEST(kstd_Box, TestPointerAssignment) {
+TEST(kstd_Box, test_pointer_assignment) {
     kstd::i32 value = 1337;
     kstd::Box<kstd::i32*> ptr_box;
 
@@ -164,7 +200,7 @@ TEST(kstd_Box, TestPointerAssignment) {
     ASSERT_EQ(**ptr_box, value);
 }
 
-TEST(kstd_Box, TestConstPointer) {
+TEST(kstd_Box, test_const_pointer) {
     kstd::i32 value = 1337;
     kstd::Box<const kstd::i32*> ptr_box {&value};
 
@@ -178,7 +214,7 @@ TEST(kstd_Box, TestConstPointer) {
     ASSERT_EQ(**ptr_box, value);
 }
 
-TEST(kstd_Box, TestConstPointerAssignment) {
+TEST(kstd_Box, test_const_pointer_assignment) {
     kstd::i32 value = 1337;
     kstd::Box<const kstd::i32*> ptr_box;
 

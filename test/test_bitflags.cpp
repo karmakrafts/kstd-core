@@ -23,7 +23,7 @@
 
 KSTD_BITFLAGS(kstd::u8, SomeFlags, FOO = 0b0000'0001, BAR = 0b0000'0010, BAZ = 0b0000'0100)
 
-TEST(kstd, TestBitflags) {
+TEST(kstd, test_bit_flags) {
     SomeFlags flags = SomeFlags::NONE;
     flags |= SomeFlags::FOO;
     ASSERT_EQ(flags, SomeFlags::FOO);

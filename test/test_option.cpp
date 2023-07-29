@@ -22,7 +22,7 @@
 #include <string>
 #include <string_view>
 
-TEST(kstd_Option, TestEmpty) {
+TEST(kstd_Option, test_empty) {
     kstd::Option<std::string_view> opt {};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string_view>);
@@ -34,7 +34,7 @@ TEST(kstd_Option, TestEmpty) {
     ASSERT_FALSE(opt);
 }
 
-TEST(kstd_Option, TestMapEmpty) {
+TEST(kstd_Option, test_map_empty) {
     using namespace std::string_literals;
 
     kstd::Option<std::string_view> opt {};
@@ -54,7 +54,7 @@ TEST(kstd_Option, TestMapEmpty) {
     ASSERT_FALSE(mapped_opt);
 }
 
-TEST(kstd_Option, TestValue) {
+TEST(kstd_Option, test_value) {
     using namespace std::string_view_literals;
 
     constexpr auto str = "Hello World!"sv;
@@ -71,7 +71,7 @@ TEST(kstd_Option, TestValue) {
     ASSERT_EQ(*opt, str);
 }
 
-TEST(kstd_Option, TestValueAssignment) {
+TEST(kstd_Option, test_value_assignment) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
 
@@ -90,7 +90,7 @@ TEST(kstd_Option, TestValueAssignment) {
     ASSERT_EQ(*opt, str);
 }
 
-TEST(kstd_Option, TestMapValue) {
+TEST(kstd_Option, test_map_value) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -115,7 +115,43 @@ TEST(kstd_Option, TestMapValue) {
     ASSERT_EQ(*mapped_opt, "Hello World! Appended!"s);
 }
 
-TEST(kstd_Option, TestPointer) {
+TEST(kstd_Option, test_no_copy_value) {
+    using namespace std::string_view_literals;
+
+    constexpr auto str = "Hello World!"sv;
+
+    kstd::Option opt {std::make_unique<std::string_view>(str)};
+
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::unique_ptr<std::string_view>>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::unique_ptr<std::string_view>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::unique_ptr<std::string_view>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::unique_ptr<std::string_view>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::unique_ptr<std::string_view>*>);
+
+    ASSERT_TRUE(opt);
+    ASSERT_EQ(**opt, str);
+}
+
+TEST(kstd_Option, test_no_copy_value_assignment) {
+    using namespace std::string_view_literals;
+    auto str = "Hello World!"sv;
+
+    kstd::Option<std::unique_ptr<std::string_view>> opt {};
+
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::unique_ptr<std::string_view>>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, std::unique_ptr<std::string_view>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const std::unique_ptr<std::string_view>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, std::unique_ptr<std::string_view>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const std::unique_ptr<std::string_view>*>);
+
+    ASSERT_FALSE(opt);
+
+    opt = {std::make_unique<std::string_view>(str)};
+    ASSERT_TRUE(opt);
+    ASSERT_EQ(**opt, str);
+}
+
+TEST(kstd_Option, test_pointer) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
 
@@ -131,7 +167,7 @@ TEST(kstd_Option, TestPointer) {
     ASSERT_EQ(**opt, str);
 }
 
-TEST(kstd_Option, TestPointerAssignment) {
+TEST(kstd_Option, test_pointer_assignment) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
 
@@ -150,7 +186,7 @@ TEST(kstd_Option, TestPointerAssignment) {
     ASSERT_EQ(*opt, &str);
 }
 
-TEST(kstd_Option, TestMapPointer) {
+TEST(kstd_Option, test_map_pointer) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -175,7 +211,7 @@ TEST(kstd_Option, TestMapPointer) {
     ASSERT_EQ(*mapped_opt, "Hello World! Appended!"s);
 }
 
-TEST(kstd_Option, TestConstPointer) {
+TEST(kstd_Option, test_const_pointer) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
@@ -191,7 +227,7 @@ TEST(kstd_Option, TestConstPointer) {
     ASSERT_EQ(**opt, str);
 }
 
-TEST(kstd_Option, TestConstPointerAssignment) {
+TEST(kstd_Option, test_const_pointer_assignment) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
@@ -210,7 +246,7 @@ TEST(kstd_Option, TestConstPointerAssignment) {
     ASSERT_EQ(*opt, &str);
 }
 
-TEST(kstd_Option, TestMapConstPointer) {
+TEST(kstd_Option, test_map_const_pointer) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -235,7 +271,7 @@ TEST(kstd_Option, TestMapConstPointer) {
     ASSERT_EQ(*mapped_opt, "Hello World! Appended!"s);
 }
 
-TEST(kstd_Option, TestReference) {
+TEST(kstd_Option, test_reference) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
     kstd::Option<std::string_view&> opt {str};
@@ -249,7 +285,7 @@ TEST(kstd_Option, TestReference) {
     ASSERT_TRUE(opt);
 }
 
-TEST(kstd_Option, TestReferenceAssignment) {
+TEST(kstd_Option, test_reference_assignment) {
     using namespace std::string_view_literals;
     auto str = "Hello World!"sv;
 
@@ -268,7 +304,7 @@ TEST(kstd_Option, TestReferenceAssignment) {
     ASSERT_EQ(*opt, str);
 }
 
-TEST(kstd_Option, TestMapReference) {
+TEST(kstd_Option, test_map_reference) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -291,7 +327,7 @@ TEST(kstd_Option, TestMapReference) {
     ASSERT_EQ(*mapped_opt, "Hello World! Appended!"s);
 }
 
-TEST(kstd_Option, TestConstReference) {
+TEST(kstd_Option, test_const_reference) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
     kstd::Option<const std::string_view&> opt {str};
@@ -305,7 +341,7 @@ TEST(kstd_Option, TestConstReference) {
     ASSERT_TRUE(opt);
 }
 
-TEST(kstd_Option, TestConstReferenceAssignment) {
+TEST(kstd_Option, test_const_reference_assignment) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
@@ -324,7 +360,7 @@ TEST(kstd_Option, TestConstReferenceAssignment) {
     ASSERT_EQ(*opt, str);
 }
 
-TEST(kstd_Option, TestMapConstReference) {
+TEST(kstd_Option, test_map_const_reference) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -347,7 +383,7 @@ TEST(kstd_Option, TestMapConstReference) {
     ASSERT_EQ(*mapped_opt, "Hello World! Appended!"s);
 }
 
-TEST(kstd_Option, TestNonZero) {
+TEST(kstd_Option, test_non_zero) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
@@ -364,7 +400,7 @@ TEST(kstd_Option, TestNonZero) {
     ASSERT_EQ(*opt, &str);
 }
 
-TEST(kstd_Option, TestNonZeroAssignment) {
+TEST(kstd_Option, test_non_zero_assignment) {
     using namespace std::string_view_literals;
     const auto str = "Hello World!"sv;
 
@@ -384,7 +420,7 @@ TEST(kstd_Option, TestNonZeroAssignment) {
     ASSERT_EQ(*opt, &str);
 }
 
-TEST(kstd_Option, TestMapNonZero) {
+TEST(kstd_Option, test_map_non_zero) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 

@@ -22,10 +22,10 @@
 
 using namespace kstd;
 
-TEST(kstd, TestAssertSuccess) {
+TEST(kstd, test_assert_success) {
     assert_true(true);
 }
 
-TEST(kstd, TestAssertFail) {
+TEST(kstd, test_assert_fail) {
     ASSERT_EXIT(assert_true(false), testing::ExitedWithCode(4), "");
 }

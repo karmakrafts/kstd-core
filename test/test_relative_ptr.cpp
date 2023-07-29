@@ -34,7 +34,7 @@ struct TestStruct final {
  * allocator, as found in real-time graphics applications for example.
  */
 
-TEST(kstd_RelativePtr, TestUnsignedOffset) {
+TEST(kstd_RelativePtr, test_unsigned_offset) {
     constexpr auto size = sizeof(TestStruct<kstd::u32>) + sizeof(kstd::i32) + sizeof(kstd::f32);
 
     auto* memory = reinterpret_cast<kstd::u8*>(// NOLINT
@@ -59,7 +59,7 @@ TEST(kstd_RelativePtr, TestUnsignedOffset) {
     kstd::libc::free(memory);// NOLINT
 }
 
-TEST(kstd_RelativePtr, TestSignedOffset) {
+TEST(kstd_RelativePtr, test_signed_offset) {
     constexpr auto size = sizeof(TestStruct<kstd::i32>) + sizeof(kstd::i32) + sizeof(kstd::f32);
 
     auto* memory = reinterpret_cast<kstd::u8*>(// NOLINT

@@ -21,7 +21,7 @@
 #include <kstd/result.hpp>
 #include <string_view>
 
-TEST(kstd_Result, TestValue) {
+TEST(kstd_Result, test_value) {
     using namespace std::string_view_literals;
 
     const auto value = "Hello World!"sv;
@@ -37,7 +37,7 @@ TEST(kstd_Result, TestValue) {
     ASSERT_EQ(value, *result);
 }
 
-TEST(kstd_Result, TestValueAssignment) {
+TEST(kstd_Result, test_value_assignment) {
     using namespace std::string_view_literals;
 
     const auto value = "Hello World!"sv;
@@ -59,7 +59,7 @@ TEST(kstd_Result, TestValueAssignment) {
     ASSERT_EQ(other_value, value);
 }
 
-TEST(kstd_Result, TestValueErrorAssignment) {
+TEST(kstd_Result, test_value_error_assignment) {
     using namespace std::string_view_literals;
 
     const auto value = "Hello World!"sv;
@@ -79,7 +79,7 @@ TEST(kstd_Result, TestValueErrorAssignment) {
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
-TEST(kstd_Result, TestMapValue) {
+TEST(kstd_Result, test_map_value) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -103,7 +103,44 @@ TEST(kstd_Result, TestMapValue) {
     ASSERT_EQ("Hello World! Appended!"s, *mapped_result);
 }
 
-TEST(kstd_Result, TestReference) {
+TEST(kstd_Result, test_no_copy_value) {
+    using namespace std::string_view_literals;
+
+    const auto value = "Hello World!"sv;
+    kstd::Result result {std::make_unique<std::string_view>(value)};
+
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::unique_ptr<std::string_view>>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::unique_ptr<std::string_view>&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::unique_ptr<std::string_view>&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::unique_ptr<std::string_view>*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::unique_ptr<std::string_view>*>);
+
+    ASSERT_TRUE(result);
+    ASSERT_EQ(value, **result);
+}
+
+TEST(kstd_Result, test_no_copy_value_assignment) {
+    using namespace std::string_view_literals;
+
+    const auto value = "Hello World!"sv;
+    kstd::Result result {std::make_unique<std::string_view>(value)};
+
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::unique_ptr<std::string_view>>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::unique_ptr<std::string_view>&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::unique_ptr<std::string_view>&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::unique_ptr<std::string_view>*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::unique_ptr<std::string_view>*>);
+
+    ASSERT_TRUE(result);
+    ASSERT_EQ(value, **result);
+
+    auto other_value = **result;
+    result = {};
+    ASSERT_TRUE(result.is_empty());
+    ASSERT_EQ(other_value, value);
+}
+
+TEST(kstd_Result, test_reference) {
     using namespace std::string_view_literals;
 
     auto value = "Hello World!"sv;
@@ -119,7 +156,7 @@ TEST(kstd_Result, TestReference) {
     ASSERT_EQ(value, *result);
 }
 
-TEST(kstd_Result, TestReferenceAssignment) {
+TEST(kstd_Result, test_reference_assignment) {
     using namespace std::string_view_literals;
 
     auto value = "Hello World!"sv;
@@ -142,7 +179,7 @@ TEST(kstd_Result, TestReferenceAssignment) {
     ASSERT_EQ(other_value, value);
 }
 
-TEST(kstd_Result, TestReferenceErrorAssignment) {
+TEST(kstd_Result, test_reference_error_assignment) {
     using namespace std::string_view_literals;
 
     auto value = "Hello World!"sv;
@@ -162,7 +199,7 @@ TEST(kstd_Result, TestReferenceErrorAssignment) {
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
-TEST(kstd_Result, TestMapReference) {
+TEST(kstd_Result, test_map_reference) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -186,7 +223,7 @@ TEST(kstd_Result, TestMapReference) {
     ASSERT_EQ("Hello World! Appended!"s, *mapped_result);
 }
 
-TEST(kstd_Result, TestConstReference) {
+TEST(kstd_Result, test_const_reference) {
     using namespace std::string_view_literals;
 
     auto value = "Hello World!"sv;
@@ -202,7 +239,7 @@ TEST(kstd_Result, TestConstReference) {
     ASSERT_EQ(value, *result);
 }
 
-TEST(kstd_Result, TestConstReferenceAssignment) {
+TEST(kstd_Result, test_const_reference_assignment) {
     using namespace std::string_view_literals;
 
     auto value = "Hello World!"sv;
@@ -225,7 +262,7 @@ TEST(kstd_Result, TestConstReferenceAssignment) {
     ASSERT_EQ(other_value, value);
 }
 
-TEST(kstd_Result, TestConstReferenceErrorAssignment) {
+TEST(kstd_Result, test_const_reference_error_assignment) {
     using namespace std::string_view_literals;
 
     auto value = "Hello World!"sv;
@@ -245,7 +282,7 @@ TEST(kstd_Result, TestConstReferenceErrorAssignment) {
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
-TEST(kstd_Result, TestMapConstReference) {
+TEST(kstd_Result, test_map_const_reference) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -269,7 +306,7 @@ TEST(kstd_Result, TestMapConstReference) {
     ASSERT_EQ("Hello World! Appended!"s, *mapped_result);
 }
 
-TEST(kstd_Result, TestPointer) {
+TEST(kstd_Result, test_pointer) {
     using namespace std::string_view_literals;
 
     auto value = "Hello World!"sv;
@@ -285,7 +322,7 @@ TEST(kstd_Result, TestPointer) {
     ASSERT_EQ(value, **result);
 }
 
-TEST(kstd_Result, TestPointerAssignment) {
+TEST(kstd_Result, test_pointer_assignment) {
     using namespace std::string_view_literals;
 
     auto value = "Hello World!"sv;
@@ -308,7 +345,7 @@ TEST(kstd_Result, TestPointerAssignment) {
     ASSERT_EQ(*other_value, value);
 }
 
-TEST(kstd_Result, TestPointerErrorAssignment) {
+TEST(kstd_Result, test_pointer_error_assignment) {
     using namespace std::string_view_literals;
 
     auto value = "Hello World!"sv;
@@ -328,7 +365,7 @@ TEST(kstd_Result, TestPointerErrorAssignment) {
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
-TEST(kstd_Result, TestMapPointer) {
+TEST(kstd_Result, test_map_pointer) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -352,7 +389,7 @@ TEST(kstd_Result, TestMapPointer) {
     ASSERT_EQ("Hello World! Appended!"s, *mapped_result);
 }
 
-TEST(kstd_Result, TestConstPointer) {
+TEST(kstd_Result, test_const_pointer) {
     using namespace std::string_view_literals;
 
     const auto value = "Hello World!"sv;
@@ -368,7 +405,7 @@ TEST(kstd_Result, TestConstPointer) {
     ASSERT_EQ(value, **result);
 }
 
-TEST(kstd_Result, TestConstPointerAssignment) {
+TEST(kstd_Result, test_const_pointer_assignment) {
     using namespace std::string_view_literals;
 
     const auto value = "Hello World!"sv;
@@ -391,7 +428,7 @@ TEST(kstd_Result, TestConstPointerAssignment) {
     ASSERT_EQ(*other_value, value);
 }
 
-TEST(kstd_Result, TestConstPointerErrorAssignment) {
+TEST(kstd_Result, test_const_pointer_error_assignment) {
     using namespace std::string_view_literals;
 
     const auto value = "Hello World!"sv;
@@ -411,7 +448,7 @@ TEST(kstd_Result, TestConstPointerErrorAssignment) {
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
-TEST(kstd_Result, TestMapConstPointer) {
+TEST(kstd_Result, test_map_const_pointer) {
     using namespace std::string_view_literals;
     using namespace std::string_literals;
 
@@ -427,6 +464,7 @@ TEST(kstd_Result, TestMapConstPointer) {
     ASSERT_TRUE(result.is_ok());
     ASSERT_EQ(value, **result);
 #
+
     auto mapped_result = result.map([](auto value) {
         return std::string(*value) + " Appended!";
     });
@@ -435,7 +473,7 @@ TEST(kstd_Result, TestMapConstPointer) {
     ASSERT_EQ("Hello World! Appended!"s, *mapped_result);
 }
 
-TEST(kstd_Result, TestVoid) {
+TEST(kstd_Result, test_void) {
     using namespace std::string_view_literals;
 
     kstd::Result<void> result {};
@@ -453,7 +491,7 @@ TEST(kstd_Result, TestVoid) {
     ASSERT_EQ(result.get_error(), "This is an error now!"sv);
 }
 
-TEST(kstd_Result, TestEmpty) {
+TEST(kstd_Result, test_empty) {
     using namespace std::string_view_literals;
 
     kstd::Result<std::string_view> result {};
@@ -467,7 +505,7 @@ TEST(kstd_Result, TestEmpty) {
     ASSERT_TRUE(result.is_empty());
 }
 
-TEST(kstd_Result, TestEmptyAssignment) {
+TEST(kstd_Result, test_empty_assignment) {
     using namespace std::string_view_literals;
 
     kstd::Result<std::string_view> result {};
@@ -485,7 +523,7 @@ TEST(kstd_Result, TestEmptyAssignment) {
     ASSERT_EQ(*result, "This is a value now!"sv);
 }
 
-TEST(kstd_Result, TestEmptyErrorAssignment) {
+TEST(kstd_Result, test_empty_error_assignment) {
     using namespace std::string_view_literals;
 
     kstd::Result<std::string_view> result {};

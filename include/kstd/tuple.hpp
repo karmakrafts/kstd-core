@@ -36,10 +36,8 @@ namespace kstd {
         struct TupleInner<HEAD> {
             static_assert(!std::is_same_v<std::remove_all_extents_t<HEAD>, Void>, "Type cannot be Void");
 
-            // clang-format off
-            using HeadType  = HEAD;
-            using Self      = TupleInner<HeadType>;
-            // clang-format on
+            using HeadType = HEAD;
+            using Self = TupleInner<HeadType>;
 
             Box<HeadType> _head;
 
@@ -60,10 +58,8 @@ namespace kstd {
         struct TupleInner<HEAD, TAIL...> {
             static_assert(!std::is_same_v<std::remove_all_extents_t<HEAD>, Void>, "Type cannot be Void");
 
-            // clang-format off
-            using HeadType  = HEAD;
-            using Self      = TupleInner<HeadType, TAIL...>;
-            // clang-format on
+            using HeadType = HEAD;
+            using Self = TupleInner<HeadType, TAIL...>;
 
             Box<HeadType> _head;
             TupleInner<TAIL...> _tail;
@@ -101,10 +97,8 @@ namespace kstd {
     struct PackedTuple<Pack<TYPES...>> {
         static constexpr usize num_values = sizeof...(TYPES);
 
-        // clang-format off
         using Types = Pack<TYPES...>;
-        using Self  = PackedTuple<Types>;
-        // clang-format on
+        using Self = PackedTuple<Types>;
 
         private:
         TupleInner<TYPES...> _inner;
@@ -174,22 +168,12 @@ namespace kstd {
 
         template<typename X>
         struct GetMutableTransform final {
-            // clang-format off
-            using type = std::conditional_t<
-                !std::is_pointer_v<X> && !std::is_reference_v<X>,
-                X&,
-                X>;
-            // clang-format on
+            using Type = std::conditional_t<!std::is_pointer_v<X> && !std::is_reference_v<X>, X&, X>;
         };
 
         template<typename X>
         struct GetImmutableTransform final {
-            // clang-format off
-            using type = std::conditional_t<
-                !std::is_pointer_v<X> && !std::is_reference_v<X>,
-                X const&,
-                X>;
-            // clang-format on
+            using Type = std::conditional_t<!std::is_pointer_v<X> && !std::is_reference_v<X>, X const&, X>;
         };
 
         public:

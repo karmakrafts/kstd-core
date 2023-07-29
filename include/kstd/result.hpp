@@ -33,10 +33,8 @@
 namespace kstd {
     template<typename E>
     struct Error final {
-        // clang-format off
         using ValueType = E;
-        using Self      = Error<ValueType>;
-        // clang-format on
+        using Self = Error<ValueType>;
 
         private:
         ValueType _error;
@@ -63,18 +61,16 @@ namespace kstd {
     struct Result final {
         static_assert(!std::is_same_v<std::remove_all_extents_t<T>, Void>, "Type cannot be Void");
 
-        // clang-format off
-        using ValueType         = T;
-        using ErrorType         = E;
-        using WrappedErrorType  = Error<ErrorType>;
-        using NonVoidValueType  = std::conditional_t<std::is_void_v<ValueType>, u8, ValueType>;
-        using Self              = Result<ValueType, ErrorType>;
-        using BoxType           = Box<NonVoidValueType>;
-        using Reference         = typename BoxType::Reference;
-        using ConstReference    = typename BoxType::ConstReference;
-        using Pointer           = typename BoxType::Pointer;
-        using ConstPointer      = typename BoxType::ConstPointer;
-        // clang-format on
+        using ValueType = T;
+        using ErrorType = E;
+        using WrappedErrorType = Error<ErrorType>;
+        using NonVoidValueType = std::conditional_t<std::is_void_v<ValueType>, u8, ValueType>;
+        using Self = Result<ValueType, ErrorType>;
+        using BoxType = Box<NonVoidValueType>;
+        using Reference = typename BoxType::Reference;
+        using ConstReference = typename BoxType::ConstReference;
+        using Pointer = typename BoxType::Pointer;
+        using ConstPointer = typename BoxType::ConstPointer;
 
         private:
         std::variant<BoxType, WrappedErrorType, Void> _value;
@@ -194,16 +190,14 @@ namespace kstd {
 
     template<typename E>
     struct Result<void, E> final {
-        // clang-format off
-        using ValueType         = void;
-        using ErrorType         = E;
-        using WrappedErrorType  = Error<ErrorType>;
-        using Self              = Result<ValueType, ErrorType>;
-        using Reference         = ValueType;
-        using ConstReference    = ValueType;
-        using Pointer           = ValueType;
-        using ConstPointer      = ValueType;
-        // clang-format on
+        using ValueType = void;
+        using ErrorType = E;
+        using WrappedErrorType = Error<ErrorType>;
+        using Self = Result<ValueType, ErrorType>;
+        using Reference = ValueType;
+        using ConstReference = ValueType;
+        using Pointer = ValueType;
+        using ConstPointer = ValueType;
 
         private:
         std::variant<WrappedErrorType, Void> _value;

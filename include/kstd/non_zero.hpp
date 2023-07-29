@@ -34,12 +34,10 @@ namespace kstd {
     struct NonZero final {
         static_assert(std::is_integral_v<T> || std::is_pointer_v<T>, "Type is neither an integer nor a pointer");
 
-        // clang-format off
-        using ValueType         = T;
-        using Self              = NonZero<ValueType>;
-        using Reference         = ValueType&;
-        using ConstReference    = const ValueType&;
-        // clang-format on
+        using ValueType = T;
+        using Self = NonZero<ValueType>;
+        using Reference = ValueType&;
+        using ConstReference = const ValueType&;
 
         private:
         ValueType _value;
@@ -84,15 +82,13 @@ namespace kstd {
     // Specialization for Box to simplify logic and possibly save a few bytes
     template<typename T>
     struct Box<NonZero<T>, void> final {
-        // clang-format off
-        using ValueType         = T;
-        using NzValueType       = NonZero<ValueType>;
-        using Self              = Box<NzValueType, void>;
-        using Reference         = NzValueType&;
-        using ConstReference    = const NzValueType&;
-        using Pointer           = NzValueType*;
-        using ConstPointer      = const NzValueType*;
-        // clang-format on
+        using ValueType = T;
+        using NzValueType = NonZero<ValueType>;
+        using Self = Box<NzValueType, void>;
+        using Reference = NzValueType&;
+        using ConstReference = const NzValueType&;
+        using Pointer = NzValueType*;
+        using ConstPointer = const NzValueType*;
 
         private:
         NzValueType _value;

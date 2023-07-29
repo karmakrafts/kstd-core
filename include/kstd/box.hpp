@@ -40,15 +40,13 @@ namespace kstd {
     struct Box {
         static_assert(!std::is_same_v<std::decay_t<T>, Void>, "Type cannot be Void");
 
-        // clang-format off
-        using ValueType         = T;
-        using NakedValueType    = std::remove_const_t<ValueType>;
-        using Self              = Box<ValueType, _>;
-        using Reference         = NakedValueType&;
-        using ConstReference    = const NakedValueType&;
-        using Pointer           = NakedValueType*;
-        using ConstPointer      = const NakedValueType*;
-        // clang-format on
+        using ValueType = T;
+        using NakedValueType = std::remove_const_t<ValueType>;
+        using Self = Box<ValueType, _>;
+        using Reference = NakedValueType&;
+        using ConstReference = const NakedValueType&;
+        using Pointer = NakedValueType*;
+        using ConstPointer = const NakedValueType*;
 
         private:
         std::variant<NakedValueType, Void> _value;
@@ -122,7 +120,7 @@ namespace kstd {
     /**
      * A box implementation which is either empty or stores a pointer value.
      * This means that the contained value will always be passed by value,
-     * since that most efficient for pointers.
+     * since that's the most efficient way for pointers.
      *
      * @tparam T The pointer type stored within the Box type.
      */
@@ -130,15 +128,13 @@ namespace kstd {
     struct Box<T, std::enable_if_t<std::is_pointer_v<T>>> final {
         static_assert(!std::is_same_v<std::decay_t<T>, Void>, "Type cannot be Void");
 
-        // clang-format off
-        using ValueType         = T;
-        using NakedValueType    = std::remove_cv_t<std::remove_pointer_t<ValueType>>;
-        using Self              = Box<ValueType, std::enable_if_t<std::is_pointer_v<T>>>;
-        using Reference         = ValueType&;
-        using ConstReference    = const ValueType&;
-        using Pointer           = NakedValueType*;
-        using ConstPointer      = const NakedValueType*;
-        // clang-format on
+        using ValueType = T;
+        using NakedValueType = std::remove_cv_t<std::remove_pointer_t<ValueType>>;
+        using Self = Box<ValueType, std::enable_if_t<std::is_pointer_v<T>>>;
+        using Reference = ValueType&;
+        using ConstReference = const ValueType&;
+        using Pointer = NakedValueType*;
+        using ConstPointer = const NakedValueType*;
 
         private:
         std::variant<ValueType, Void> _value;
@@ -216,7 +212,7 @@ namespace kstd {
      * It takes the address of the given reference upon
      * construction and dereferences the address when the value is retrieved.
      * This implies a runtime assertion in debug mode which checks that the
-     * reference is still valid, since we don't the underlying object's lifetime.
+     * reference is still valid, since we don't know the underlying object's lifetime.
      *
      * @tparam T The pointer type stored within the Box type.
      */
@@ -224,21 +220,17 @@ namespace kstd {
     struct Box<T, std::enable_if_t<std::is_reference_v<T>>> final {
         static_assert(!std::is_same_v<std::decay_t<T>, Void>, "Type cannot be Void");
 
-        // clang-format off
-        using ValueType         = T;
-        using NakedValueType    = std::remove_reference_t<std::remove_cv_t<std::decay_t<ValueType>>>;
-        using ConstReference    = const NakedValueType&;
-        using Reference         = std::conditional_t<std::is_const_v<std::remove_reference_t<ValueType>>,
-                                    ConstReference,
-                                    NakedValueType&>;
-        using ConstPointer      = const NakedValueType*;
-        using Pointer           = std::conditional_t<std::is_const_v<std::remove_reference_t<ValueType>>,
-                                    ConstPointer,
-                                    NakedValueType*>;
-        using Self              = Box<ValueType, std::enable_if_t<std::is_reference_v<T>>>;
-        using StoredType        = std::conditional_t<std::is_const_v<std::remove_reference_t<ValueType>>,
-                                    ConstPointer, Pointer>;
-        // clang-format on
+        using ValueType = T;
+        using NakedValueType = std::remove_reference_t<std::remove_cv_t<std::decay_t<ValueType>>>;
+        using ConstReference = const NakedValueType&;
+        using Reference = std::conditional_t<std::is_const_v<std::remove_reference_t<ValueType>>, ConstReference,
+                                             NakedValueType&>;
+        using ConstPointer = const NakedValueType*;
+        using Pointer =
+                std::conditional_t<std::is_const_v<std::remove_reference_t<ValueType>>, ConstPointer, NakedValueType*>;
+        using Self = Box<ValueType, std::enable_if_t<std::is_reference_v<T>>>;
+        using StoredType =
+                std::conditional_t<std::is_const_v<std::remove_reference_t<ValueType>>, ConstPointer, Pointer>;
 
         private:
         StoredType _value;
@@ -306,6 +298,7 @@ namespace kstd {
             return !is_empty();
         }
     };
+
 #ifdef BUILD_DEBUG
 #endif
 }// namespace kstd
