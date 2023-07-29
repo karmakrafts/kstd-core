@@ -70,7 +70,7 @@ namespace kstd::utils {
     [[nodiscard]] inline auto to_mbs(const std::wstring& value) noexcept -> std::string {
 #ifdef COMPILER_MSVC
         // NOLINTBEGIN
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> {}.to_bytes(value);
+        return std::wstring_convert<std::codecvt_utf8<wchar_t>> {}.to_bytes(value);
         // NOLINTEND
 #else
         const auto length = value.size();
@@ -97,7 +97,7 @@ namespace kstd::utils {
     [[nodiscard]] inline auto to_mbs(const wchar_t* value) noexcept -> std::string {
 #ifdef COMPILER_MSVC
         // NOLINTBEGIN
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> {}.to_bytes(value);
+        return std::wstring_convert<std::codecvt_utf8<wchar_t>> {}.to_bytes(value);
         // NOLINTEND
 #else
         const auto length = std::wcslen(value);
@@ -124,7 +124,7 @@ namespace kstd::utils {
     [[nodiscard]] inline auto to_wcs(const std::string& value) noexcept -> std::wstring {
 #ifdef COMPILER_MSVC
         // NOLINTBEGIN
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> {}.from_bytes(value);
+        return std::wstring_convert<std::codecvt_utf8<wchar_t>> {}.from_bytes(value);
         // NOLINTEND
 #else
         const auto length = value.size();
@@ -150,7 +150,7 @@ namespace kstd::utils {
     [[nodiscard]] inline auto to_wcs(const char* value) noexcept -> std::wstring {
 #ifdef COMPILER_MSVC
         // NOLINTBEGIN
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> {}.from_bytes(value);
+        return std::wstring_convert<std::codecvt_utf8<wchar_t>> {}.from_bytes(value);
         // NOLINTEND
 #else
         const auto length = std::strlen(value);
