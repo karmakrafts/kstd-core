@@ -28,7 +28,7 @@
 
 #ifdef COMPILER_MSVC
 #define WIN32_MEAN_AND_LEAN
-#include <stringapiset.h>
+#include <Windows.h>
 #endif
 
 namespace kstd::utils {
