@@ -27,8 +27,7 @@
 #include <utility>
 
 #ifdef COMPILER_MSVC
-#define WIN32_MEAN_AND_LEAN
-#include <Windows.h>
+#include <codecvt>
 #endif
 
 namespace kstd::utils {
@@ -70,11 +69,9 @@ namespace kstd::utils {
      */
     [[nodiscard]] inline auto to_mbs(const std::wstring& value) noexcept -> std::string {
 #ifdef COMPILER_MSVC
-        const auto terminated_length = static_cast<int>(value.length() + 1);
-        const auto length =
-                WideCharToMultiByte(CP_UTF8, 0, value.c_str(), terminated_length, nullptr, 0, nullptr, nullptr);
-        std::string result(length, ' ');
-        WideCharToMultiByte(CP_UTF8, 0, value.c_str(), terminated_length, result.data(), length, nullptr, nullptr);
+        // NOLINTBEGIN
+        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> {}.to_bytes(value);
+        // NOLINTEND
 #else
         const auto length = value.size();
         const auto terminated_length = length + 1;
@@ -87,8 +84,8 @@ namespace kstd::utils {
         result.resize(wcstombs(result.data(), value.c_str(), size));
 
         setlocale(LC_ALL, locale.c_str());
-#endif
         return result;
+#endif
     }
 
     /**
@@ -99,10 +96,9 @@ namespace kstd::utils {
      */
     [[nodiscard]] inline auto to_mbs(const wchar_t* value) noexcept -> std::string {
 #ifdef COMPILER_MSVC
-        const auto terminated_length = static_cast<int>(std::wcslen(value) + 1);
-        const auto length = WideCharToMultiByte(CP_UTF8, 0, value, terminated_length, nullptr, 0, nullptr, nullptr);
-        std::string result(length, ' ');
-        WideCharToMultiByte(CP_UTF8, 0, value, terminated_length, result.data(), length, nullptr, nullptr);
+        // NOLINTBEGIN
+        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> {}.to_bytes(value);
+        // NOLINTEND
 #else
         const auto length = std::wcslen(value);
         const auto terminated_length = length + 1;
@@ -115,8 +111,8 @@ namespace kstd::utils {
         result.resize(wcstombs(result.data(), value, size));
 
         setlocale(LC_ALL, locale.c_str());
-#endif
         return result;
+#endif
     }
 
     /**
@@ -127,10 +123,9 @@ namespace kstd::utils {
      */
     [[nodiscard]] inline auto to_wcs(const std::string& value) noexcept -> std::wstring {
 #ifdef COMPILER_MSVC
-        const auto terminated_length = static_cast<int>(value.length() + 1);
-        const auto length = MultiByteToWideChar(CP_UTF8, 0, value.c_str(), terminated_length, nullptr, 0);
-        std::wstring result(length, ' ');
-        MultiByteToWideChar(CP_UTF8, 0, value.c_str(), terminated_length, result.data(), length);
+        // NOLINTBEGIN
+        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> {}.from_bytes(value);
+        // NOLINTEND
 #else
         const auto length = value.size();
         const auto size = length + 1;
@@ -142,8 +137,8 @@ namespace kstd::utils {
         result.resize(mbstowcs(result.data(), value.c_str(), size));
 
         setlocale(LC_ALL, locale.c_str());
-#endif
         return result;
+#endif
     }
 
     /**
@@ -154,10 +149,9 @@ namespace kstd::utils {
      */
     [[nodiscard]] inline auto to_wcs(const char* value) noexcept -> std::wstring {
 #ifdef COMPILER_MSVC
-        const auto terminated_length = static_cast<int>(std::strlen(value) + 1);
-        const auto length = MultiByteToWideChar(CP_UTF8, 0, value, terminated_length, nullptr, 0);
-        std::wstring result(length, ' ');
-        MultiByteToWideChar(CP_UTF8, 0, value, terminated_length, result.data(), length);
+        // NOLINTBEGIN
+        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> {}.from_bytes(value);
+        // NOLINTEND
 #else
         const auto length = std::strlen(value);
         const auto size = length + 1;
@@ -169,7 +163,7 @@ namespace kstd::utils {
         result.resize(mbstowcs(result.data(), value, size));
 
         setlocale(LC_ALL, locale.c_str());
-#endif
         return result;
+#endif
     }
 }// namespace kstd::utils
