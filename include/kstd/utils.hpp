@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <string_view>
@@ -67,13 +68,13 @@ namespace kstd::utils {
         const auto terminated_length = length + 1;
         const auto size = terminated_length * sizeof(wchar_t);
 
-        const std::string locale = std::setlocale(LC_ALL, nullptr);
-        std::setlocale(LC_ALL, "en_US.UTF-8");
+        const std::string locale = setlocale(LC_ALL, nullptr);
+        setlocale(LC_ALL, "en_US.UTF-8");
 
         std::string result(size, ' ');
-        result.resize(std::wcstombs(result.data(), value.c_str(), size));
+        result.resize(wcstombs(result.data(), value.c_str(), size));
 
-        std::setlocale(LC_ALL, locale.c_str());
+        setlocale(LC_ALL, locale.c_str());
         return result;
     }
 
@@ -88,13 +89,13 @@ namespace kstd::utils {
         const auto terminated_length = length + 1;
         const auto size = terminated_length * sizeof(wchar_t);
 
-        const std::string locale = std::setlocale(LC_ALL, nullptr);
-        std::setlocale(LC_ALL, "en_US.UTF-8");
+        const std::string locale = setlocale(LC_ALL, nullptr);
+        setlocale(LC_ALL, "en_US.UTF-8");
 
         std::string result(size, ' ');
-        result.resize(std::wcstombs(result.data(), value, size));
+        result.resize(wcstombs(result.data(), value, size));
 
-        std::setlocale(LC_ALL, locale.c_str());
+        setlocale(LC_ALL, locale.c_str());
         return result;
     }
 
@@ -108,13 +109,13 @@ namespace kstd::utils {
         const auto length = value.size();
         const auto size = length + 1;
 
-        const std::string locale = std::setlocale(LC_ALL, nullptr);
-        std::setlocale(LC_ALL, "en_US.UTF-8");
+        const std::string locale = setlocale(LC_ALL, nullptr);
+        setlocale(LC_ALL, "en_US.UTF-8");
 
         std::wstring result(size, ' ');
-        result.resize(std::mbstowcs(result.data(), value.c_str(), size));
+        result.resize(mbstowcs(result.data(), value.c_str(), size));
 
-        std::setlocale(LC_ALL, locale.c_str());
+        setlocale(LC_ALL, locale.c_str());
         return result;
     }
 
@@ -128,13 +129,13 @@ namespace kstd::utils {
         const auto length = std::strlen(value);
         const auto size = length + 1;
 
-        const std::string locale = std::setlocale(LC_ALL, nullptr);
-        std::setlocale(LC_ALL, "en_US.UTF-8");
+        const std::string locale = setlocale(LC_ALL, nullptr);
+        setlocale(LC_ALL, "en_US.UTF-8");
 
         std::wstring result(size, ' ');
-        result.resize(std::mbstowcs(result.data(), value, size));
+        result.resize(mbstowcs(result.data(), value, size));
 
-        std::setlocale(LC_ALL, locale.c_str());
+        setlocale(LC_ALL, locale.c_str());
         return result;
     }
 }// namespace kstd::utils
