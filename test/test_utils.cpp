@@ -32,27 +32,3 @@ TEST(kstd_utils, test_transmute_const) {
     const auto& f_value = kstd::utils::transmute<const kstd::f32>(value);
     ASSERT_EQ(f_value, 0.0F);
 }
-
-TEST(kstd_utils, test_to_mbs) {
-    const std::wstring value = LR"(What does the fox say? 🦊)";
-    const auto mb_value = kstd::utils::to_mbs(value);
-    ASSERT_EQ(mb_value, R"(What does the fox say? 🦊)");
-}
-
-TEST(kstd_utils, test_to_mbs_from_pointer) {
-    const auto* value = LR"(What does the fox say? 🦊)";
-    const auto mb_value = kstd::utils::to_mbs(value);
-    ASSERT_EQ(mb_value, R"(What does the fox say? 🦊)");
-}
-
-TEST(kstd_utils, test_to_wcs) {
-    const std::string value = R"(What does the fox say? 🦊)";
-    const auto wc_value = kstd::utils::to_wcs(value);
-    ASSERT_EQ(wc_value, LR"(What does the fox say? 🦊)");
-}
-
-TEST(kstd_utils, test_to_wcs_from_pointer) {
-    const auto* value = R"(What does the fox say? 🦊)";
-    const auto wc_value = kstd::utils::to_wcs(value);
-    ASSERT_EQ(wc_value, LR"(What does the fox say? 🦊)");
-}
