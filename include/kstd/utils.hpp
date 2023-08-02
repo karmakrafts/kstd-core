@@ -26,9 +26,7 @@
 #include <type_traits>
 #include <utility>
 
-#ifdef COMPILER_MSVC
-#include <codecvt>
-#endif
+#include "unicode.hpp"
 
 namespace kstd::utils {
     /**
@@ -59,111 +57,5 @@ namespace kstd::utils {
     template<typename R, typename T>
     [[nodiscard]] constexpr auto transmute(const T& value) noexcept -> const R& {
         return *reinterpret_cast<const R*>(&value);// NOLINT
-    }
-
-    /**
-     * Creates a new multibyte UTF-8 string from the contents of the given wide UTF-8 string.
-     *
-     * @param value The wide UTF-8 string to copy data from into the newly created string.
-     * @return A new multibyte UTF-8 string with the contents of the given wide UTF-8 string.
-     */
-    [[nodiscard]] inline auto to_mbs(const std::wstring& value) noexcept -> std::string {
-#ifdef COMPILER_MSVC
-        // NOLINTBEGIN
-        return std::wstring_convert<std::codecvt_utf8<wchar_t>> {}.to_bytes(value);
-        // NOLINTEND
-#else
-        const auto length = value.size();
-        const auto terminated_length = length + 1;
-        const auto size = terminated_length * sizeof(wchar_t);
-
-        const std::string locale = setlocale(LC_ALL, nullptr);
-        setlocale(LC_ALL, "en_US.UTF-8");
-
-        std::string result(size, ' ');
-        result.resize(wcstombs(result.data(), value.c_str(), size));
-
-        setlocale(LC_ALL, locale.c_str());
-        return result;
-#endif
-    }
-
-    /**
-     * Creates a new multibyte UTF-8 string from the contents of the given wide UTF-8 C-string.
-     *
-     * @param value The wide UTF-8 C-string to copy data from into the newly created string.
-     * @return A new multibyte UTF-8 string with the contents of the given wide UTF-8 C-string.
-     */
-    [[nodiscard]] inline auto to_mbs(const wchar_t* value) noexcept -> std::string {
-#ifdef COMPILER_MSVC
-        // NOLINTBEGIN
-        return std::wstring_convert<std::codecvt_utf8<wchar_t>> {}.to_bytes(value);
-        // NOLINTEND
-#else
-        const auto length = std::wcslen(value);
-        const auto terminated_length = length + 1;
-        const auto size = terminated_length * sizeof(wchar_t);
-
-        const std::string locale = setlocale(LC_ALL, nullptr);
-        setlocale(LC_ALL, "en_US.UTF-8");
-
-        std::string result(size, ' ');
-        result.resize(wcstombs(result.data(), value, size));
-
-        setlocale(LC_ALL, locale.c_str());
-        return result;
-#endif
-    }
-
-    /**
-     * Creates a new wide UTF-8 string from the contents of the given UTF-8 string.
-     *
-     * @param value The multibyte UTF-8 string to copy data from into the newly created string.
-     * @return A new wide UTF-8 string with the contents of the given multibyte UTF-8 string.
-     */
-    [[nodiscard]] inline auto to_wcs(const std::string& value) noexcept -> std::wstring {
-#ifdef COMPILER_MSVC
-        // NOLINTBEGIN
-        return std::wstring_convert<std::codecvt_utf8<wchar_t>> {}.from_bytes(value);
-        // NOLINTEND
-#else
-        const auto length = value.size();
-        const auto size = length + 1;
-
-        const std::string locale = setlocale(LC_ALL, nullptr);
-        setlocale(LC_ALL, "en_US.UTF-8");
-
-        std::wstring result(size, ' ');
-        result.resize(mbstowcs(result.data(), value.c_str(), size));
-
-        setlocale(LC_ALL, locale.c_str());
-        return result;
-#endif
-    }
-
-    /**
-     * Creates a new wide UTF-8 string from the contents of the given UTF-8 C-string.
-     *
-     * @param value The multibyte UTF-8 C-string to copy data from into the newly created string.
-     * @return A new wide UTF-8 string with the contents of the given multibyte UTF-8 C-string.
-     */
-    [[nodiscard]] inline auto to_wcs(const char* value) noexcept -> std::wstring {
-#ifdef COMPILER_MSVC
-        // NOLINTBEGIN
-        return std::wstring_convert<std::codecvt_utf8<wchar_t>> {}.from_bytes(value);
-        // NOLINTEND
-#else
-        const auto length = std::strlen(value);
-        const auto size = length + 1;
-
-        const std::string locale = setlocale(LC_ALL, nullptr);
-        setlocale(LC_ALL, "en_US.UTF-8");
-
-        std::wstring result(size, ' ');
-        result.resize(mbstowcs(result.data(), value, size));
-
-        setlocale(LC_ALL, locale.c_str());
-        return result;
-#endif
     }
 }// namespace kstd::utils

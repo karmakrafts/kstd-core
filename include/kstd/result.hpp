@@ -57,7 +57,7 @@ namespace kstd {
         }
     };
 
-    template<typename T, typename E = std::string_view>
+    template<typename T, typename E = std::string>
     struct Result final {
         static_assert(!std::is_same_v<std::remove_all_extents_t<T>, Void>, "Type cannot be Void");
 
@@ -151,7 +151,7 @@ namespace kstd {
                 return {};
             }
             assert_true(is_error());
-            return std::get<WrappedErrorType>(_value);
+            return {std::move(std::get<WrappedErrorType>(_value))};
         }
 
         template<typename F, typename R = std::invoke_result_t<F, Reference>>
@@ -159,7 +159,7 @@ namespace kstd {
             static_assert(std::is_convertible_v<F, std::function<R(NonVoidValueType)>>,
                           "Function signature does not match");
             if(is_ok()) {
-                return function(get());
+                return std::forward<F>(function)(get());
             }
             if(is_error()) {
                 return forward<R>();
@@ -243,7 +243,7 @@ namespace kstd {
                 return {};
             }
             assert_true(is_error());
-            return std::get<WrappedErrorType>(_value);
+            return {std::move(std::get<WrappedErrorType>(_value))};
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
@@ -251,12 +251,12 @@ namespace kstd {
         }
     };
 
-    template<typename T, typename E = std::string_view>
+    template<typename T, typename E = std::string>
     Result(T) -> Result<T, E>;
 
 #ifdef BUILD_DEBUG
     static_assert(std::is_same_v<typename Result<void>::ValueType, void>);
-    static_assert(std::is_same_v<typename Result<void>::WrappedErrorType, Error<std::string_view>>);
+    static_assert(std::is_same_v<typename Result<void>::WrappedErrorType, Error<std::string>>);
 #endif
 
     template<typename R, typename F>
@@ -264,14 +264,14 @@ namespace kstd {
         static_assert(std::is_convertible_v<F, std::function<R()>>, "Function return type does not match");
         try {
             if constexpr(std::is_void_v<R>) {
-                function();
+                std::forward<F>(function)();
             }
             else {
-                return function();
+                return std::forward<F>(function)();
             }
         }
         catch(const std::exception& error) {
-            return Error(std::string_view(error.what()));
+            return Error {std::string {error.what()}};
         }
     }
 }// namespace kstd
