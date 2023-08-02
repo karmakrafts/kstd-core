@@ -97,34 +97,43 @@ namespace kstd::libc {
 
     template<typename... ARGS>
     constexpr auto fprintf(File* file, const char* format, ARGS&&... args) noexcept {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
         ::fprintf(file, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto printf(const char* format, ARGS&&... args) noexcept {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 2 parameters!");
         ::printf(format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto sprintf(char* buffer, const char* format, ARGS&&... args) noexcept {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
         ::sprintf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
-    // Wide formatting
-    using ::swprintf;
+    template<typename... ARGS>
+    constexpr auto swprintf(const wchar_t* buffer, const wchar_t* format, ARGS&&... args) noexcept {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
+        ::swprintf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
+    }
 
     template<typename... ARGS>
     constexpr auto fwprintf(File* file, const wchar_t* format, ARGS&&... args) noexcept {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
         ::fwprintf(file, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto wprintf(const wchar_t* format, ARGS&&... args) noexcept {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 2 parameters!");
         ::wprintf(format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
     constexpr auto wscanf(wchar_t* buffer, const wchar_t* format, ARGS&&... args) noexcept {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
         ::wscanf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
