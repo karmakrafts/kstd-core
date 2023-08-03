@@ -129,29 +129,6 @@ namespace kstd::unicode {
         }
 
         template<typename ITERATOR>
-        [[nodiscard]] static constexpr auto decode_valid(ITERATOR& current) noexcept -> CodePoint {
-            const auto lead = static_cast<u8>(*current++);
-            if(lead < 192) {
-                return lead;
-            }
-            i32 trail_size = 0;
-            if(lead < 224) {
-                trail_size = 1;
-            }
-            else if(lead < 240) {
-                trail_size = 2;
-            }
-            else {
-                trail_size = 3;
-            }
-            auto code_point = lead & ((1 << (6 - trail_size)) - 1);
-            for(int32_t remaining_size = trail_size; remaining_size > 0; --remaining_size) {
-                code_point = (code_point << 6) | (static_cast<u8>(*current++) & 0x3F);
-            }
-            return code_point;
-        }
-
-        template<typename ITERATOR>
         static constexpr auto encode(CodePoint value, ITERATOR& out) noexcept -> void {
             if(value <= 0x7F) {
                 *out++ = static_cast<CharType>(value);
@@ -242,16 +219,6 @@ namespace kstd::unicode {
         }
 
         template<typename ITERATOR>
-        [[nodiscard]] static constexpr auto decode_valid(ITERATOR& current) noexcept -> CodePoint {
-            const auto surr1 = static_cast<u16>(*current++);
-            if(is_single_codepoint(surr1)) {
-                return surr1;
-            }
-            const auto surr2 = static_cast<u16>(*current++);
-            return combine_surrogate(surr1, surr2);
-        }
-
-        template<typename ITERATOR>
         static constexpr auto encode(CodePoint value, ITERATOR& out) noexcept -> void {
             if(value <= 0xFFFF) {
                 *out++ = static_cast<CharType>(value);
@@ -298,11 +265,6 @@ namespace kstd::unicode {
                 return illegal;
             }
             return code_point;
-        }
-
-        template<typename ITERATOR>
-        [[nodiscard]] static constexpr auto decode_valid(ITERATOR& current) noexcept -> CodePoint {
-            return static_cast<CodePoint>(*current++);
         }
 
         template<typename ITERATOR>
