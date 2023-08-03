@@ -19,15 +19,23 @@
 
 #pragma once
 
+#include <iterator>
+#include <string>
+
+#include "libc.hpp"
 #include "types.hpp"
 
 /**
- * Implementation based on Boost Nowide module.
+ * Implementation based on Boost Nowide
+ * https://github.com/boostorg/nowide
+ * made constexpr-ready and prettified some of the code.
  */
 namespace kstd::unicode {
-    using CodePoint = u32;
+    using CodePoint = char32_t;
+
     constexpr CodePoint illegal = 0xFFFF'FFFFU;
     constexpr CodePoint incomplete = 0xFFFF'FFFEU;
+    constexpr CodePoint replacement = 0x0000'FFFD;
 
     constexpr auto is_valid_codepoint(CodePoint value) noexcept -> bool {
         if(value > 0x10FFFF) {
@@ -144,7 +152,7 @@ namespace kstd::unicode {
         }
 
         template<typename ITERATOR>
-        [[nodiscard]] static constexpr auto encode(CodePoint value, ITERATOR out) noexcept -> ITERATOR {
+        static constexpr auto encode(CodePoint value, ITERATOR& out) noexcept -> void {
             if(value <= 0x7F) {
                 *out++ = static_cast<CharType>(value);
             }
@@ -163,7 +171,6 @@ namespace kstd::unicode {
                 *out++ = static_cast<CharType>(((value >> 6) & 0x3F) | 0x80);
                 *out++ = static_cast<CharType>((value & 0x3F) | 0x80);
             }
-            return out;
         }
     };
 
@@ -245,7 +252,7 @@ namespace kstd::unicode {
         }
 
         template<typename ITERATOR>
-        [[nodiscard]] static constexpr auto encode(CodePoint value, ITERATOR out) noexcept -> ITERATOR {
+        static constexpr auto encode(CodePoint value, ITERATOR& out) noexcept -> void {
             if(value <= 0xFFFF) {
                 *out++ = static_cast<CharType>(value);
             }
@@ -254,7 +261,6 @@ namespace kstd::unicode {
                 *out++ = static_cast<CharType>(0xD800 | (value >> 10));
                 *out++ = static_cast<CharType>(0xDC00 | (value & 0x3FF));
             }
-            return out;
         }
     };
 
@@ -300,9 +306,51 @@ namespace kstd::unicode {
         }
 
         template<typename ITERATOR>
-        [[nodiscard]] static constexpr auto encode(CodePoint value, ITERATOR out) noexcept -> ITERATOR {
+        static constexpr auto encode(CodePoint value, ITERATOR& out) noexcept -> void {
             *out++ = static_cast<CharType>(value);
-            return out;
         }
     };
+
+    template<typename CHAR_OUT, typename CHAR_IN>
+    inline auto convert_buffer(const CHAR_IN* value, CHAR_OUT* out, usize* out_count) noexcept -> void {
+        if(value == nullptr) {
+            return;
+        }
+        const auto length = libc::get_string_length(value);
+        if(length == 0) {
+            return;
+        }
+        const auto* end = &value[length];
+        if(out_count != nullptr) {
+            const auto* current = value;
+            while(current != end) {// NOLINT
+                auto code_point = UTFTraits<CHAR_IN>::decode(current, end);
+                if(code_point == illegal || code_point == incomplete) {
+                    code_point = replacement;
+                }
+                *out_count += UTFTraits<CHAR_OUT>::get_width(code_point);// NOLINT
+            }
+        }
+        if(out != nullptr) {
+            const auto* current = value;
+            while(current != end) {// NOLINT
+                auto code_point = UTFTraits<CHAR_IN>::decode(current, end);
+                if(code_point == illegal || code_point == incomplete) {
+                    code_point = replacement;
+                }
+                UTFTraits<CHAR_OUT>::encode(code_point, out);// NOLINT
+            }
+        }
+    }
+
+    template<typename CHAR_OUT, typename... OUT_ARGS, typename CHAR_IN, typename... IN_ARGS>
+    [[nodiscard]] inline auto convert(const std::basic_string<CHAR_IN, IN_ARGS...>& value) noexcept
+            -> std::basic_string<CHAR_OUT, OUT_ARGS...> {
+        const auto* value_address = value.c_str();
+        usize count = 0;
+        convert_buffer<CHAR_OUT, CHAR_IN>(value_address, nullptr, &count);
+        std::basic_string<CHAR_OUT, OUT_ARGS...> result(count, ' ');
+        convert_buffer<CHAR_OUT, CHAR_IN>(value_address, result.data(), nullptr);
+        return result;
+    }
 }// namespace kstd::unicode

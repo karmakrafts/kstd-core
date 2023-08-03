@@ -32,3 +32,11 @@ TEST(kstd_utils, test_transmute_const) {
     const auto& f_value = kstd::utils::transmute<const kstd::f32>(value);
     ASSERT_EQ(f_value, 0.0F);
 }
+
+TEST(kstd_utils, test_to_wcs) {
+    ASSERT_EQ(kstd::utils::to_wcs(R"(Yip yap yop 🦊)"), LR"(Yip yap yop 🦊)");
+}
+
+TEST(kstd_utils, test_to_mbs) {
+    ASSERT_EQ(kstd::utils::to_mbs(LR"(Yip yap yop 🦊)"), R"(Yip yap yop 🦊)");
+}

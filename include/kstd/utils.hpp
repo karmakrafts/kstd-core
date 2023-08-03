@@ -19,13 +19,6 @@
 
 #pragma once
 
-#include <cstdlib>
-#include <cstring>
-#include <string>
-#include <string_view>
-#include <type_traits>
-#include <utility>
-
 #include "unicode.hpp"
 
 namespace kstd::utils {
@@ -57,5 +50,30 @@ namespace kstd::utils {
     template<typename R, typename T>
     [[nodiscard]] constexpr auto transmute(const T& value) noexcept -> const R& {
         return *reinterpret_cast<const R*>(&value);// NOLINT
+    }
+
+    /**
+     * Converts the given std::string into an std::wstring using the kstd::unicode API.
+     * @tparam TRAITS The character traits applied to the resulting string.
+     * @tparam ALLOCATOR The allocator used for allocating the converted string.
+     * @param value The value to convert to a wide string.
+     * @return A new std::wstring with the UTF-16 encoded contents of the given UTF-8 std::string.
+     */
+    template<typename TRAITS = std::char_traits<wchar_t>, typename ALLOCATOR = std::allocator<wchar_t>>
+    [[nodiscard]] inline auto to_wcs(const std::string& value) noexcept
+            -> std::basic_string<wchar_t, TRAITS, ALLOCATOR> {
+        return unicode::convert<wchar_t, TRAITS, ALLOCATOR>(value);
+    }
+
+    /**
+     * Converts the given std::wstring into an std::string using the kstd::unicode API.
+     * @tparam TRAITS The character traits applied to the resulting string.
+     * @tparam ALLOCATOR The allocator used for allocating the converted string.
+     * @param value The value to convert to a multibyte string.
+     * @return A new std::string with the UTF-8 encoded contents of the given UTF-16 string.
+     */
+    template<typename TRAITS = std::char_traits<char>, typename ALLOCATOR = std::allocator<char>>
+    [[nodiscard]] inline auto to_mbs(const std::wstring& value) noexcept -> std::basic_string<char, TRAITS, ALLOCATOR> {
+        return unicode::convert<char, TRAITS, ALLOCATOR>(value);
     }
 }// namespace kstd::utils

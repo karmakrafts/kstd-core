@@ -28,7 +28,6 @@
 #include "wchar.h" // NOLINT
 
 #include "types.hpp"
-#include "utils.hpp"
 
 namespace kstd::libc {
     namespace iob {
