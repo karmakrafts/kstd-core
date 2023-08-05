@@ -7,3 +7,5 @@ on:
 jobs:
   build-and-test:
     uses: karmakrafts/workflows/.github/workflows/cpp-17-20.yml@master
+    with:
+      cmake_args: "-DKSTD_CORE_BUILD_TESTS=ON"
