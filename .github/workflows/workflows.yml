@@ -5,7 +5,15 @@ on:
   pull_request:
     branches: [ "master" ]
 jobs:
-  build-and-test:
-    uses: karmakrafts/workflows/.github/workflows/cpp-17-20.yml@master
+  cpp-17-debug:
+    uses: karmakrafts/workflows/.github/workflows/cpp.yml@master
     with:
       cmake_args: "-DKSTD_CORE_BUILD_TESTS=ON"
+      build_type: "Debug"
+      std_version: 17
+  cpp-20-debug:
+    uses: karmakrafts/workflows/.github/workflows/cpp.yml@master
+    with:
+      cmake_args: "-DKSTD_CORE_BUILD_TESTS=ON"
+      build_type: "Debug"
+      std_version: 20
