@@ -1,0 +1,19 @@
+name: Build & Test
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+jobs:
+  cpp-17-debug:
+    uses: karmakrafts/workflows/.github/workflows/cpp.yml@master
+    with:
+      cmake_args: "-DKSTD_CORE_BUILD_TESTS=ON"
+      build_type: "Debug"
+      std_version: 17
+  cpp-20-debug:
+    uses: karmakrafts/workflows/.github/workflows/cpp.yml@master
+    with:
+      cmake_args: "-DKSTD_CORE_BUILD_TESTS=ON"
+      build_type: "Debug"
+      std_version: 20
