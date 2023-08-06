@@ -21,6 +21,7 @@
 
 #include <functional>
 #include <type_traits>
+#include <stdexcept>
 
 #include "assert.hpp"
 #include "box.hpp"
@@ -125,22 +126,6 @@ namespace kstd {
             }
         }
 
-        [[nodiscard]] constexpr auto get_or_throw() -> Reference {
-            throw_if_error();
-
-            if constexpr(!std::is_void_v<T>) {
-                return std::get<BoxType>(_value).get();
-            }
-        }
-
-        [[nodiscard]] constexpr auto get_or_throw() const -> ConstReference {
-            throw_if_error();
-
-            if constexpr(!std::is_void_v<T>) {
-                return std::get<BoxType>(_value).get();
-            }
-        }
-
         [[nodiscard]] constexpr auto
         get_or(std::remove_reference_t<std::remove_cv_t<NonVoidValueType>> default_value) const noexcept
                 -> std::remove_reference_t<std::remove_cv_t<NonVoidValueType>> {
@@ -183,7 +168,7 @@ namespace kstd {
             return {};
         }
 
-        constexpr auto throw_if_error() const -> void {
+        inline auto throw_if_error() const -> void {
             if(is_error()) {
                 if constexpr(std::is_same_v<ErrorType, std::string>) {
                     throw std::runtime_error {get_error()};
@@ -194,6 +179,22 @@ namespace kstd {
                 else {
                     throw std::runtime_error {std::to_string(get_error())};
                 }
+            }
+        }
+
+        [[nodiscard]] inline auto get_or_throw() -> Reference {
+            throw_if_error();
+
+            if constexpr(!std::is_void_v<T>) {
+                return std::get<BoxType>(_value).get();
+            }
+        }
+
+        [[nodiscard]] inline auto get_or_throw() const -> ConstReference {
+            throw_if_error();
+
+            if constexpr(!std::is_void_v<T>) {
+                return std::get<BoxType>(_value).get();
             }
         }
 
@@ -276,7 +277,7 @@ namespace kstd {
             return {std::move(std::get<WrappedErrorType>(_value))};
         }
 
-        constexpr auto throw_if_error() const -> void {
+        inline auto throw_if_error() const -> void {
             if(is_error()) {
                 if constexpr(std::is_same_v<ErrorType, std::string>) {
                     throw std::runtime_error {get_error()};
