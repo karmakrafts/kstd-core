@@ -574,3 +574,20 @@ TEST(kstd_Result, test_throw_if_error) {
     result = "This is a value now!"s;
     ASSERT_NO_THROW(result.throw_if_error());
 }
+
+TEST(kstd_Result, test_get_or_throw) {
+    using namespace std::string_literals;
+
+    kstd::Result<std::string> result {kstd::Error {"I am an error!"s}};
+
+    static_assert(std::is_same_v<typename decltype(result)::ValueType, std::string>);
+    static_assert(std::is_same_v<typename decltype(result)::Reference, std::string&>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstReference, const std::string&>);
+    static_assert(std::is_same_v<typename decltype(result)::Pointer, std::string*>);
+    static_assert(std::is_same_v<typename decltype(result)::ConstPointer, const std::string*>);
+
+    ASSERT_THROW(auto ___ = result.get_or_throw(), std::runtime_error);
+
+    result = "This is a value now!"s;
+    ASSERT_EQ(result.get_or_throw(), "This is a value now!"s);
+}

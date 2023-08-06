@@ -125,6 +125,22 @@ namespace kstd {
             }
         }
 
+        [[nodiscard]] constexpr auto get_or_throw() -> Reference {
+            throw_if_error();
+
+            if constexpr(!std::is_void_v<T>) {
+                return std::get<BoxType>(_value).get();
+            }
+        }
+
+        [[nodiscard]] constexpr auto get_or_throw() const -> ConstReference {
+            throw_if_error();
+
+            if constexpr(!std::is_void_v<T>) {
+                return std::get<BoxType>(_value).get();
+            }
+        }
+
         [[nodiscard]] constexpr auto
         get_or(std::remove_reference_t<std::remove_cv_t<NonVoidValueType>> default_value) const noexcept
                 -> std::remove_reference_t<std::remove_cv_t<NonVoidValueType>> {
