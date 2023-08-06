@@ -20,8 +20,8 @@
 #pragma once
 
 #include <functional>
-#include <type_traits>
 #include <stdexcept>
+#include <type_traits>
 
 #include "assert.hpp"
 #include "box.hpp"
@@ -65,9 +65,8 @@ namespace kstd {
         using ValueType = T;
         using ErrorType = E;
         using WrappedErrorType = Error<ErrorType>;
-        using NonVoidValueType = std::conditional_t<std::is_void_v<ValueType>, u8, ValueType>;
         using Self = Result<ValueType, ErrorType>;
-        using BoxType = Box<NonVoidValueType>;
+        using BoxType = Box<ValueType>;
         using Reference = typename BoxType::Reference;
         using ConstReference = typename BoxType::ConstReference;
         using Pointer = typename BoxType::Pointer;
@@ -83,8 +82,8 @@ namespace kstd {
                 _value {Void()} {
         }
 
-        constexpr Result(NonVoidValueType value) noexcept :// NOLINT
-                _value {BoxType(std::forward<NonVoidValueType>(value))} {
+        constexpr Result(ValueType value) noexcept :// NOLINT
+                _value {BoxType(std::forward<ValueType>(value))} {
         }
 
         constexpr Result(WrappedErrorType error) noexcept :// NOLINT
@@ -98,12 +97,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto is_ok() const noexcept -> bool {
-            if constexpr(std::is_void_v<T>) {
-                return is_empty();
-            }
-            else {
-                return std::holds_alternative<BoxType>(_value);
-            }
+            return std::holds_alternative<BoxType>(_value);
         }
 
         [[nodiscard]] constexpr auto is_error() const noexcept -> bool {
@@ -112,23 +106,17 @@ namespace kstd {
 
         [[nodiscard]] constexpr auto get() noexcept -> Reference {
             assert_true(is_ok());
-
-            if constexpr(!std::is_void_v<T>) {
-                return std::get<BoxType>(_value).get();
-            }
+            return std::get<BoxType>(_value).get();
         }
 
         [[nodiscard]] constexpr auto get() const noexcept -> ConstReference {
             assert_true(is_ok());
-
-            if constexpr(!std::is_void_v<T>) {
-                return std::get<BoxType>(_value).get();
-            }
+            return std::get<BoxType>(_value).get();
         }
 
         [[nodiscard]] constexpr auto
-        get_or(std::remove_reference_t<std::remove_cv_t<NonVoidValueType>> default_value) const noexcept
-                -> std::remove_reference_t<std::remove_cv_t<NonVoidValueType>> {
+        get_or(std::remove_reference_t<std::remove_cv_t<ValueType>> default_value) const noexcept
+                -> std::remove_reference_t<std::remove_cv_t<ValueType>> {
             if(!is_ok()) {
                 return default_value;
             }
@@ -157,7 +145,7 @@ namespace kstd {
 
         template<typename F, typename R = std::invoke_result_t<F, Reference>>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, E> {
-            static_assert(std::is_convertible_v<F, std::function<R(NonVoidValueType)>>,
+            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>,
                           "Function signature does not match");
             if(is_ok()) {
                 return std::forward<F>(function)(get());
@@ -184,18 +172,12 @@ namespace kstd {
 
         [[nodiscard]] inline auto get_or_throw() -> Reference {
             throw_if_error();
-
-            if constexpr(!std::is_void_v<T>) {
-                return std::get<BoxType>(_value).get();
-            }
+            return std::get<BoxType>(_value).get();
         }
 
         [[nodiscard]] inline auto get_or_throw() const -> ConstReference {
             throw_if_error();
-
-            if constexpr(!std::is_void_v<T>) {
-                return std::get<BoxType>(_value).get();
-            }
+            return std::get<BoxType>(_value).get();
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
