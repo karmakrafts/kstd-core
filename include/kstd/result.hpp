@@ -167,6 +167,20 @@ namespace kstd {
             return {};
         }
 
+        constexpr auto throw_if_error() const -> void {
+            if(is_error()) {
+                if constexpr(std::is_same_v<ErrorType, std::string>) {
+                    throw std::runtime_error {get_error()};
+                }
+                else if constexpr(std::is_same_v<ErrorType, std::string_view>) {
+                    throw std::runtime_error {std::string {get_error()}};
+                }
+                else {
+                    throw std::runtime_error {std::to_string(get_error())};
+                }
+            }
+        }
+
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
             return is_ok();
         }
@@ -244,6 +258,20 @@ namespace kstd {
             }
             assert_true(is_error());
             return {std::move(std::get<WrappedErrorType>(_value))};
+        }
+
+        constexpr auto throw_if_error() const -> void {
+            if(is_error()) {
+                if constexpr(std::is_same_v<ErrorType, std::string>) {
+                    throw std::runtime_error {get_error()};
+                }
+                else if constexpr(std::is_same_v<ErrorType, std::string_view>) {
+                    throw std::runtime_error {std::string {get_error()}};
+                }
+                else {
+                    throw std::runtime_error {std::to_string(get_error())};
+                }
+            }
         }
 
         [[nodiscard]] constexpr operator bool() const noexcept {// NOLINT
