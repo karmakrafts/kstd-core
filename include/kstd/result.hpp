@@ -145,8 +145,7 @@ namespace kstd {
 
         template<typename F, typename R = std::invoke_result_t<F, Reference>>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, E> {
-            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>,
-                          "Function signature does not match");
+            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
             if(is_ok()) {
                 return std::forward<F>(function)(get());
             }
@@ -286,7 +285,7 @@ namespace kstd {
     static_assert(std::is_same_v<typename Result<void>::WrappedErrorType, Error<std::string>>);
 #endif
 
-    template<typename R, typename F>
+    template<typename F, typename R = std::invoke_result_t<F>>
     [[nodiscard]] constexpr auto try_to(F&& function) noexcept -> Result<R> {
         static_assert(std::is_convertible_v<F, std::function<R()>>, "Function return type does not match");
         try {
