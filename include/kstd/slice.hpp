@@ -175,7 +175,7 @@ namespace kstd {
     // clang-format off
     template<typename I>
     Slice(I, I) -> Slice<std::conditional_t<std::is_pointer_v<I>,
-        I,
+        std::remove_pointer_t<I>,
         std::conditional_t<std::is_const_v<std::remove_pointer_t<typename I::pointer>>,
             const typename I::value_type,
             typename I::value_type>>>;

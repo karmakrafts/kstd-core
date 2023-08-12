@@ -85,3 +85,31 @@ TEST(kstd_Slice, test_from_const_range) {
     ASSERT_EQ(slice[2], 69);
     ASSERT_EQ(slice[3], 222);
 }
+
+TEST(kstd_Slice, test_from_pointer_range) {
+    std::string value {"HELLO"};
+    kstd::Slice slice {value.begin(), value.end()};
+
+    ASSERT_EQ(slice.get_size(), value.size());
+    ASSERT_EQ(slice.get_count(), 5);
+    ASSERT_EQ(slice[0], 'H');
+    ASSERT_EQ(slice[1], 'E');
+    ASSERT_EQ(slice[2], 'L');
+    ASSERT_EQ(slice[3], 'L');
+    ASSERT_EQ(slice[4], 'O');
+    ASSERT_EQ(slice[5], '\0');
+}
+
+TEST(kstd_Slice, test_from_const_pointer_range) {
+    std::string value {"HELLO"};
+    kstd::Slice slice {value.cbegin(), value.cend()};
+
+    ASSERT_EQ(slice.get_size(), value.size());
+    ASSERT_EQ(slice.get_count(), 5);
+    ASSERT_EQ(slice[0], 'H');
+    ASSERT_EQ(slice[1], 'E');
+    ASSERT_EQ(slice[2], 'L');
+    ASSERT_EQ(slice[3], 'L');
+    ASSERT_EQ(slice[4], 'O');
+    ASSERT_EQ(slice[5], '\0');
+}
