@@ -18,18 +18,19 @@
  */
 
 #include <gtest/gtest.h>
+#include <kstd/libc.hpp>
 #include <kstd/out_ptr.hpp>
 #include <kstd/types.hpp>
 #include <memory>
 
 // Define function with C-linkage for testing
 extern "C" auto the_c_function(kstd::i32** data_to_set) -> void {
-    *data_to_set = reinterpret_cast<kstd::i32*>(::malloc(sizeof(kstd::i32)));// NOLINT
+    *data_to_set = reinterpret_cast<kstd::i32*>(kstd::libc::malloc(sizeof(kstd::i32)));// NOLINT
     *(*data_to_set) = 420;
 }
 
 TEST(kstd_OutPtr, test_out_ptr) {
-    auto the_data = std::unique_ptr<kstd::i32>(nullptr);
+    auto the_data = kstd::libc::make_unique_c_ptr<kstd::i32>(nullptr);
     ASSERT_TRUE(the_data == nullptr);
 
     the_c_function(kstd::OutPtr {the_data});

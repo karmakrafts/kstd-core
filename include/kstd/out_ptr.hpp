@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "defaults.hpp"
 #include "types.hpp"
 

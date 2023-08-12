@@ -30,7 +30,7 @@
 
 namespace kstd {
     /**
-     * A box implementation which is either empty or stores an owned value.
+     * A box implementation which is either is_empty or stores an owned value.
      * This means that the lifetime of the object contained within the box,
      * is the same as the box's lifetime itself.
      *
@@ -118,7 +118,7 @@ namespace kstd {
     };
 
     /**
-     * A box implementation which is either empty or stores a pointer value.
+     * A box implementation which is either is_empty or stores a pointer value.
      * This means that the contained value will always be passed by value,
      * since that's the most efficient way for pointers.
      *
@@ -204,7 +204,7 @@ namespace kstd {
     };
 
     /**
-     * A box implementation which is either empty or stores a reference.
+     * A box implementation which is either is_empty or stores a reference.
      * This means that the contained value will always be passed by value,
      * since that's the only thing that makes sense for references.
      * This implementation stores a pointer internally, to make this type

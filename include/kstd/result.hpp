@@ -31,6 +31,14 @@
 #include "utils.hpp"
 #include "void.hpp"
 
+#ifndef KSTD_DISABLE_STD_EXPECTED_SUPPORT
+#include "language.hpp"
+#ifdef KSTD_CPP_23
+#define KSTD_STD_EXPECTED_SUPPORT
+#include <expected>
+#endif// KSTD_CPP_23
+#endif// KSTD_DISABLE_STD_EXPECTED_SUPPORT
+
 namespace kstd {
     template<typename E>
     struct Error final {
@@ -124,18 +132,18 @@ namespace kstd {
             return get();
         }
 
-        [[nodiscard]] constexpr auto get_error() noexcept -> E& {
+        [[nodiscard]] constexpr auto get_error() noexcept -> ErrorType& {
             assert_true(is_error());
             return std::get<WrappedErrorType>(_value).get();
         }
 
-        [[nodiscard]] constexpr auto get_error() const noexcept -> const E& {
+        [[nodiscard]] constexpr auto get_error() const noexcept -> const ErrorType& {
             assert_true(is_error());
             return std::get<WrappedErrorType>(_value).get();
         }
 
         template<typename TT>
-        [[nodiscard]] constexpr auto forward() const noexcept -> Result<TT, E> {
+        [[nodiscard]] constexpr auto forward() const noexcept -> Result<TT, ErrorType> {
             if(is_empty()) {
                 return {};
             }
@@ -144,7 +152,7 @@ namespace kstd {
         }
 
         template<typename F, typename R = std::invoke_result_t<F, Reference>>
-        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, E> {
+        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, ErrorType> {
             static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
             if(is_ok()) {
                 return std::forward<F>(function)(get());
@@ -198,6 +206,33 @@ namespace kstd {
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return &get();
         }
+
+#ifdef KSTD_STD_EXPECTED_SUPPORT
+        [[nodiscard]] constexpr auto clone_into() noexcept -> std::expected<ValueType, ErrorType> {
+            if(is_empty()) {
+                return {std::unexpected {ErrorType {}}};// Empty default error value
+            }
+            if(is_error()) {
+                return {std::unexpected {get_error()}};
+            }
+            return {get()};
+        }
+
+        [[nodiscard]] constexpr auto into() noexcept -> std::expected<ValueType, ErrorType> {
+            if(is_empty()) {
+                return {std::unexpected {ErrorType {}}};// Empty default error value
+            }
+            if(is_error()) {
+                return {std::unexpected {get_error()}};
+            }
+            if constexpr(std::is_reference_v<ValueType>) {
+                return {get()};
+            }
+            else {
+                return {std::move(get())};
+            }
+        }
+#endif// KSTD_STD_EXPECTED_SUPPORT
     };
 
     template<typename E>
@@ -300,4 +335,22 @@ namespace kstd {
             return Error {std::string {error.what()}};
         }
     }
+
+#ifdef KSTD_STD_EXPECTED_SUPPORT
+    template<typename T, typename E>
+    [[nodiscard]] constexpr auto clone_into(const std::expected<T, E>& value) noexcept -> Result<T, E> {
+        if(!value) {
+            return Error {value.error()};
+        }
+        return *value;
+    }
+
+    template<typename T, typename E>
+    [[nodiscard]] constexpr auto into(std::expected<T, E>& value) noexcept -> Result<T, E> {
+        if(!value) {
+            return Error {value.error()};
+        }
+        return {std::move(*value)};
+    }
+#endif// KSTD_STD_EXPECTED_SUPPORT
 }// namespace kstd

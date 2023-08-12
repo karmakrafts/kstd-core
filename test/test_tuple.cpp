@@ -35,7 +35,7 @@ TEST(kstd_Tuple, test_values) {
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
-    ASSERT_EQ(size, pair.get_size());
+    ASSERT_EQ(size, pair.size());
 
     // Structured bindings
     const auto& [x, y] = pair;
@@ -92,7 +92,7 @@ TEST(kstd_Tuple, test_references) {
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
-    ASSERT_EQ(size, pair.get_size());
+    ASSERT_EQ(size, pair.size());
 
     // Structured bindings
     auto& [x, y] = pair;
@@ -147,7 +147,7 @@ TEST(kstd_Tuple, test_const_references) {
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
-    ASSERT_EQ(size, pair.get_size());
+    ASSERT_EQ(size, pair.size());
 
     // Structured bindings
     const auto& [x, y] = pair;
@@ -196,7 +196,7 @@ TEST(kstd_Tuple, test_pointers) {
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
-    ASSERT_EQ(size, pair.get_size());
+    ASSERT_EQ(size, pair.size());
 
     // Structured bindings
     auto& [x, y] = pair;
@@ -249,7 +249,7 @@ TEST(kstd_Tuple, test_const_pointers) {
 
     // std::tuple_size support
     const auto size = std::tuple_size<decltype(pair)>::value;
-    ASSERT_EQ(size, pair.get_size());
+    ASSERT_EQ(size, pair.size());
 
     // Structured bindings
     auto& [x, y] = pair;

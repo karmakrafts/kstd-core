@@ -20,6 +20,7 @@
 #pragma once
 
 #include <algorithm>
+#include <memory>
 #include <type_traits>
 
 #include "stdio.h" // NOLINT
@@ -91,49 +92,52 @@ namespace kstd::libc {
     using ::wcstok;
     using ::wcsxfrm;
 
-    // Formatting
-    using ::scanf;
-
     template<typename... ARGS>
-    constexpr auto fprintf(File* file, const char* format, ARGS&&... args) noexcept {
-        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
-        ::fprintf(file, format, std::forward<ARGS>(args)...);// NOLINT
-    }
-
-    template<typename... ARGS>
-    constexpr auto printf(const char* format, ARGS&&... args) noexcept {
+    constexpr auto scanf(const char* fmt, ARGS&&... args) noexcept -> i32 {
         static_assert(sizeof...(ARGS) >= 1, "Function requires at least 2 parameters!");
-        ::printf(format, std::forward<ARGS>(args)...);// NOLINT
+        return ::scanf(fmt, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
-    constexpr auto sprintf(char* buffer, const char* format, ARGS&&... args) noexcept {
+    constexpr auto fprintf(File* file, const char* format, ARGS&&... args) noexcept -> i32 {
         static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
-        ::sprintf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
+        return ::fprintf(file, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
-    constexpr auto swprintf(const wchar_t* buffer, const wchar_t* format, ARGS&&... args) noexcept {
-        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
-        ::swprintf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
-    }
-
-    template<typename... ARGS>
-    constexpr auto fwprintf(File* file, const wchar_t* format, ARGS&&... args) noexcept {
-        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
-        ::fwprintf(file, format, std::forward<ARGS>(args)...);// NOLINT
-    }
-
-    template<typename... ARGS>
-    constexpr auto wprintf(const wchar_t* format, ARGS&&... args) noexcept {
+    constexpr auto printf(const char* format, ARGS&&... args) noexcept -> i32 {
         static_assert(sizeof...(ARGS) >= 1, "Function requires at least 2 parameters!");
-        ::wprintf(format, std::forward<ARGS>(args)...);// NOLINT
+        return ::printf(format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     template<typename... ARGS>
-    constexpr auto wscanf(wchar_t* buffer, const wchar_t* format, ARGS&&... args) noexcept {
+    constexpr auto sprintf(char* buffer, const char* format, ARGS&&... args) noexcept -> i32 {
         static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
-        ::wscanf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
+        return ::sprintf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
+    }
+
+    template<typename... ARGS>
+    constexpr auto swprintf(const wchar_t* buffer, const wchar_t* format, ARGS&&... args) noexcept -> i32 {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
+        return ::swprintf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
+    }
+
+    template<typename... ARGS>
+    constexpr auto fwprintf(File* file, const wchar_t* format, ARGS&&... args) noexcept -> i32 {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
+        return ::fwprintf(file, format, std::forward<ARGS>(args)...);// NOLINT
+    }
+
+    template<typename... ARGS>
+    constexpr auto wprintf(const wchar_t* format, ARGS&&... args) noexcept -> i32 {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 2 parameters!");
+        return ::wprintf(format, std::forward<ARGS>(args)...);// NOLINT
+    }
+
+    template<typename... ARGS>
+    constexpr auto wscanf(wchar_t* buffer, const wchar_t* format, ARGS&&... args) noexcept -> i32 {
+        static_assert(sizeof...(ARGS) >= 1, "Function requires at least 3 parameters!");
+        return ::wscanf(buffer, format, std::forward<ARGS>(args)...);// NOLINT
     }
 
     // Strings
@@ -218,5 +222,24 @@ namespace kstd::libc {
             memcpy(dst + get_string_length(dst), src, get_string_length(src) + 1);
             return dst;
         }
+    }
+
+    template<typename T>
+    struct FreeDeleter final {
+        inline auto operator()(T* memory) noexcept -> void {
+            free(memory);
+        }
+    };
+
+    template<typename T>
+    [[nodiscard]] constexpr auto make_unique_c_ptr(T* memory = calloc(1, sizeof(T))) noexcept// NOLINT
+            -> std::unique_ptr<T, FreeDeleter<T>> {
+        return std::unique_ptr<T, FreeDeleter<T>> {memory};
+    }
+
+    template<typename T>
+    [[nodiscard]] constexpr auto make_shared_c_ptr(T* memory = calloc(1, sizeof(T))) noexcept// NOLINT
+            -> std::shared_ptr<T> {
+        return std::shared_ptr<T> {memory, FreeDeleter<T> {}};
     }
 }// namespace kstd::libc

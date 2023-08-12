@@ -30,6 +30,11 @@
 #include "types.hpp"
 #include "utils.hpp"
 
+#ifndef KSTD_DISABLE_STD_OPTIONAL_SUPPORT
+#define KSTD_STD_OPTIONAL_SUPPORT
+#include <optional>
+#endif// KSTD_DISABLE_STD_OPTIONAL_SUPPORT
+
 namespace kstd {
     template<typename T>
     struct Option final {
@@ -83,7 +88,7 @@ namespace kstd {
         }
 
         template<typename F, typename R = std::invoke_result_t<F, Reference>>
-        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Option<R> {
+        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Option<R> {// NOLINT
             static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
             if(is_empty()) {
                 return {};
@@ -110,5 +115,44 @@ namespace kstd {
         [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return &get();
         }
+
+#ifdef KSTD_STD_OPTIONAL_SUPPORT
+        [[nodiscard]] constexpr auto clone_into() noexcept -> std::optional<std::remove_reference_t<ValueType>> {
+            if(is_empty()) {
+                return std::nullopt;
+            }
+            return std::make_optional<std::remove_reference_t<ValueType>>(get());
+        }
+
+        [[nodiscard]] constexpr auto into() noexcept -> std::optional<std::remove_reference_t<ValueType>> {
+            if(is_empty()) {
+                return std::nullopt;
+            }
+            if constexpr(std::is_reference_v<ValueType>) {
+                return std::make_optional<std::remove_reference_t<ValueType>>(get());
+            }
+            else {
+                return std::make_optional<ValueType>(std::move(get()));
+            }
+        }
+#endif// KSTD_STD_OPTIONAL_SUPPORT
     };
+
+#ifdef KSTD_STD_OPTIONAL_SUPPORT
+    template<typename T>
+    [[nodiscard]] constexpr auto clone_into(const std::optional<T>& value) noexcept -> Option<T> {
+        if(!value) {
+            return {};
+        }
+        return *value;
+    }
+
+    template<typename T>
+    [[nodiscard]] constexpr auto into(std::optional<T>& value) noexcept -> Option<T> {
+        if(!value) {
+            return {};
+        }
+        return {std::move(*value)};
+    }
+#endif// KSTD_STD_OPTIONAL_SUPPORT
 }// namespace kstd

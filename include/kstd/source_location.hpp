@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <fmt/format.h>
+
 #include "defaults.hpp"
 #include "types.hpp"
 
@@ -39,6 +41,12 @@ namespace kstd {
 
         ~SourceLocation() noexcept = default;
 
+        [[nodiscard]] static constexpr auto current(const char* file = __builtin_FILE(),
+                                                    const char* function = __builtin_FUNCTION(),
+                                                    usize line = __builtin_LINE()) noexcept -> SourceLocation {
+            return {file, function, line};
+        }
+
         [[nodiscard]] constexpr auto get_file() const noexcept -> const char* {
             return _file;
         }
@@ -50,11 +58,9 @@ namespace kstd {
         [[nodiscard]] constexpr auto get_line() const noexcept -> usize {
             return _line;
         }
-    };
 
-    [[nodiscard]] constexpr auto current_location(const char* file = __builtin_FILE(),
-                                                  const char* function = __builtin_FUNCTION(),
-                                                  usize line = __builtin_LINE()) noexcept -> SourceLocation {
-        return {file, function, line};
-    }
+        [[nodiscard]] inline auto to_string() const noexcept -> std::string {
+            return fmt::format("{}:{} [{}]", _file, _line, _function);
+        }
+    };
 }// namespace kstd

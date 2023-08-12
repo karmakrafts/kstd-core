@@ -19,6 +19,10 @@
 
 #pragma once
 
+#if __cplusplus > 202002L && __cpp_concepts >= 202002L
+#define KSTD_CPP_23
+#endif
+
 #if __cplusplus >= 202002L
 #define KSTD_CPP_20
 #endif

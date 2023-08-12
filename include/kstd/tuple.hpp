@@ -189,7 +189,7 @@ namespace kstd {
 
         ~PackedTuple() noexcept = default;
 
-        [[nodiscard]] constexpr auto get_size() const noexcept -> usize {
+        [[nodiscard]] constexpr auto size() const noexcept -> usize {
             return num_values;
         }
 
@@ -236,7 +236,8 @@ namespace kstd {
         }
 
         template<typename OTHER_TYPES>
-        [[nodiscard]] constexpr auto operator==(const PackedTuple<OTHER_TYPES>& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator==([[maybe_unused]] const PackedTuple<OTHER_TYPES>& other) const noexcept
+                -> bool {
             return false;
         }
 
@@ -247,7 +248,8 @@ namespace kstd {
         }
 
         template<typename OTHER_TYPES>
-        [[nodiscard]] constexpr auto operator!=(const PackedTuple<OTHER_TYPES>& other) const noexcept -> bool {
+        [[nodiscard]] constexpr auto operator!=([[maybe_unused]] const PackedTuple<OTHER_TYPES>& other) const noexcept
+                -> bool {
             return true;
         }
 

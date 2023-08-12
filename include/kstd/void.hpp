@@ -25,7 +25,7 @@
 namespace kstd {
     /**
      * A dummy type which can be used in unions or variants to
-     * implement an empty behaviour. Can also be used as a passable
+     * implement an is_empty behaviour. Can also be used as a passable
      * void type, if that is ever needed.
      * This type is exactly <b>alignof(u8)</b> bytes in size.
      */

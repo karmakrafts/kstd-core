@@ -22,71 +22,25 @@
 #include <array>
 
 #include "libc.hpp"
+#include "print.hpp"
 #include "source_location.hpp"
 
 namespace kstd {
-    namespace {
-        constexpr usize BUFFER_SIZE = 1024;
-
-        class AssertionMessage final {
-            char* _data;
-
-            public:
-            explicit inline AssertionMessage(const char* data) noexcept :
-                    _data {} {
-                const auto size = libc::strlen(data) + 1;
-                _data = static_cast<char*>(libc::malloc(size));// NOLINT
-                libc::memset(_data, 0, size);
-                libc::strncpy(_data, data, size);// Copy data to heap memory
-            }
-
-            inline AssertionMessage(const AssertionMessage& other) noexcept :
-                    AssertionMessage(other._data) {
-            }
-
-            inline AssertionMessage(AssertionMessage&& other) noexcept :
-                    AssertionMessage(other._data) {
-            }
-
-            inline auto operator=(const AssertionMessage& other) noexcept -> AssertionMessage& = delete;
-
-            inline auto operator=(AssertionMessage&& other) noexcept -> AssertionMessage& = delete;
-
-            ~AssertionMessage() noexcept {
-                libc::free(_data);// NOLINT: Free heap memory when object is destroyed
-            }
-
-            [[nodiscard]] constexpr auto get_data() const noexcept -> const char* {
-                return _data;
-            }
-        };
-
-        [[nodiscard]] inline auto
-        get_default_assertion_message(const SourceLocation& location = current_location()) noexcept
-                -> AssertionMessage {
-            std::array<char, BUFFER_SIZE> buffer {};
-            auto* buffer_data = buffer.data();
-            libc::sprintf(buffer_data, "%s:%zu [%s]", location.get_file(), location.get_line(),
-                          location.get_function());
-            return AssertionMessage {buffer_data};
-        }
-    }// namespace
-
-    inline auto assert_true(bool condition, const char* message = get_default_assertion_message().get_data()) noexcept
+    inline auto assert_true(bool condition, const std::string& message = SourceLocation::current().to_string()) noexcept
             -> void {
 #ifdef BUILD_DEBUG
         if(!condition) {
-            libc::fprintf(libc::iob::err, "Assertion failed in %s\n", message);
+            println_error("Assertion failed in {}\n", message);
             libc::exit(4);
         }
 #endif
     }
 
-    inline auto assert_false(bool condition, const char* message = get_default_assertion_message().get_data()) noexcept
-            -> void {
+    inline auto assert_false(bool condition,
+                             const std::string& message = SourceLocation::current().to_string()) noexcept -> void {
 #ifdef BUILD_DEBUG
         if(condition) {
-            libc::fprintf(libc::iob::err, "Assertion failed in %s\n", message);
+            println_error("Assertion failed in {}\n", message);
             libc::exit(4);
         }
 #endif

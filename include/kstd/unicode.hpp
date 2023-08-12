@@ -55,7 +55,7 @@ namespace kstd::unicode {
         using CharType = CHAR;
         static constexpr i32 max_width = 4;
 
-        [[nodiscard]] static constexpr auto get_trail_length(CharType value) noexcept -> i32 {
+        [[nodiscard]] static constexpr auto trail_length(CharType value) noexcept -> i32 {
             const auto uc_value = static_cast<u8>(value);
             if(uc_value < 128) {
                 return 0;
@@ -75,7 +75,7 @@ namespace kstd::unicode {
             return -1;
         }
 
-        [[nodiscard]] static constexpr auto get_width(CodePoint value) noexcept -> i32 {
+        [[nodiscard]] static constexpr auto width(CodePoint value) noexcept -> i32 {
             if(value <= 0x7F) {
                 return 1;
             }
@@ -102,7 +102,7 @@ namespace kstd::unicode {
                 return incomplete;
             }
             const auto lead = static_cast<u8>(*current++);
-            const auto trail_size = get_trail_length(lead);
+            const auto trail_size = trail_length(lead);
             if(trail_size < 0) {
                 return illegal;
             }
@@ -121,7 +121,7 @@ namespace kstd::unicode {
                 }
                 code_point = (code_point << 6) | (temp & 0x3F);
             }
-            if(!is_valid_codepoint(code_point) || get_width(code_point) != trail_size + 1) {
+            if(!is_valid_codepoint(code_point) || width(code_point) != trail_size + 1) {
                 current -= trail_size;
                 return illegal;
             }
@@ -174,7 +174,7 @@ namespace kstd::unicode {
         }
 
         public:
-        [[nodiscard]] static constexpr auto get_trail_length(CharType value) noexcept -> i32 {
+        [[nodiscard]] static constexpr auto trail_length(CharType value) noexcept -> i32 {
             if(is_first_surrogate(value)) {
                 return 1;
             }
@@ -184,7 +184,7 @@ namespace kstd::unicode {
             return 0;
         }
 
-        [[nodiscard]] static constexpr auto get_width(CodePoint value) noexcept -> i32 {
+        [[nodiscard]] static constexpr auto width(CodePoint value) noexcept -> i32 {
             return value >= 0x10000 ? 2 : 1;
         }
 
@@ -236,14 +236,14 @@ namespace kstd::unicode {
         using CharType = CHAR;
         static constexpr i32 max_width = 1;
 
-        [[nodiscard]] static constexpr auto get_trail_length(CharType value) noexcept -> i32 {
+        [[nodiscard]] static constexpr auto trail_length(CharType value) noexcept -> i32 {
             if(is_valid_codepoint(value)) {
                 return 0;
             }
             return -1;
         }
 
-        [[nodiscard]] static constexpr auto get_width([[maybe_unused]] CodePoint value) noexcept -> i32 {
+        [[nodiscard]] static constexpr auto width([[maybe_unused]] CodePoint value) noexcept -> i32 {
             return 1;
         }
 
@@ -285,17 +285,17 @@ namespace kstd::unicode {
         const auto* end = &value[length];
         if(out_count != nullptr) {
             const auto* current = value;
-            while(current != end) {// NOLINT
+            while(current != end) {
                 auto code_point = UTFTraits<CHAR_IN>::decode(current, end);
                 if(code_point == illegal || code_point == incomplete) {
                     code_point = replacement;
                 }
-                *out_count += UTFTraits<CHAR_OUT>::get_width(code_point);// NOLINT
+                *out_count += UTFTraits<CHAR_OUT>::width(code_point);// NOLINT
             }
         }
         if(out != nullptr) {
             const auto* current = value;
-            while(current != end) {// NOLINT
+            while(current != end) {
                 auto code_point = UTFTraits<CHAR_IN>::decode(current, end);
                 if(code_point == illegal || code_point == incomplete) {
                     code_point = replacement;
