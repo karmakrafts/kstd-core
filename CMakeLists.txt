@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;")
 include(cmx)
 cmx_include_scripts()
 
-add_library(kstd-core INTERFACE)
+cmx_add_library(kstd-core INTERFACE)
 target_include_directories(kstd-core INTERFACE "${CMAKE_SOURCE_DIR}/include")
 cmx_include_fmt(kstd-core INTERFACE)
 
