@@ -63,22 +63,22 @@ namespace kstd {
 
         ~Slice() noexcept = default;
 
-        constexpr auto zero() noexcept -> void {
+        constexpr auto zero() const noexcept -> void {
             libc::memset(_data, 0, _size);
         }
 
-        constexpr auto copy_to(Self& destination) noexcept -> usize {
+        constexpr auto copy_to(Self& destination) const noexcept -> usize {
             const auto size = std::min(_size, destination._size);
             libc::memcpy(destination._data, _data, size);
             return size;
         }
 
-        constexpr auto copy_to(Pointer data) noexcept -> void {
+        constexpr auto copy_to(Pointer data) const noexcept -> void {
             libc::memcpy(data, _data, _size);
         }
 
         template<typename I>
-        constexpr auto copy_to(I begin, I end) noexcept -> usize {
+        constexpr auto copy_to(I begin, I end) const noexcept -> usize {
             return copy_to({begin, end});
         }
 
