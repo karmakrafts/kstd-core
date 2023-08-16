@@ -87,7 +87,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto end() noexcept -> Iterator {
-            return reinterpret_cast<Iterator>(reinterpret_cast<u8*>(_data) + _size);// NOLINT
+            return _data + (_size / sizeof(ValueType));// NOLINT
         }
 
         [[nodiscard]] constexpr auto rbegin() noexcept -> ReverseIterator {
@@ -103,7 +103,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto cend() const noexcept -> ConstIterator {
-            return reinterpret_cast<T*>(reinterpret_cast<const u8*>(_data) + _size);// NOLINT
+            return _data + (_size / sizeof(ValueType));// NOLINT
         }
 
         [[nodiscard]] constexpr auto crbegin() noexcept -> ConstReverseIterator {
