@@ -113,3 +113,31 @@ TEST(kstd_Slice, test_from_const_pointer_range) {
     ASSERT_EQ(slice[4], 'O');
     ASSERT_EQ(slice[5], '\0');
 }
+
+TEST(kstd_Slice, test_loop_value) {
+	using namespace std::string_literals;
+	std::vector values {"Hello"s, "World"s, ":3"s};
+	kstd::Slice slice {values.cbegin(), values.cend()};
+	kstd::usize index = 0;
+
+	for(const auto& val : slice) {
+		ASSERT_EQ(val, values[index++]);
+	}
+}
+
+TEST(kstd_Slice, test_loop_pointer) {
+	using namespace std::string_literals;
+	std::vector values {"Hello"s, "World"s, ":3"s};
+	std::vector<std::string*> addresses {};
+
+	for(const auto& val : values) {
+		addresses.push_back(&val);
+	}
+
+	kstd::Slice slice {addresses.begin(), addresses.end()};
+	kstd::usize index = 0;
+
+	for(auto* val : slice) {
+		ASSERT_EQ(*val, values[index++]);
+	}
+}
