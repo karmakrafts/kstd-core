@@ -130,7 +130,7 @@ TEST(kstd_Slice, test_loop_pointer) {
 	std::vector values {"Hello"s, "World"s, ":3"s};
 	std::vector<std::string*> addresses {};
 
-	for(const auto& val : values) {
+	for(auto& val : values) {
 		addresses.push_back(&val);
 	}
 
