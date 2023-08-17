@@ -175,22 +175,6 @@ namespace kstd::libc {
     }
 
     template<typename T>
-    constexpr auto copy_string(T* dst, const T* src, usize size) noexcept -> void {
-        if constexpr(std::is_same_v<T, char>) {
-            strcpy(dst, src);
-        }
-        else if constexpr(std::is_same_v<T, wchar_t>) {
-            wcscpy(dst, src);
-        }
-        else {
-            const auto dst_length = get_string_length(dst);
-            const auto src_length = get_string_length(src);
-            const auto length = std::min(dst_length, src_length);
-            memcpy(dst, src, (length + 1) * sizeof(T));
-        }
-    }
-
-    template<typename T>
     constexpr auto compare_string(const T* lhs, const T* rhs) noexcept -> i32 {
         if constexpr(std::is_same_v<T, char>) {
             return strcmp(lhs, rhs);
