@@ -19,9 +19,30 @@
 
 #pragma once
 
+#include "types.hpp"
 #include "unicode.hpp"
 
+#include <utility>
+
 namespace kstd::utils {
+    namespace {
+        template<typename HEAD, typename... TAIL>
+        constexpr auto hash(usize& value, HEAD head, TAIL&&... tail) noexcept -> void {
+            value ^= std::hash<HEAD> {}(head) + 0x9E3779B9 + (value << 6) + (value >> 2);
+            if constexpr(sizeof...(TAIL) > 0) {
+                hash_impl<TAIL...>(value, std::forward<TAIL>(tail)...);
+            }
+        }
+    }// namespace
+
+    // TODO: Add documentation
+    template<typename... TYPES>
+    [[nodiscard]] constexpr auto hash(TYPES&&... values) noexcept -> usize {
+        usize result = 0;
+        hash<TYPES...>(result, std::forward<TYPES>(values)...);
+        return result;
+    }
+
     /**
      * Transmutes the type of the given value while retaining the exact memory layout.
      * This is equal to performing an std::bitcast, but since that function is not portable
