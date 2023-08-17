@@ -24,11 +24,20 @@
 
 #include <utility>
 
+#define KSTD_DEFAULT_HASH(t, ...)                                                                                      \
+    template<>                                                                                                         \
+    struct std::hash<t> final {                                                                                        \
+        inline auto operator()(const t& value) const noexcept -> size_t {                                              \
+            return kstd::utils::hash(__VA_ARGS__);                                                                     \
+        }                                                                                                              \
+    }
+
 namespace kstd::utils {
     namespace {
         template<typename HEAD, typename... TAIL>
         constexpr auto hash(usize& value, HEAD head, TAIL&&... tail) noexcept -> void {
-            value ^= std::hash<HEAD> {}(head) + 0x9E3779B9 + (value << 6) + (value >> 2);
+            std::hash<std::remove_cv_t<std::remove_pointer_t<std::remove_reference_t<HEAD>>>> hasher {};
+            value ^= hasher(head) + 0x9E3779B9 + (value << 6) + (value >> 2);
             if constexpr(sizeof...(TAIL) > 0) {
                 hash_impl<TAIL...>(value, std::forward<TAIL>(tail)...);
             }
