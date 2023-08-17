@@ -24,6 +24,15 @@
 
 #include <utility>
 
+#define KSTD_TEMPLATE(...) template<__VA_ARGS__>
+
+#define KSTD_DEFAULT_HASH_T(T, t, ...)                                                                                 \
+    T struct std::hash<t> final {                                                                                      \
+        inline auto operator()(const t& value) const noexcept -> size_t {                                              \
+            return kstd::utils::hash(__VA_ARGS__);                                                                     \
+        }                                                                                                              \
+    }
+
 #define KSTD_DEFAULT_HASH(t, ...)                                                                                      \
     template<>                                                                                                         \
     struct std::hash<t> final {                                                                                        \
@@ -35,7 +44,7 @@
 namespace kstd::utils {
     namespace {
         template<typename HEAD, typename... TAIL>
-        constexpr auto hash(usize& value, HEAD head, TAIL&&... tail) noexcept -> void {
+        constexpr auto hash_impl(usize& value, HEAD head, TAIL&&... tail) noexcept -> void {
             std::hash<std::remove_cv_t<std::remove_pointer_t<std::remove_reference_t<HEAD>>>> hasher {};
             value ^= hasher(head) + 0x9E3779B9 + (value << 6) + (value >> 2);
             if constexpr(sizeof...(TAIL) > 0) {
@@ -48,7 +57,7 @@ namespace kstd::utils {
     template<typename... TYPES>
     [[nodiscard]] constexpr auto hash(TYPES&&... values) noexcept -> usize {
         usize result = 0;
-        hash<TYPES...>(result, std::forward<TYPES>(values)...);
+        hash_impl<TYPES...>(result, std::forward<TYPES>(values)...);
         return result;
     }
 

@@ -298,7 +298,4 @@ namespace kstd {
             return !is_empty();
         }
     };
-
-#ifdef BUILD_DEBUG
-#endif
 }// namespace kstd
