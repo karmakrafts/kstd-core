@@ -38,20 +38,21 @@
 // NOLINTEND
 
 namespace kstd {
-    constexpr auto combine_hashes_into(usize& first, usize second) noexcept -> void {
+    constexpr auto combined_hash_into(usize& first, usize second) noexcept -> void {
         first ^= second + 0x9E3779B9 + (first << 6) + (first >> 2);
     }
 
-    [[nodiscard]] constexpr auto combine_hashes(usize first, usize second) noexcept -> usize {
+    [[nodiscard]] constexpr auto combined_hash(usize first, usize second) noexcept -> usize {
         usize result = first;
-        combine_hashes_into(result, second);
+        combined_hash_into(result, second);
         return result;
     }
 
     template<typename HEAD, typename... TAIL>
     constexpr auto hash_into(usize& value, HEAD head, TAIL&&... tail) noexcept -> void {
-        std::hash<std::remove_cv_t<std::remove_reference_t<HEAD>>> hasher {};
-        combine_hashes_into(value, hasher(head));
+        using Type = std::remove_cv_t<std::remove_reference_t<HEAD>>;
+        const std::hash<Type> hasher {};
+        combined_hash_into(value, hasher(head));
         if constexpr(sizeof...(TAIL) > 0) {
             hash_into<TAIL...>(value, std::forward<TAIL>(tail)...);
         }
@@ -61,6 +62,24 @@ namespace kstd {
     [[nodiscard]] constexpr auto hash(TYPES&&... values) noexcept -> usize {
         usize result = 0;
         hash_into<TYPES...>(result, std::forward<TYPES>(values)...);
+        return result;
+    }
+
+    template<typename ITERATOR>
+    [[nodiscard]] constexpr auto hash_range(ITERATOR begin, ITERATOR end) noexcept -> usize {
+        // clang-format off
+        using Type = std::conditional_t<
+            std::is_pointer_v<ITERATOR>, std::remove_pointer_t<ITERATOR>,
+            std::conditional_t<std::is_const_v<std::remove_pointer_t<typename ITERATOR::pointer>>,
+                const typename ITERATOR::value_type, typename ITERATOR::value_type>>;
+        // clang-format on
+        const std::hash<Type> hasher {};
+        usize result = 0;
+        while(begin != end) {
+            const auto hash = hasher(*begin);
+            combined_hash_into(result, hash);
+            ++begin;
+        }
         return result;
     }
 }// namespace kstd

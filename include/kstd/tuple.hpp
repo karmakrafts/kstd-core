@@ -274,7 +274,7 @@ namespace std {
         template<size_t INDEX>
         constexpr auto compute(size_t& result, const kstd::Tuple<TYPES...>& value) const noexcept -> void {
             const auto head_hash = kstd::hash(value.template get_head<INDEX>());
-            kstd::combine_hashes_into(result, head_hash);
+            kstd::combined_hash_into(result, head_hash);
             if constexpr(INDEX < sizeof...(TYPES)) {
                 compute<INDEX + 1>(result, value);
             }
