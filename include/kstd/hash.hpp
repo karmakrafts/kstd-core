@@ -67,17 +67,9 @@ namespace kstd {
 
     template<typename ITERATOR>
     [[nodiscard]] constexpr auto hash_range(ITERATOR begin, ITERATOR end) noexcept -> usize {
-        // clang-format off
-        using Type = std::conditional_t<
-            std::is_pointer_v<ITERATOR>, std::remove_pointer_t<ITERATOR>,
-            std::conditional_t<std::is_const_v<std::remove_pointer_t<typename ITERATOR::pointer>>,
-                const typename ITERATOR::value_type, typename ITERATOR::value_type>>;
-        // clang-format on
-        const std::hash<Type> hasher {};
         usize result = 0;
         while(begin != end) {
-            const auto hash = hasher(*begin);
-            combined_hash_into(result, hash);
+            combined_hash_into(result,  hash(*begin));
             ++begin;
         }
         return result;
