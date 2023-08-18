@@ -27,7 +27,7 @@
 // NOLINTBEGIN
 #define KSTD_HASH_T(T, t, x)                                                                                           \
     T struct std::hash<KSTD_UNPAREN(t)> {                                                                              \
-        inline auto operator()([[maybe_unused]] const KSTD_UNPAREN(t) & value) const noexcept -> size_t {              \
+        inline auto operator()([[maybe_unused]] const KSTD_UNPAREN(t) & value) const -> size_t {                       \
             return x;                                                                                                  \
         }                                                                                                              \
     };
@@ -69,7 +69,7 @@ namespace kstd {
     [[nodiscard]] constexpr auto hash_range(ITERATOR begin, ITERATOR end) noexcept -> usize {
         usize result = 0;
         while(begin != end) {
-            combined_hash_into(result,  hash(*begin));
+            combined_hash_into(result, hash(*begin));
             ++begin;
         }
         return result;
