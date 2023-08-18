@@ -22,7 +22,9 @@
 #include <fmt/format.h>
 
 #include "defaults.hpp"
+#include "hash.hpp"
 #include "types.hpp"
+#include "utils.hpp"
 
 namespace kstd {
     class SourceLocation final {
@@ -31,6 +33,8 @@ namespace kstd {
         usize _line;
 
         public:
+        friend struct std::hash<SourceLocation>;
+
         KSTD_DEFAULT_MOVE_COPY(SourceLocation, SourceLocation, constexpr)
 
         constexpr SourceLocation(const char* file, const char* function, usize line) noexcept :// NOLINT
@@ -64,3 +68,5 @@ namespace kstd {
         }
     };
 }// namespace kstd
+
+KSTD_DEFAULT_HASH((kstd::SourceLocation), value._file, value._function, value._line)

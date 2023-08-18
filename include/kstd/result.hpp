@@ -26,6 +26,7 @@
 #include "assert.hpp"
 #include "box.hpp"
 #include "defaults.hpp"
+#include "hash.hpp"
 #include "libc.hpp"
 #include "types.hpp"
 #include "utils.hpp"
@@ -312,8 +313,8 @@ namespace kstd {
         }
     };
 
-    template<typename T, typename E = std::string>
-    Result(T) -> Result<T, E>;
+    template<typename T>
+    Result(T) -> Result<T, std::string>;
 
 #ifdef BUILD_DEBUG
     static_assert(std::is_same_v<typename Result<void>::ValueType, void>);
@@ -354,3 +355,9 @@ namespace kstd {
     }
 #endif// KSTD_STD_EXPECTED_SUPPORT
 }// namespace kstd
+
+// clang-format off
+KSTD_HASH_T(KSTD_TEMPLATE((typename T, typename E)), (kstd::Result<T, E>),
+    value ? kstd::hash(*value) :
+        value.is_error() ? kstd::hash(value.get_error()) : 0)
+// clang-format on

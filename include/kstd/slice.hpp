@@ -20,8 +20,10 @@
 #pragma once
 
 #include "defaults.hpp"
+#include "hash.hpp"
 #include "libc.hpp"
 #include "types.hpp"
+#include "utils.hpp"
 
 #ifndef KSTD_DISABLE_STD_SPAN_SUPPORT
 #include "language.hpp"
@@ -42,6 +44,8 @@ namespace kstd {
         using ConstIterator = ConstPointer;
         using ReverseIterator = std::reverse_iterator<Iterator>;
         using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
+
+        friend struct std::hash<Self>;
 
         private:
         Pointer _data;
@@ -188,3 +192,5 @@ namespace kstd {
     }
 #endif// KSTD_STD_SPAN_SUPPORT
 }// namespace kstd
+
+KSTD_DEFAULT_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::Slice<T>), value._data, value._size)

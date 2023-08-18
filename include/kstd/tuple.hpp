@@ -267,12 +267,31 @@ namespace kstd {
     using Tuple = PackedTuple<Pack<TYPES...>>;
 }// namespace kstd
 
-// Specializations for std::tuple_size and std::tuple_element to allow structured bindings
 namespace std {
-    template<typename... ARGS>
-    struct tuple_size<kstd::Tuple<ARGS...>> {
+    template<typename... TYPES>
+    struct hash<kstd::Tuple<TYPES...>> {
+        private:
+        template<size_t INDEX>
+        constexpr auto compute(size_t& result, const kstd::Tuple<TYPES...>& value) const noexcept -> void {
+            const auto head_hash = kstd::hash(value.template get_head<INDEX>());
+            kstd::combine_hashes_into(result, head_hash);
+            if constexpr(INDEX < sizeof...(TYPES)) {
+                compute<INDEX + 1>(result, value);
+            }
+        }
+
+        public:
+        constexpr auto operator()(const kstd::Tuple<TYPES...>& value) const noexcept -> size_t {
+            size_t result = 0;
+            compute<0>(result, value);
+            return result;
+        }
+    };
+
+    template<typename... TYPES>
+    struct tuple_size<kstd::Tuple<TYPES...>> {
         using value_type = kstd::usize;// NOLINT: style mismatch
-        static constexpr value_type value = sizeof...(ARGS);
+        static constexpr value_type value = sizeof...(TYPES);
         using type = std::integral_constant<value_type, value>;// NOLINT: style mismatch
 
         [[nodiscard]] constexpr auto operator()() const noexcept -> value_type {

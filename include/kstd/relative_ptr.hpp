@@ -20,7 +20,9 @@
 #pragma once
 
 #include "defaults.hpp"
+#include "hash.hpp"
 #include "types.hpp"
+#include "utils.hpp"
 
 namespace kstd {
     template<typename T, typename OFFSET = u32>
@@ -33,6 +35,8 @@ namespace kstd {
         using Reference = ElementType&;
         using ConstReference = const ElementType&;
         using SizeType = usize;
+
+        friend struct std::hash<Self>;
 
         private:
         OffsetType _offset;
@@ -100,3 +104,11 @@ namespace kstd {
         }
     };
 }// namespace kstd
+
+KSTD_DEFAULT_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::RelativePtr<T, kstd::u16>), value._offset)
+KSTD_DEFAULT_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::RelativePtr<T, kstd::u32>), value._offset)
+KSTD_DEFAULT_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::RelativePtr<T, kstd::u64>), value._offset)
+
+KSTD_DEFAULT_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::RelativePtr<T, kstd::i16>), value._offset)
+KSTD_DEFAULT_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::RelativePtr<T, kstd::i32>), value._offset)
+KSTD_DEFAULT_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::RelativePtr<T, kstd::i64>), value._offset)

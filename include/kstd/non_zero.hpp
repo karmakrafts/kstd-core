@@ -39,6 +39,8 @@ namespace kstd {
         using Reference = ValueType&;
         using ConstReference = const ValueType&;
 
+        friend struct std::hash<Self>;
+
         private:
         ValueType _value;
 
@@ -149,3 +151,5 @@ namespace kstd {
         }
     };
 }// namespace kstd
+
+KSTD_DEFAULT_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::NonZero<T>), value._value)

@@ -48,6 +48,8 @@ namespace kstd {
         using Pointer = typename BoxType::Pointer;
         using ConstPointer = typename BoxType::ConstPointer;
 
+        friend struct std::hash<Self>;
+
         private:
         BoxType _value;
 
@@ -156,3 +158,5 @@ namespace kstd {
     }
 #endif// KSTD_STD_OPTIONAL_SUPPORT
 }// namespace kstd
+
+KSTD_DEFAULT_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::Option<T>), value._value)

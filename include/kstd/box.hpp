@@ -24,6 +24,7 @@
 
 #include "assert.hpp"
 #include "defaults.hpp"
+#include "hash.hpp"
 #include "libc.hpp"
 #include "utils.hpp"
 #include "void.hpp"
@@ -299,3 +300,5 @@ namespace kstd {
         }
     };
 }// namespace kstd
+
+KSTD_HASH_T(KSTD_TEMPLATE((typename T)), (kstd::Box<T>), value ? kstd::hash(*value) : 0)

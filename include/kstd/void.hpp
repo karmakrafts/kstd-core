@@ -20,6 +20,7 @@
 #pragma once
 
 #include "defaults.hpp"
+#include "hash.hpp"
 #include "types.hpp"
 
 namespace kstd {
@@ -40,3 +41,5 @@ namespace kstd {
         ~Void() noexcept = default;
     };
 }// namespace kstd
+
+KSTD_HASH((kstd::Void), 0)
