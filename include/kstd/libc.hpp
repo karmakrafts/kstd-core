@@ -161,10 +161,10 @@ namespace kstd::libc {
     template<typename T>
     constexpr auto copy_string(T* dst, const T* src) noexcept -> void {
         if constexpr(std::is_same_v<T, char>) {
-            return strcpy(dst, src);
+            strcpy(dst, src);
         }
         else if constexpr(std::is_same_v<T, wchar_t>) {
-            return wcscpy(dst, src);
+            wcscpy(dst, src);
         }
         else {
             const auto dst_length = get_string_length(dst);
