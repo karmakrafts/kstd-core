@@ -21,13 +21,15 @@
 #include <kstd/unicode.hpp>
 #include <string>
 
+using namespace kstd;
+
 TEST(kstd_unicode, test_convert_wcs_to_mbs) {
     const auto* value = LR"(Hello World! 🦊)";
 
-    kstd::usize count = 0;
-    kstd::unicode::convert_buffer<char>(value, nullptr, &count);
+    usize count = 0;
+    unicode::convert_buffer<char>(value, nullptr, &count);
     std::string result(count, ' ');
-    kstd::unicode::convert_buffer(value, result.data(), nullptr);
+    unicode::convert_buffer(value, result.data(), nullptr);
 
     ASSERT_FALSE(result.empty());
     ASSERT_EQ(result, R"(Hello World! 🦊)");
@@ -36,10 +38,10 @@ TEST(kstd_unicode, test_convert_wcs_to_mbs) {
 TEST(kstd_unicode, test_convert_mbs_to_wcs) {
     const auto* value = R"(Hello World! 🦊)";
 
-    kstd::usize count = 0;
-    kstd::unicode::convert_buffer<wchar_t>(value, nullptr, &count);
+    usize count = 0;
+    unicode::convert_buffer<wchar_t>(value, nullptr, &count);
     std::wstring result(count, ' ');
-    kstd::unicode::convert_buffer(value, result.data(), nullptr);
+    unicode::convert_buffer(value, result.data(), nullptr);
 
     ASSERT_FALSE(result.empty());
     ASSERT_EQ(result, LR"(Hello World! 🦊)");
@@ -47,7 +49,7 @@ TEST(kstd_unicode, test_convert_mbs_to_wcs) {
 
 TEST(kstd_unicode, test_convert_wstring_to_string) {
     const std::wstring value = LR"(Hello World! 🦊)";
-    const auto result = kstd::unicode::convert<char>(value);
+    const auto result = unicode::convert<char>(value);
 
     ASSERT_FALSE(result.empty());
     ASSERT_EQ(result, R"(Hello World! 🦊)");
@@ -55,7 +57,7 @@ TEST(kstd_unicode, test_convert_wstring_to_string) {
 
 TEST(kstd_unicode, test_convert_string_to_wstring) {
     const std::string value = R"(Hello World! 🦊)";
-    const auto result = kstd::unicode::convert<wchar_t>(value);
+    const auto result = unicode::convert<wchar_t>(value);
 
     ASSERT_FALSE(result.empty());
     ASSERT_EQ(result, LR"(Hello World! 🦊)");

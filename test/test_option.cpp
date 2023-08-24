@@ -22,8 +22,10 @@
 #include <string>
 #include <string_view>
 
+using namespace kstd;
+
 TEST(kstd_Option, test_empty) {
-    kstd::Option<std::string> opt {};
+    Option<std::string> opt {};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string&>);
@@ -37,7 +39,7 @@ TEST(kstd_Option, test_empty) {
 TEST(kstd_Option, test_map_empty) {
     using namespace std::string_literals;
 
-    kstd::Option<std::string> opt {};
+    Option<std::string> opt {};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string&>);
@@ -59,7 +61,7 @@ TEST(kstd_Option, test_value) {
 
     auto str = "Hello World!"s;
 
-    kstd::Option opt {str};
+    Option opt {str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string&>);
@@ -75,7 +77,7 @@ TEST(kstd_Option, test_value_assignment) {
     using namespace std::string_literals;
     auto str = "Hello World!"s;
 
-    kstd::Option<std::string> opt {};
+    Option<std::string> opt {};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string&>);
@@ -96,7 +98,7 @@ TEST(kstd_Option, test_map_value) {
 
     auto str = "Hello World!"s;
 
-    kstd::Option opt {str};
+    Option opt {str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string&>);
@@ -120,7 +122,7 @@ TEST(kstd_Option, test_no_copy_value) {
 
     auto str = "Hello World!"s;
 
-    kstd::Option opt {std::make_unique<std::string>(str)};
+    Option opt {std::make_unique<std::string>(str)};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::unique_ptr<std::string>>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::unique_ptr<std::string>&>);
@@ -136,7 +138,7 @@ TEST(kstd_Option, test_no_copy_value_assignment) {
     using namespace std::string_literals;
     auto str = "Hello World!"s;
 
-    kstd::Option<std::unique_ptr<std::string>> opt {};
+    Option<std::unique_ptr<std::string>> opt {};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::unique_ptr<std::string>>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::unique_ptr<std::string>&>);
@@ -155,7 +157,7 @@ TEST(kstd_Option, test_pointer) {
     using namespace std::string_literals;
     auto str = "Hello World!"s;
 
-    kstd::Option opt {&str};
+    Option opt {&str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string*>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string*&>);
@@ -171,7 +173,7 @@ TEST(kstd_Option, test_pointer_assignment) {
     using namespace std::string_literals;
     auto str = "Hello World!"s;
 
-    kstd::Option<std::string*> opt {};
+    Option<std::string*> opt {};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string*>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string*&>);
@@ -192,7 +194,7 @@ TEST(kstd_Option, test_map_pointer) {
 
     auto str = "Hello World!"s;
 
-    kstd::Option opt {&str};
+    Option opt {&str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string*>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string*&>);
@@ -215,7 +217,7 @@ TEST(kstd_Option, test_const_pointer) {
     using namespace std::string_literals;
     const auto str = "Hello World!"s;
 
-    kstd::Option opt {&str};
+    Option opt {&str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string*>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string*&>);
@@ -231,7 +233,7 @@ TEST(kstd_Option, test_const_pointer_assignment) {
     using namespace std::string_literals;
     const auto str = "Hello World!"s;
 
-    kstd::Option<const std::string*> opt {};
+    Option<const std::string*> opt {};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string*>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string*&>);
@@ -252,7 +254,7 @@ TEST(kstd_Option, test_map_const_pointer) {
 
     const auto str = "Hello World!"s;
 
-    kstd::Option opt {&str};
+    Option opt {&str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string*>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string*&>);
@@ -274,7 +276,7 @@ TEST(kstd_Option, test_map_const_pointer) {
 TEST(kstd_Option, test_reference) {
     using namespace std::string_literals;
     auto str = "Hello World!"s;
-    kstd::Option<std::string&> opt {str};
+    Option<std::string&> opt {str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string&>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string&>);
@@ -289,7 +291,7 @@ TEST(kstd_Option, test_reference_assignment) {
     using namespace std::string_literals;
     auto str = "Hello World!"s;
 
-    kstd::Option<std::string&> opt {};
+    Option<std::string&> opt {};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string&>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string&>);
@@ -309,7 +311,7 @@ TEST(kstd_Option, test_map_reference) {
     using namespace std::string_literals;
 
     auto str = "Hello World!"s;
-    kstd::Option<std::string&> opt {str};
+    Option<std::string&> opt {str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, std::string&>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, std::string&>);
@@ -330,7 +332,7 @@ TEST(kstd_Option, test_map_reference) {
 TEST(kstd_Option, test_const_reference) {
     using namespace std::string_literals;
     const auto str = "Hello World!"s;
-    kstd::Option<const std::string&> opt {str};
+    Option<const std::string&> opt {str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string&>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string&>);
@@ -345,7 +347,7 @@ TEST(kstd_Option, test_const_reference_assignment) {
     using namespace std::string_literals;
     const auto str = "Hello World!"s;
 
-    kstd::Option<const std::string&> opt {};
+    Option<const std::string&> opt {};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string&>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string&>);
@@ -365,7 +367,7 @@ TEST(kstd_Option, test_map_const_reference) {
     using namespace std::string_literals;
 
     const auto str = "Hello World!"s;
-    kstd::Option<const std::string&> opt {str};
+    Option<const std::string&> opt {str};
 
     static_assert(std::is_same_v<typename decltype(opt)::ValueType, const std::string&>);
     static_assert(std::is_same_v<typename decltype(opt)::Reference, const std::string&>);
@@ -387,13 +389,13 @@ TEST(kstd_Option, test_non_zero) {
     using namespace std::string_literals;
     const auto str = "Hello World!"s;
 
-    kstd::Option opt {kstd::NonZero {&str}};
+    Option opt {NonZero {&str}};
 
-    static_assert(std::is_same_v<typename decltype(opt)::ValueType, kstd::NonZero<const std::string*>>);
-    static_assert(std::is_same_v<typename decltype(opt)::Reference, kstd::NonZero<const std::string*>&>);
-    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const kstd::NonZero<const std::string*>&>);
-    static_assert(std::is_same_v<typename decltype(opt)::Pointer, kstd::NonZero<const std::string*>*>);
-    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const kstd::NonZero<const std::string*>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, NonZero<const std::string*>>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, NonZero<const std::string*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const NonZero<const std::string*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, NonZero<const std::string*>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const NonZero<const std::string*>*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);
@@ -403,17 +405,17 @@ TEST(kstd_Option, test_non_zero_assignment) {
     using namespace std::string_literals;
     const auto str = "Hello World!"s;
 
-    kstd::Option<kstd::NonZero<const std::string*>> opt {};
+    Option<NonZero<const std::string*>> opt {};
 
-    static_assert(std::is_same_v<typename decltype(opt)::ValueType, kstd::NonZero<const std::string*>>);
-    static_assert(std::is_same_v<typename decltype(opt)::Reference, kstd::NonZero<const std::string*>&>);
-    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const kstd::NonZero<const std::string*>&>);
-    static_assert(std::is_same_v<typename decltype(opt)::Pointer, kstd::NonZero<const std::string*>*>);
-    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const kstd::NonZero<const std::string*>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, NonZero<const std::string*>>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, NonZero<const std::string*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const NonZero<const std::string*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, NonZero<const std::string*>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const NonZero<const std::string*>*>);
 
     ASSERT_FALSE(opt);
 
-    opt = {kstd::NonZero {&str}};
+    opt = {NonZero {&str}};
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);
 }
@@ -424,13 +426,13 @@ TEST(kstd_Option, test_map_non_zero) {
 
     const auto str = "Hello World!"s;
 
-    kstd::Option opt {kstd::NonZero {&str}};
+    Option opt {NonZero {&str}};
 
-    static_assert(std::is_same_v<typename decltype(opt)::ValueType, kstd::NonZero<const std::string*>>);
-    static_assert(std::is_same_v<typename decltype(opt)::Reference, kstd::NonZero<const std::string*>&>);
-    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const kstd::NonZero<const std::string*>&>);
-    static_assert(std::is_same_v<typename decltype(opt)::Pointer, kstd::NonZero<const std::string*>*>);
-    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const kstd::NonZero<const std::string*>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ValueType, NonZero<const std::string*>>);
+    static_assert(std::is_same_v<typename decltype(opt)::Reference, NonZero<const std::string*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstReference, const NonZero<const std::string*>&>);
+    static_assert(std::is_same_v<typename decltype(opt)::Pointer, NonZero<const std::string*>*>);
+    static_assert(std::is_same_v<typename decltype(opt)::ConstPointer, const NonZero<const std::string*>*>);
 
     ASSERT_TRUE(opt);
     ASSERT_EQ(*opt, &str);

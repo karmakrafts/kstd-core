@@ -23,16 +23,18 @@
 #include <kstd/types.hpp>
 #include <memory>
 
+using namespace kstd;
+
 // Define function with C-linkage for testing
-extern "C" auto the_c_function(kstd::i32** data_to_set) -> void {
-    *data_to_set = reinterpret_cast<kstd::i32*>(kstd::libc::malloc(sizeof(kstd::i32)));// NOLINT
+extern "C" auto the_c_function(i32** data_to_set) -> void {
+    *data_to_set = reinterpret_cast<i32*>(libc::malloc(sizeof(i32)));// NOLINT
     *(*data_to_set) = 420;
 }
 
 TEST(kstd_OutPtr, test_out_ptr) {
-    auto the_data = kstd::libc::make_unique_c_ptr<kstd::i32>(nullptr);
+    auto the_data = std::unique_ptr<i32, libc::FreeDeleter<i32>>(nullptr);
     ASSERT_TRUE(the_data == nullptr);
 
-    the_c_function(kstd::OutPtr {the_data});
+    the_c_function(OutPtr {the_data});
     ASSERT_EQ(*the_data, 420);
 }

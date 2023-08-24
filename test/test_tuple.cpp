@@ -21,16 +21,18 @@
 #include <kstd/tuple.hpp>
 #include <type_traits>
 
+using namespace kstd;
+
 TEST(kstd_Tuple, test_values) {
-    kstd::Tuple<kstd::i32, kstd::f32> pair {1337, 3.141F};
+    Tuple<i32, f32> pair {1337, 3.141F};
 
     // Template get<>
     const auto& ref_a = pair.get<0>();
-    static_assert(std::is_same_v<std::decay_t<decltype(ref_a)>, kstd::i32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(ref_a)>, i32>);
     ASSERT_EQ(ref_a, 1337);
 
     const auto& ref_b = pair.get<1>();
-    static_assert(std::is_same_v<std::decay_t<decltype(ref_b)>, kstd::f32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(ref_b)>, f32>);
     ASSERT_EQ(ref_b, 3.141F);
 
     // std::tuple_size support
@@ -39,26 +41,26 @@ TEST(kstd_Tuple, test_values) {
 
     // Structured bindings
     const auto& [x, y] = pair;
-    static_assert(std::is_same_v<std::decay_t<decltype(x)>, kstd::i32>);
-    static_assert(std::is_same_v<std::decay_t<decltype(y)>, kstd::f32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x)>, i32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(y)>, f32>);
     ASSERT_EQ(x, 1337);
     ASSERT_EQ(y, 3.141F);
 
     // Equality
-    kstd::Tuple<kstd::i32, kstd::f32> pair2 {1337, 3.141F};
+    Tuple<i32, f32> pair2 {1337, 3.141F};
     ASSERT_TRUE(pair == pair2);
 
-    kstd::Tuple<kstd::i32, kstd::f32> pair3 {13, 3.1F};
+    Tuple<i32, f32> pair3 {13, 3.1F};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
     auto quad = pair + pair;
     auto& [qx, qy, qz, qw] = quad;
 
-    static_assert(std::is_same_v<std::decay_t<decltype(qx)>, kstd::i32>);
-    static_assert(std::is_same_v<std::decay_t<decltype(qy)>, kstd::f32>);
-    static_assert(std::is_same_v<std::decay_t<decltype(qz)>, kstd::i32>);
-    static_assert(std::is_same_v<std::decay_t<decltype(qw)>, kstd::f32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(qx)>, i32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(qy)>, f32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(qz)>, i32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(qw)>, f32>);
 
     ASSERT_EQ(qx, 1337);
     ASSERT_EQ(qy, 3.141F);
@@ -77,17 +79,17 @@ TEST(kstd_Tuple, test_values) {
 }
 
 TEST(kstd_Tuple, test_references) {
-    kstd::i32 value_a = 1337;
-    kstd::f32 value_b = 3.141F;
-    kstd::Tuple<kstd::i32&, kstd::f32&> pair {value_a, value_b};
+    i32 value_a = 1337;
+    f32 value_b = 3.141F;
+    Tuple<i32&, f32&> pair {value_a, value_b};
 
     // Template get<>
     const auto x_a = pair.get<0>();
-    static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, kstd::i32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, i32>);
     ASSERT_EQ(value_a, 1337);
 
     const auto x_b = pair.get<1>();
-    static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, kstd::f32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, f32>);
     ASSERT_EQ(value_b, 3.141F);
 
     // std::tuple_size support
@@ -96,28 +98,28 @@ TEST(kstd_Tuple, test_references) {
 
     // Structured bindings
     auto& [x, y] = pair;
-    static_assert(std::is_same_v<std::decay_t<decltype(x)>, kstd::i32>);
-    static_assert(std::is_same_v<std::decay_t<decltype(y)>, kstd::f32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x)>, i32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(y)>, f32>);
     ASSERT_EQ(x, 1337);
     ASSERT_EQ(y, 3.141F);
 
     // Equality
-    kstd::Tuple<kstd::i32&, kstd::f32&> pair2 {value_a, value_b};
+    Tuple<i32&, f32&> pair2 {value_a, value_b};
     ASSERT_TRUE(pair == pair2);
 
-    kstd::i32 value_a2 = 13;
-    kstd::f32 value_b2 = 3.1F;
-    kstd::Tuple<kstd::i32&, kstd::f32&> pair3 {value_a2, value_b2};
+    i32 value_a2 = 13;
+    f32 value_b2 = 3.1F;
+    Tuple<i32&, f32&> pair3 {value_a2, value_b2};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
     auto quad = pair + pair;
     auto& [qx, qy, qz, qw] = quad;
 
-    static_assert(std::is_same_v<decltype(qx), kstd::i32&>);
-    static_assert(std::is_same_v<decltype(qy), kstd::f32&>);
-    static_assert(std::is_same_v<decltype(qz), kstd::i32&>);
-    static_assert(std::is_same_v<decltype(qw), kstd::f32&>);
+    static_assert(std::is_same_v<decltype(qx), i32&>);
+    static_assert(std::is_same_v<decltype(qy), f32&>);
+    static_assert(std::is_same_v<decltype(qz), i32&>);
+    static_assert(std::is_same_v<decltype(qw), f32&>);
 
     ASSERT_EQ(qx, 1337);
     ASSERT_EQ(qy, 3.141F);
@@ -132,17 +134,17 @@ TEST(kstd_Tuple, test_references) {
 }
 
 TEST(kstd_Tuple, test_const_references) {
-    kstd::i32 value_a = 1337;
-    kstd::f32 value_b = 3.141F;
-    kstd::Tuple<const kstd::i32&, const kstd::f32&> pair {value_a, value_b};
+    i32 value_a = 1337;
+    f32 value_b = 3.141F;
+    Tuple<const i32&, const f32&> pair {value_a, value_b};
 
     // Template get<>
     const auto& x_a = pair.get<0>();
-    static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, kstd::i32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, i32>);
     ASSERT_EQ(value_a, 1337);
 
     const auto& x_b = pair.get<1>();
-    static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, kstd::f32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, f32>);
     ASSERT_EQ(value_b, 3.141F);
 
     // std::tuple_size support
@@ -151,28 +153,28 @@ TEST(kstd_Tuple, test_const_references) {
 
     // Structured bindings
     const auto& [x, y] = pair;
-    static_assert(std::is_same_v<std::decay_t<decltype(x)>, kstd::i32>);
-    static_assert(std::is_same_v<std::decay_t<decltype(y)>, kstd::f32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x)>, i32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(y)>, f32>);
     ASSERT_EQ(x, 1337);
     ASSERT_EQ(y, 3.141F);
 
     // Equality
-    kstd::Tuple<const kstd::i32&, const kstd::f32&> pair2 {value_a, value_b};
+    Tuple<const i32&, const f32&> pair2 {value_a, value_b};
     ASSERT_TRUE(pair == pair2);
 
-    kstd::i32 value_a2 = 13;
-    kstd::f32 value_b2 = 3.1F;
-    kstd::Tuple<const kstd::i32&, const kstd::f32&> pair3 {value_a2, value_b2};
+    i32 value_a2 = 13;
+    f32 value_b2 = 3.1F;
+    Tuple<const i32&, const f32&> pair3 {value_a2, value_b2};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
     const auto quad = pair + pair;
     const auto& [qx, qy, qz, qw] = quad;
 
-    static_assert(std::is_same_v<decltype(qx), const kstd::i32&>);
-    static_assert(std::is_same_v<decltype(qy), const kstd::f32&>);
-    static_assert(std::is_same_v<decltype(qz), const kstd::i32&>);
-    static_assert(std::is_same_v<decltype(qw), const kstd::f32&>);
+    static_assert(std::is_same_v<decltype(qx), const i32&>);
+    static_assert(std::is_same_v<decltype(qy), const f32&>);
+    static_assert(std::is_same_v<decltype(qz), const i32&>);
+    static_assert(std::is_same_v<decltype(qw), const f32&>);
 
     ASSERT_EQ(qx, 1337);
     ASSERT_EQ(qy, 3.141F);
@@ -181,17 +183,17 @@ TEST(kstd_Tuple, test_const_references) {
 }
 
 TEST(kstd_Tuple, test_pointers) {
-    kstd::i32 value_a = 1337;
-    kstd::f32 value_b = 3.141F;
-    kstd::Tuple<kstd::i32*, kstd::f32*> pair {&value_a, &value_b};
+    i32 value_a = 1337;
+    f32 value_b = 3.141F;
+    Tuple<i32*, f32*> pair {&value_a, &value_b};
 
     // Template get<>
     const auto* x_a = pair.get<0>();
-    static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, const kstd::i32*>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, const i32*>);
     ASSERT_EQ(value_a, 1337);
 
     const auto* x_b = pair.get<1>();
-    static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, const kstd::f32*>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, const f32*>);
     ASSERT_EQ(value_b, 3.141F);
 
     // std::tuple_size support
@@ -200,26 +202,26 @@ TEST(kstd_Tuple, test_pointers) {
 
     // Structured bindings
     auto& [x, y] = pair;
-    static_assert(std::is_same_v<std::decay_t<decltype(x)>, kstd::i32*>);
-    static_assert(std::is_same_v<std::decay_t<decltype(y)>, kstd::f32*>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x)>, i32*>);
+    static_assert(std::is_same_v<std::decay_t<decltype(y)>, f32*>);
     ASSERT_EQ(*x, 1337);
     ASSERT_EQ(*y, 3.141F);
 
     // Equality
-    kstd::Tuple<kstd::i32*, kstd::f32*> pair2 {&value_a, &value_b};
+    Tuple<i32*, f32*> pair2 {&value_a, &value_b};
     ASSERT_TRUE(pair == pair2);
 
-    kstd::Tuple<kstd::i32*, kstd::f32*> pair3 {&value_a, nullptr};
+    Tuple<i32*, f32*> pair3 {&value_a, nullptr};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
     auto quad = pair + pair;
     auto& [qx, qy, qz, qw] = quad;
 
-    static_assert(std::is_same_v<decltype(qx), kstd::i32*>);
-    static_assert(std::is_same_v<decltype(qy), kstd::f32*>);
-    static_assert(std::is_same_v<decltype(qz), kstd::i32*>);
-    static_assert(std::is_same_v<decltype(qw), kstd::f32*>);
+    static_assert(std::is_same_v<decltype(qx), i32*>);
+    static_assert(std::is_same_v<decltype(qy), f32*>);
+    static_assert(std::is_same_v<decltype(qz), i32*>);
+    static_assert(std::is_same_v<decltype(qw), f32*>);
 
     ASSERT_EQ(*qx, 1337);
     ASSERT_EQ(*qy, 3.141F);
@@ -234,17 +236,17 @@ TEST(kstd_Tuple, test_pointers) {
 }
 
 TEST(kstd_Tuple, test_const_pointers) {
-    kstd::i32 value_a = 1337;
-    kstd::f32 value_b = 3.141F;
-    kstd::Tuple<const kstd::i32*, const kstd::f32*> pair {&value_a, &value_b};
+    i32 value_a = 1337;
+    f32 value_b = 3.141F;
+    Tuple<const i32*, const f32*> pair {&value_a, &value_b};
 
     // Template get<>
     const auto* x_a = pair.get<0>();
-    static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, const kstd::i32*>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x_a)>, const i32*>);
     ASSERT_EQ(value_a, 1337);
 
     const auto* x_b = pair.get<1>();
-    static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, const kstd::f32*>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x_b)>, const f32*>);
     ASSERT_EQ(value_b, 3.141F);
 
     // std::tuple_size support
@@ -253,26 +255,26 @@ TEST(kstd_Tuple, test_const_pointers) {
 
     // Structured bindings
     auto& [x, y] = pair;
-    static_assert(std::is_same_v<std::decay_t<decltype(x)>, const kstd::i32*>);
-    static_assert(std::is_same_v<std::decay_t<decltype(y)>, const kstd::f32*>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x)>, const i32*>);
+    static_assert(std::is_same_v<std::decay_t<decltype(y)>, const f32*>);
     ASSERT_EQ(*x, 1337);
     ASSERT_EQ(*y, 3.141F);
 
     // Equality
-    kstd::Tuple<const kstd::i32*, const kstd::f32*> pair2 {&value_a, &value_b};
+    Tuple<const i32*, const f32*> pair2 {&value_a, &value_b};
     ASSERT_TRUE(pair == pair2);
 
-    kstd::Tuple<const kstd::i32*, const kstd::f32*> pair3 {&value_a, nullptr};
+    Tuple<const i32*, const f32*> pair3 {&value_a, nullptr};
     ASSERT_TRUE(pair != pair3);
 
     // Concat
     auto quad = pair + pair;
     auto& [qx, qy, qz, qw] = quad;
 
-    static_assert(std::is_same_v<decltype(qx), const kstd::i32*>);
-    static_assert(std::is_same_v<decltype(qy), const kstd::f32*>);
-    static_assert(std::is_same_v<decltype(qz), const kstd::i32*>);
-    static_assert(std::is_same_v<decltype(qw), const kstd::f32*>);
+    static_assert(std::is_same_v<decltype(qx), const i32*>);
+    static_assert(std::is_same_v<decltype(qy), const f32*>);
+    static_assert(std::is_same_v<decltype(qz), const i32*>);
+    static_assert(std::is_same_v<decltype(qw), const f32*>);
 
     ASSERT_EQ(*qx, 1337);
     ASSERT_EQ(*qy, 3.141F);
@@ -281,17 +283,17 @@ TEST(kstd_Tuple, test_const_pointers) {
 }
 
 TEST(kstd_Tuple, test_slice) {
-    kstd::Tuple<kstd::i8, kstd::i16, kstd::i32, kstd::i64> tuple {1, 2, 3, 4};
+    Tuple<i8, i16, i32, i64> tuple {1, 2, 3, 4};
 
     const auto [x, y] = tuple.slice<0, 1>();
-    static_assert(std::is_same_v<std::decay_t<decltype(x)>, kstd::i8>);
-    static_assert(std::is_same_v<std::decay_t<decltype(y)>, kstd::i16>);
+    static_assert(std::is_same_v<std::decay_t<decltype(x)>, i8>);
+    static_assert(std::is_same_v<std::decay_t<decltype(y)>, i16>);
     ASSERT_EQ(x, 1);
     ASSERT_EQ(y, 2);
 
     const auto [z, w] = tuple.slice<2, 3>();
-    static_assert(std::is_same_v<std::decay_t<decltype(z)>, kstd::i32>);
-    static_assert(std::is_same_v<std::decay_t<decltype(w)>, kstd::i64>);
+    static_assert(std::is_same_v<std::decay_t<decltype(z)>, i32>);
+    static_assert(std::is_same_v<std::decay_t<decltype(w)>, i64>);
     ASSERT_EQ(z, 3);
     ASSERT_EQ(w, 4);
 }

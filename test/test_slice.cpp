@@ -21,10 +21,12 @@
 #include <kstd/libc.hpp>
 #include <kstd/slice.hpp>
 
+using namespace kstd;
+
 TEST(kstd_Slice, test_from_pointer) {
-    constexpr auto size = sizeof(kstd::u32) << 2;
-    auto* memory = reinterpret_cast<kstd::u32*>(kstd::libc::malloc(size));// NOLINT
-    kstd::Slice slice {memory, size};
+    constexpr auto size = sizeof(u32) << 2;
+    auto* memory = reinterpret_cast<u32*>(libc::malloc(size));// NOLINT
+    Slice slice {memory, size};
 
     slice[0] = 444;
     slice[1] = 1337;
@@ -38,19 +40,19 @@ TEST(kstd_Slice, test_from_pointer) {
     ASSERT_EQ(slice[2], 69);
     ASSERT_EQ(slice[3], 222);
 
-    kstd::libc::free(memory);// NOLINT
+    libc::free(memory);// NOLINT
 }
 
 TEST(kstd_Slice, test_from_const_pointer) {
-    constexpr auto size = sizeof(kstd::u32) << 2;
+    constexpr auto size = sizeof(u32) << 2;
 
-    auto* memory = reinterpret_cast<kstd::u32*>(kstd::libc::malloc(size));// NOLINT
-    memory[0] = 444;                                                      // NOLINT
-    memory[1] = 1337;                                                     // NOLINT
-    memory[2] = 69;                                                       // NOLINT
-    memory[3] = 222;                                                      // NOLINT
+    auto* memory = reinterpret_cast<u32*>(libc::malloc(size));// NOLINT
+    memory[0] = 444;                                          // NOLINT
+    memory[1] = 1337;                                         // NOLINT
+    memory[2] = 69;                                           // NOLINT
+    memory[3] = 222;                                          // NOLINT
 
-    kstd::Slice slice {reinterpret_cast<const kstd::u32*>(memory), size};// NOLINT
+    Slice slice {reinterpret_cast<const u32*>(memory), size};// NOLINT
 
     ASSERT_EQ(slice.get_size(), size);
     ASSERT_EQ(slice.get_count(), 4);
@@ -59,14 +61,14 @@ TEST(kstd_Slice, test_from_const_pointer) {
     ASSERT_EQ(slice[2], 69);
     ASSERT_EQ(slice[3], 222);
 
-    kstd::libc::free(memory);// NOLINT
+    libc::free(memory);// NOLINT
 }
 
 TEST(kstd_Slice, test_from_range) {
-    std::vector<kstd::u32> values {444, 1337, 69, 222};
-    kstd::Slice slice {values.begin(), values.end()};
+    std::vector<u32> values {444, 1337, 69, 222};
+    Slice slice {values.begin(), values.end()};
 
-    ASSERT_EQ(slice.get_size(), values.size() * sizeof(kstd::u32));
+    ASSERT_EQ(slice.get_size(), values.size() * sizeof(u32));
     ASSERT_EQ(slice.get_count(), 4);
     ASSERT_EQ(slice[0], 444);
     ASSERT_EQ(slice[1], 1337);
@@ -75,10 +77,10 @@ TEST(kstd_Slice, test_from_range) {
 }
 
 TEST(kstd_Slice, test_from_const_range) {
-    std::vector<kstd::u32> values {444, 1337, 69, 222};
-    kstd::Slice slice {values.cbegin(), values.cend()};
+    std::vector<u32> values {444, 1337, 69, 222};
+    Slice slice {values.cbegin(), values.cend()};
 
-    ASSERT_EQ(slice.get_size(), values.size() * sizeof(kstd::u32));
+    ASSERT_EQ(slice.get_size(), values.size() * sizeof(u32));
     ASSERT_EQ(slice.get_count(), 4);
     ASSERT_EQ(slice[0], 444);
     ASSERT_EQ(slice[1], 1337);
@@ -88,7 +90,7 @@ TEST(kstd_Slice, test_from_const_range) {
 
 TEST(kstd_Slice, test_from_pointer_range) {
     std::string value {"HELLO"};
-    kstd::Slice slice {value.begin(), value.end()};
+    Slice slice {value.begin(), value.end()};
 
     ASSERT_EQ(slice.get_size(), value.size());
     ASSERT_EQ(slice.get_count(), 5);
@@ -102,7 +104,7 @@ TEST(kstd_Slice, test_from_pointer_range) {
 
 TEST(kstd_Slice, test_from_const_pointer_range) {
     std::string value {"HELLO"};
-    kstd::Slice slice {value.cbegin(), value.cend()};
+    Slice slice {value.cbegin(), value.cend()};
 
     ASSERT_EQ(slice.get_size(), value.size());
     ASSERT_EQ(slice.get_count(), 5);
@@ -117,8 +119,8 @@ TEST(kstd_Slice, test_from_const_pointer_range) {
 TEST(kstd_Slice, test_loop_value) {
     using namespace std::string_literals;
     std::vector values {"Hello"s, "World"s, ":3"s};
-    kstd::Slice slice {values.cbegin(), values.cend()};
-    kstd::usize index = 0;
+    Slice slice {values.cbegin(), values.cend()};
+    usize index = 0;
 
     for(const auto& val : slice) {
         ASSERT_EQ(val, values[index++]);
@@ -134,8 +136,8 @@ TEST(kstd_Slice, test_loop_pointer) {
         addresses.push_back(&val);
     }
 
-    kstd::Slice slice {addresses.begin(), addresses.end()};
-    kstd::usize index = 0;
+    Slice slice {addresses.begin(), addresses.end()};
+    usize index = 0;
 
     for(auto* val : slice) {
         ASSERT_EQ(*val, values[index++]);

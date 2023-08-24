@@ -28,6 +28,7 @@
 #include "string.h"// NOLINT
 #include "wchar.h" // NOLINT
 
+#include "macros.hpp"
 #include "types.hpp"
 
 namespace kstd::libc {
@@ -208,22 +209,5 @@ namespace kstd::libc {
         }
     }
 
-    template<typename T>
-    struct FreeDeleter final {
-        inline auto operator()(T* memory) noexcept -> void {
-            free(memory);
-        }
-    };
-
-    template<typename T>
-    [[nodiscard]] constexpr auto make_unique_c_ptr(T* memory = calloc(1, sizeof(T))) noexcept// NOLINT
-            -> std::unique_ptr<T, FreeDeleter<T>> {
-        return std::unique_ptr<T, FreeDeleter<T>> {memory};
-    }
-
-    template<typename T>
-    [[nodiscard]] constexpr auto make_shared_c_ptr(T* memory = calloc(1, sizeof(T))) noexcept// NOLINT
-            -> std::shared_ptr<T> {
-        return std::shared_ptr<T> {memory, FreeDeleter<T> {}};
-    }
+    KSTD_DEFAULT_DELETER(FreeDeleter, free)
 }// namespace kstd::libc

@@ -21,22 +21,24 @@
 #include <kstd/types.hpp>
 #include <kstd/utils.hpp>
 
+using namespace kstd;
+
 TEST(kstd_utils, test_transmute) {
-    kstd::u32 value = 0x0000'0000U;
-    auto& f_value = kstd::utils::transmute<kstd::f32>(value);
+    u32 value = 0x0000'0000U;
+    auto& f_value = utils::transmute<f32>(value);
     ASSERT_EQ(f_value, 0.0F);
 }
 
 TEST(kstd_utils, test_transmute_const) {
-    const kstd::u32 value = 0x0000'0000U;
-    const auto& f_value = kstd::utils::transmute<const kstd::f32>(value);
+    const u32 value = 0x0000'0000U;
+    const auto& f_value = utils::transmute<const f32>(value);
     ASSERT_EQ(f_value, 0.0F);
 }
 
 TEST(kstd_utils, test_to_wcs) {
-    ASSERT_EQ(kstd::utils::to_wcs(R"(Yip yap yop 🦊)"), LR"(Yip yap yop 🦊)");
+    ASSERT_EQ(utils::to_wcs(R"(Yip yap yop 🦊)"), LR"(Yip yap yop 🦊)");
 }
 
 TEST(kstd_utils, test_to_mbs) {
-    ASSERT_EQ(kstd::utils::to_mbs(LR"(Yip yap yop 🦊)"), R"(Yip yap yop 🦊)");
+    ASSERT_EQ(utils::to_mbs(LR"(Yip yap yop 🦊)"), R"(Yip yap yop 🦊)");
 }

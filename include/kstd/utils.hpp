@@ -24,13 +24,6 @@
 
 #include <utility>
 
-// NOLINTBEGIN
-#define KSTD_EXPAND(...) __VA_ARGS__
-#define KSTD_LITERAL(e) e
-#define KSTD_UNPAREN(a) KSTD_LITERAL(KSTD_EXPAND a)
-#define KSTD_TEMPLATE(t) template<KSTD_UNPAREN(t)>
-// NOLINTEND
-
 namespace kstd::utils {
     /**
      * Transmutes the type of the given value while retaining the exact memory layout.

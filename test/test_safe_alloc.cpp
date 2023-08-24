@@ -21,16 +21,18 @@
 #include <kstd/safe_alloc.hpp>
 #include <string>
 
+using namespace kstd;
+
 TEST(kstd, test_try_construct) {
     constexpr auto value = "I'm a stack string! :3";
-    auto result = kstd::try_construct<std::string>(value);
+    auto result = try_construct<std::string>(value);
     ASSERT_TRUE(result);
     ASSERT_EQ(*result, value);
 }
 
 TEST(kstd, test_try_new) {
     constexpr auto value = "I'm a heap string! :3";
-    auto result = kstd::try_new<std::string>(value);
+    auto result = try_new<std::string>(value);
     ASSERT_TRUE(result);
     ASSERT_EQ(**result, value);
     delete *result;// Delete memory
@@ -38,14 +40,14 @@ TEST(kstd, test_try_new) {
 
 TEST(kstd, test_try_make_unique) {
     constexpr auto value = "Hello World!";
-    auto result = kstd::try_make_unique<std::string>(value);
+    auto result = try_make_unique<std::string>(value);
     ASSERT_TRUE(result);
     ASSERT_EQ(**result, value);
 }
 
 TEST(kstd, test_try_make_shared) {
     constexpr auto value = "Hello World!";
-    auto result = kstd::try_make_shared<std::string>(value);
+    auto result = try_make_shared<std::string>(value);
     ASSERT_TRUE(result);
     ASSERT_EQ(**result, value);
 }
