@@ -40,8 +40,8 @@ namespace kstd {
     }
 
     template<typename HEAD, typename... TAIL>
-    constexpr auto print(const fmt::format_string<HEAD, TAIL...>& fmt, HEAD&& head, TAIL&&... tail) noexcept {
-        const auto formatted = fmt::format(fmt, std::forward<HEAD>(head), std::forward<TAIL>(tail)...);
+    constexpr auto print(fmt::format_string<HEAD, TAIL...> fmt, HEAD&& head, TAIL&&... tail) noexcept {
+        const auto formatted = fmt::format(std::move(fmt), std::forward<HEAD>(head), std::forward<TAIL>(tail)...);
         libc::fprintf(libc::iob::out, "%s", formatted.c_str());
     }
 
@@ -59,8 +59,8 @@ namespace kstd {
     }
 
     template<typename HEAD, typename... TAIL>
-    constexpr auto println(const fmt::format_string<HEAD, TAIL...>& fmt, HEAD&& head, TAIL&&... tail) noexcept {
-        const auto formatted = fmt::format(fmt, std::forward<HEAD>(head), std::forward<TAIL>(tail)...);
+    constexpr auto println(fmt::format_string<HEAD, TAIL...> fmt, HEAD&& head, TAIL&&... tail) noexcept {
+        const auto formatted = fmt::format(std::move(fmt), std::forward<HEAD>(head), std::forward<TAIL>(tail)...);
         libc::fprintf(libc::iob::out, "%s\n", formatted.c_str());
     }
 
@@ -78,8 +78,8 @@ namespace kstd {
     }
 
     template<typename HEAD, typename... TAIL>
-    constexpr auto print_error(const fmt::format_string<HEAD, TAIL...>& fmt, HEAD&& head, TAIL&&... tail) noexcept {
-        const auto formatted = fmt::format(fmt, std::forward<HEAD>(head), std::forward<TAIL>(tail)...);
+    constexpr auto print_error(fmt::format_string<HEAD, TAIL...> fmt, HEAD&& head, TAIL&&... tail) noexcept {
+        const auto formatted = fmt::format(std::move(fmt), std::forward<HEAD>(head), std::forward<TAIL>(tail)...);
         libc::fprintf(libc::iob::err, "%s", formatted.c_str());
     }
 
@@ -97,8 +97,8 @@ namespace kstd {
     }
 
     template<typename HEAD, typename... TAIL>
-    constexpr auto println_error(const fmt::format_string<HEAD, TAIL...>& fmt, HEAD&& head, TAIL&&... tail) noexcept {
-        const auto formatted = fmt::format(fmt, std::forward<HEAD>(head), std::forward<TAIL>(tail)...);
+    constexpr auto println_error(fmt::format_string<HEAD, TAIL...> fmt, HEAD&& head, TAIL&&... tail) noexcept {
+        const auto formatted = fmt::format(std::move(fmt), std::forward<HEAD>(head), std::forward<TAIL>(tail)...);
         libc::fprintf(libc::iob::err, "%s\n", formatted.c_str());
     }
 }// namespace kstd

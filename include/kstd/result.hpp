@@ -337,6 +337,12 @@ namespace kstd {
         }
     }
 
+    template<typename... ARGS>
+    [[nodiscard]] constexpr auto format_error(fmt::format_string<ARGS...> fmt, ARGS&&... args) noexcept
+            -> Error<std::string> {
+        return Error {fmt::format(std::move(fmt), std::forward<ARGS>(args)...)};
+    }
+
 #ifdef KSTD_STD_EXPECTED_SUPPORT
     template<typename T, typename E>
     [[nodiscard]] constexpr auto clone_into(const std::expected<T, E>& value) noexcept -> Result<T, E> {

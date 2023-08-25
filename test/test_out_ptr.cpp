@@ -32,7 +32,7 @@ extern "C" auto the_c_function(i32** data_to_set) -> void {
 }
 
 TEST(kstd_OutPtr, test_out_ptr) {
-    auto the_data = std::unique_ptr<i32, libc::FreeDeleter<i32>>(nullptr);
+    auto the_data = std::unique_ptr<i32, libc::FreeDeleter>(nullptr);
     ASSERT_TRUE(the_data == nullptr);
 
     the_c_function(OutPtr {the_data});
