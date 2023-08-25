@@ -322,7 +322,7 @@ namespace kstd {
 #endif
 
     template<typename F, typename R = std::invoke_result_t<F>>
-    [[nodiscard]] constexpr auto try_to(F&& function) noexcept -> Result<R> {
+    [[nodiscard]] inline auto try_to(F&& function) noexcept -> Result<R> {
         static_assert(std::is_convertible_v<F, std::function<R()>>, "Function return type does not match");
         try {
             if constexpr(std::is_void_v<R>) {
@@ -338,7 +338,7 @@ namespace kstd {
     }
 
     template<typename... ARGS>
-    [[nodiscard]] constexpr auto format_error(fmt::format_string<ARGS...> fmt, ARGS&&... args) noexcept
+    [[nodiscard]] inline auto format_error(fmt::format_string<ARGS...> fmt, ARGS&&... args) noexcept
             -> Error<std::string> {
         return Error {fmt::format(std::move(fmt), std::forward<ARGS>(args)...)};
     }

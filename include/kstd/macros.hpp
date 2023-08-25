@@ -28,7 +28,8 @@
 
 #define KSTD_DEFAULT_DELETER(n, f)                                                                                     \
     struct n final {                                                                                                   \
-        constexpr auto operator()(auto* memory) noexcept {                                                             \
+		template<typename T>                                                                                           \
+        constexpr auto operator()(T* memory) noexcept {                                                                \
             f(memory);                                                                                                 \
         }                                                                                                              \
     };
