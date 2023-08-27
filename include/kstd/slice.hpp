@@ -167,7 +167,7 @@ namespace kstd {
         }
 
 #ifdef KSTD_STD_SPAN_SUPPORT
-        [[nodiscard]] constexpr auto clone_into() const noexcept -> std::span<ValueType> {
+        [[nodiscard]] constexpr auto clone_into_span() const noexcept -> std::span<ValueType> {
             return {_data, _size};
         }
 #endif// KSTD_STD_SPAN_SUPPORT
@@ -187,7 +187,7 @@ namespace kstd {
 
 #ifdef KSTD_STD_SPAN_SUPPORT
     template<typename T>
-    [[nodiscard]] constexpr auto clone_into(const std::span<T>& value) noexcept -> Slice<T> {
+    [[nodiscard]] constexpr auto clone_into_slice(const std::span<T>& value) noexcept -> Slice<T> {
         return {value.data(), value.size_bytes()};
     }
 #endif// KSTD_STD_SPAN_SUPPORT

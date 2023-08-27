@@ -91,7 +91,7 @@ namespace kstd {
 
         template<typename F, typename R = std::invoke_result_t<F, Reference>>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Option<R> {// NOLINT
-            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
+            static_assert(std::is_invocable_r_v<R, F, Reference>, "Function signature does not match");
             if(is_empty()) {
                 return {};
             }
@@ -119,14 +119,15 @@ namespace kstd {
         }
 
 #ifdef KSTD_STD_OPTIONAL_SUPPORT
-        [[nodiscard]] constexpr auto clone_into() noexcept -> std::optional<std::remove_reference_t<ValueType>> {
+        [[nodiscard]] constexpr auto clone_into_optional() noexcept
+                -> std::optional<std::remove_reference_t<ValueType>> {
             if(is_empty()) {
                 return std::nullopt;
             }
             return std::make_optional<std::remove_reference_t<ValueType>>(get());
         }
 
-        [[nodiscard]] constexpr auto into() noexcept -> std::optional<std::remove_reference_t<ValueType>> {
+        [[nodiscard]] constexpr auto into_optional() noexcept -> std::optional<std::remove_reference_t<ValueType>> {
             if(is_empty()) {
                 return std::nullopt;
             }
@@ -142,7 +143,7 @@ namespace kstd {
 
 #ifdef KSTD_STD_OPTIONAL_SUPPORT
     template<typename T>
-    [[nodiscard]] constexpr auto clone_into(const std::optional<T>& value) noexcept -> Option<T> {
+    [[nodiscard]] constexpr auto clone_into_option(const std::optional<T>& value) noexcept -> Option<T> {
         if(!value) {
             return {};
         }
@@ -150,7 +151,7 @@ namespace kstd {
     }
 
     template<typename T>
-    [[nodiscard]] constexpr auto into(std::optional<T>& value) noexcept -> Option<T> {
+    [[nodiscard]] constexpr auto into_option(std::optional<T>& value) noexcept -> Option<T> {
         if(!value) {
             return {};
         }

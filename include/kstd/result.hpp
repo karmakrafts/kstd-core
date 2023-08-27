@@ -154,7 +154,7 @@ namespace kstd {
 
         template<typename F, typename R = std::invoke_result_t<F, Reference>>
         [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Result<R, ErrorType> {
-            static_assert(std::is_convertible_v<F, std::function<R(ValueType)>>, "Function signature does not match");
+            static_assert(std::is_invocable_r_v<R, F, Reference>, "Function signature does not match");
             if(is_ok()) {
                 return std::forward<F>(function)(get());
             }
@@ -209,7 +209,7 @@ namespace kstd {
         }
 
 #ifdef KSTD_STD_EXPECTED_SUPPORT
-        [[nodiscard]] constexpr auto clone_into() noexcept -> std::expected<ValueType, ErrorType> {
+        [[nodiscard]] constexpr auto clone_into_expected() noexcept -> std::expected<ValueType, ErrorType> {
             if(is_empty()) {
                 return {std::unexpected {ErrorType {}}};// Empty default error value
             }
@@ -219,7 +219,7 @@ namespace kstd {
             return {get()};
         }
 
-        [[nodiscard]] constexpr auto into() noexcept -> std::expected<ValueType, ErrorType> {
+        [[nodiscard]] constexpr auto into_expected() noexcept -> std::expected<ValueType, ErrorType> {
             if(is_empty()) {
                 return {std::unexpected {ErrorType {}}};// Empty default error value
             }
@@ -323,7 +323,7 @@ namespace kstd {
 
     template<typename F, typename R = std::invoke_result_t<F>>
     [[nodiscard]] inline auto try_to(F&& function) noexcept -> Result<R> {
-        static_assert(std::is_convertible_v<F, std::function<R()>>, "Function return type does not match");
+        static_assert(std::is_invocable_r_v<R, F>, "Function return type does not match");
         try {
             if constexpr(std::is_void_v<R>) {
                 std::forward<F>(function)();
@@ -345,7 +345,7 @@ namespace kstd {
 
 #ifdef KSTD_STD_EXPECTED_SUPPORT
     template<typename T, typename E>
-    [[nodiscard]] constexpr auto clone_into(const std::expected<T, E>& value) noexcept -> Result<T, E> {
+    [[nodiscard]] constexpr auto clone_into_result(const std::expected<T, E>& value) noexcept -> Result<T, E> {
         if(!value) {
             return Error {value.error()};
         }
@@ -353,7 +353,7 @@ namespace kstd {
     }
 
     template<typename T, typename E>
-    [[nodiscard]] constexpr auto into(std::expected<T, E>& value) noexcept -> Result<T, E> {
+    [[nodiscard]] constexpr auto into_result(std::expected<T, E>& value) noexcept -> Result<T, E> {
         if(!value) {
             return Error {value.error()};
         }

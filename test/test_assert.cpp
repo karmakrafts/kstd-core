@@ -17,6 +17,8 @@
  * @since 16/05/2023
  */
 
+#ifdef BUILD_DEBUG
+
 #include <gtest/gtest.h>
 #include <kstd/assert.hpp>
 
@@ -29,3 +31,5 @@ TEST(kstd, test_assert_success) {
 TEST(kstd, test_assert_fail) {
     ASSERT_EXIT(assert_true(false), testing::ExitedWithCode(4), "");
 }
+
+#endif// BUILD_DEBUG

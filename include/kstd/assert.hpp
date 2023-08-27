@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <array>
-
 #include "libc.hpp"
 #include "print.hpp"
 #include "source_location.hpp"

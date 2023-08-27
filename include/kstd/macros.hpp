@@ -24,12 +24,12 @@
 #define KSTD_LITERAL(e) e
 #define KSTD_UNPAREN(a) KSTD_LITERAL(KSTD_EXPAND a)
 #define KSTD_TEMPLATE(t) template<KSTD_UNPAREN(t)>
-// NOLINTEND
 
 #define KSTD_DEFAULT_DELETER(n, f)                                                                                     \
     struct n final {                                                                                                   \
-		template<typename T>                                                                                           \
-        constexpr auto operator()(T* memory) noexcept {                                                                \
+        template<typename T>                                                                                           \
+        inline auto operator()(T* memory) noexcept {                                                                   \
             f(memory);                                                                                                 \
         }                                                                                                              \
     };
+// NOLINTEND
