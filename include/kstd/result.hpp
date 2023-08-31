@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <fmt/format.h>
 #include <functional>
 #include <stdexcept>
 #include <type_traits>
@@ -143,13 +144,25 @@ namespace kstd {
             return std::get<WrappedErrorType>(_value).get();
         }
 
-        template<typename TT>
-        [[nodiscard]] constexpr auto forward() const noexcept -> Result<TT, ErrorType> {
+        template<typename NEW_T>
+        [[nodiscard]] constexpr auto forward() const noexcept -> Result<NEW_T, ErrorType> {
             if(is_empty()) {
                 return {};
             }
             assert_true(is_error());
             return {std::move(std::get<WrappedErrorType>(_value))};
+        }
+
+        template<typename NEW_T, typename = std::enable_if_t<std::is_same_v<ErrorType, std::string>>>
+        [[nodiscard]] constexpr auto
+        forward_with_trace(const SourceLocation location = SourceLocation::current()) const noexcept
+                -> Result<NEW_T, std::string> {
+            if(is_empty()) {
+                return {};
+            }
+            assert_true(is_error());
+            const auto& error = std::get<WrappedErrorType>(_value).get();
+            return Error {fmt::format("{}\n\tat {}", error, location.to_string())};
         }
 
         template<typename F, typename R = std::invoke_result_t<F, Reference>>
@@ -321,8 +334,17 @@ namespace kstd {
     static_assert(std::is_same_v<typename Result<void>::WrappedErrorType, Error<std::string>>);
 #endif
 
+    template<typename T, typename... ARGS>
+    [[nodiscard]] inline auto format_error(fmt::format_string<ARGS...> fmt, ARGS&&... args,
+                                           SourceLocation location = SourceLocation::current()) noexcept
+            -> Result<T, std::string> {
+        const auto message = fmt::format(std::move(fmt), std::forward<ARGS>(args)...);
+        return Error {fmt::format("{}\n\tat {}", message, location.to_string())};
+    }
+
     template<typename F, typename R = std::invoke_result_t<F>>
-    [[nodiscard]] inline auto try_to(F&& function) noexcept -> Result<R> {
+    [[nodiscard]] inline auto try_to(F&& function, SourceLocation location = SourceLocation::current()) noexcept
+            -> Result<R> {
         static_assert(std::is_invocable_r_v<R, F>, "Function return type does not match");
         try {
             if constexpr(std::is_void_v<R>) {
@@ -333,14 +355,8 @@ namespace kstd {
             }
         }
         catch(const std::exception& error) {
-            return Error {std::string {error.what()}};
+            return Error {fmt::format("{}\n\tat {}", error.what(), location.to_string())};
         }
-    }
-
-    template<typename... ARGS>
-    [[nodiscard]] inline auto format_error(fmt::format_string<ARGS...> fmt, ARGS&&... args) noexcept
-            -> Error<std::string> {
-        return Error {fmt::format(std::move(fmt), std::forward<ARGS>(args)...)};
     }
 
 #ifdef KSTD_STD_EXPECTED_SUPPORT
