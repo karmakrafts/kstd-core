@@ -19,7 +19,6 @@
 
 #pragma once
 
-// NOLINTBEGIN
 #define KSTD_EXPAND(...) __VA_ARGS__
 #define KSTD_LITERAL(e) e
 #define KSTD_UNPAREN(a) KSTD_LITERAL(KSTD_EXPAND a)
@@ -32,4 +31,3 @@
             f(memory);                                                                                                 \
         }                                                                                                              \
     };
-// NOLINTEND

@@ -37,7 +37,7 @@ namespace kstd::utils {
      */
     template<typename R, typename T>
     [[nodiscard]] constexpr auto transmute(T& value) noexcept -> R& {
-        return *reinterpret_cast<R*>(&value);// NOLINT
+        return *reinterpret_cast<R*>(&value);
     }
 
     /**
@@ -52,7 +52,7 @@ namespace kstd::utils {
      */
     template<typename R, typename T>
     [[nodiscard]] constexpr auto transmute(const T& value) noexcept -> const R& {
-        return *reinterpret_cast<const R*>(&value);// NOLINT
+        return *reinterpret_cast<const R*>(&value);
     }
 
     /**

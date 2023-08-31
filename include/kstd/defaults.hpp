@@ -22,7 +22,6 @@
 #include "defaults.hpp"
 
 // clang-format off
-// NOLINTBEGIN
 #define KSTD_DEFAULT_MOVE(n, t, ...) __VA_ARGS__ n(t&&) noexcept = default; \
 __VA_ARGS__ auto operator =(t&&) noexcept -> t& = default;
 
@@ -40,5 +39,4 @@ __VA_ARGS__ auto operator =(const t&) noexcept -> t& = delete;
 
 #define KSTD_NO_MOVE_COPY(n, t, ...) KSTD_NO_MOVE(n, t, __VA_ARGS__) \
 KSTD_NO_COPY(n, t, __VA_ARGS__)
-// NOLINTEND
 // clang-format on

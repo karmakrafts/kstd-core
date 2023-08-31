@@ -56,15 +56,15 @@ namespace kstd {
         }
 
         constexpr auto set(ElementType* value) noexcept -> void {
-            _offset = static_cast<OffsetType>(reinterpret_cast<u8*>(value) - reinterpret_cast<u8*>(this));// NOLINT
+            _offset = static_cast<OffsetType>(reinterpret_cast<u8*>(value) - reinterpret_cast<u8*>(this));
         }
 
         [[nodiscard]] constexpr auto get() noexcept -> Pointer {
-            return reinterpret_cast<ElementType*>(reinterpret_cast<u8*>(this) + _offset);// NOLINT
+            return reinterpret_cast<ElementType*>(reinterpret_cast<u8*>(this) + _offset);
         }
 
         [[nodiscard]] constexpr auto get() const noexcept -> ConstPointer {
-            return reinterpret_cast<ElementType*>(reinterpret_cast<u8*>(this) + _offset);// NOLINT
+            return reinterpret_cast<ElementType*>(reinterpret_cast<u8*>(this) + _offset);
         }
 
         [[nodiscard]] constexpr operator Pointer() noexcept {// NOLINT

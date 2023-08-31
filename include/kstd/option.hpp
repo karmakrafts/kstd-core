@@ -60,7 +60,7 @@ namespace kstd {
                 _value {} {
         }
 
-        constexpr Option(ValueType value) noexcept :// NOLINT
+        constexpr Option(ValueType value) noexcept :
                 _value {std::forward<ValueType>(value)} {
         }
 
@@ -90,7 +90,7 @@ namespace kstd {
         }
 
         template<typename F, typename R = std::invoke_result_t<F, Reference>>
-        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Option<R> {// NOLINT
+        [[nodiscard]] constexpr auto map(F&& function) const noexcept -> Option<R> {
             static_assert(std::is_invocable_r_v<R, F, Reference>, "Function signature does not match");
             if(is_empty()) {
                 return {};

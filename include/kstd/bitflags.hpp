@@ -20,7 +20,7 @@
 #pragma once
 
 // clang-format off
-#define KSTD_BITFLAGS(t, n, ...) enum class n : t { /* NOLINT */     \
+#define KSTD_BITFLAGS(t, n, ...) enum class n : t {                  \
     NONE = 0,                                                        \
     __VA_ARGS__                                                      \
 };                                                                   \

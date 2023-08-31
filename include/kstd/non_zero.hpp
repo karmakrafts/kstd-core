@@ -51,7 +51,7 @@ namespace kstd {
                 _value {static_cast<ValueType>(0)} {
         }
 
-        explicit constexpr NonZero(ValueType value) noexcept :// NOLINT
+        explicit constexpr NonZero(ValueType value) noexcept :
                 _value {value} {
             assert_true(value != static_cast<ValueType>(0));
         }

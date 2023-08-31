@@ -33,25 +33,27 @@
 
 namespace kstd::libc {
     namespace iob {
+        // NOLINTBEGIN
 #if defined(PLATFORM_LINUX)
-        inline auto out = stdout;// NOLINT
-        inline auto err = stderr;// NOLINT
-        inline auto in = stdin;  // NOLINT
+        inline auto out = stdout;
+        inline auto err = stderr;
+        inline auto in = stdin;
 #elif defined(PLATFORM_WINDOWS)
-        inline auto out = ::__acrt_iob_func(1);// NOLINT
-        inline auto err = ::__acrt_iob_func(2);// NOLINT
-        inline auto in = ::__acrt_iob_func(0); // NOLINT
+        inline auto out = ::__acrt_iob_func(1);
+        inline auto err = ::__acrt_iob_func(2);
+        inline auto in = ::__acrt_iob_func(0);
 #else
 #ifdef __DARWIN_UNIX03
-        inline auto out = ::__stdoutp;// NOLINT
-        inline auto err = ::__stderrp;// NOLINT
-        inline auto in = ::__stdinp;  // NOLINT
+        inline auto out = ::__stdoutp;
+        inline auto err = ::__stderrp;
+        inline auto in = ::__stdinp;
 #else
-        inline auto out = &::__sF[1];// NOLINT
-        inline auto err = &::__sF[2];// NOLINT
-        inline auto in = &::__sF[0]; // NOLINT
+        inline auto out = &::__sF[1];
+        inline auto err = &::__sF[2];
+        inline auto in = &::__sF[0];
 #endif
 #endif
+        // NOLINTEND
     }// namespace iob
 
     using File = ::FILE;

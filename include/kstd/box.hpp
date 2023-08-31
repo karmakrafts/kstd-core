@@ -59,7 +59,7 @@ namespace kstd {
                 _value {Void {}} {
         }
 
-        constexpr Box(ValueType value) noexcept :// NOLINT
+        constexpr Box(ValueType value) noexcept :
                 _value {std::move(value)} {
         }
 
@@ -147,7 +147,7 @@ namespace kstd {
                 _value {Void {}} {
         }
 
-        constexpr Box(ValueType value) noexcept :// NOLINT
+        constexpr Box(ValueType value) noexcept :
                 _value {value} {
         }
 
@@ -179,7 +179,7 @@ namespace kstd {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {// NOLINT
+        [[nodiscard]] constexpr auto operator->() const noexcept -> ConstPointer {
             return get();
         }
 
@@ -243,7 +243,7 @@ namespace kstd {
                 _value {nullptr} {
         }
 
-        constexpr Box(ValueType value) noexcept :// NOLINT
+        constexpr Box(ValueType value) noexcept :
                 _value {&value} {
         }
 
@@ -258,7 +258,7 @@ namespace kstd {
             return *_value;
         }
 
-        [[nodiscard]] constexpr auto get() const noexcept -> ConstReference {// NOLINT
+        [[nodiscard]] constexpr auto get() const noexcept -> ConstReference {
             assert_false(is_empty());
             return *_value;
         }
@@ -267,7 +267,7 @@ namespace kstd {
             return get();
         }
 
-        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstReference {// NOLINT
+        [[nodiscard]] constexpr auto operator*() const noexcept -> ConstReference {
             return get();
         }
 

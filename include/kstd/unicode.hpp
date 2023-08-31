@@ -290,7 +290,7 @@ namespace kstd::unicode {
                 if(code_point == illegal || code_point == incomplete) {
                     code_point = replacement;
                 }
-                *out_count += UTFTraits<CHAR_OUT>::width(code_point);// NOLINT
+                *out_count += UTFTraits<CHAR_OUT>::width(code_point);
             }
         }
         if(out != nullptr) {
@@ -300,7 +300,7 @@ namespace kstd::unicode {
                 if(code_point == illegal || code_point == incomplete) {
                     code_point = replacement;
                 }
-                UTFTraits<CHAR_OUT>::encode(code_point, out);// NOLINT
+                UTFTraits<CHAR_OUT>::encode(code_point, out);
             }
         }
     }

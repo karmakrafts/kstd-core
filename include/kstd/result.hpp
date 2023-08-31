@@ -92,11 +92,11 @@ namespace kstd {
                 _value {Void()} {
         }
 
-        constexpr Result(ValueType value) noexcept :// NOLINT
+        constexpr Result(ValueType value) noexcept :
                 _value {BoxType(std::forward<ValueType>(value))} {
         }
 
-        constexpr Result(WrappedErrorType error) noexcept :// NOLINT
+        constexpr Result(WrappedErrorType error) noexcept :
                 _value {std::move(error)} {
         }
 
@@ -270,7 +270,7 @@ namespace kstd {
                 _value {Void()} {
         }
 
-        constexpr Result(WrappedErrorType error) noexcept :// NOLINT
+        constexpr Result(WrappedErrorType error) noexcept :
                 _value {std::move(error)} {
         }
 

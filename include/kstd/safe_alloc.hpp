@@ -28,7 +28,7 @@
 
 namespace kstd {
     template<typename T, typename... ARGS>
-    [[nodiscard]] constexpr auto try_construct(ARGS&&... args) noexcept -> Result<T> {// NOLINT
+    [[nodiscard]] constexpr auto try_construct(ARGS&&... args) noexcept -> Result<T> {
         static_assert(std::is_constructible_v<T, ARGS...>, "Type is not constructible with provided arguments");
 
         return try_to([&args...] {
@@ -37,7 +37,7 @@ namespace kstd {
     }
 
     template<typename T, typename... ARGS>
-    [[nodiscard]] constexpr auto try_new(ARGS&&... args) noexcept -> Result<T*> {// NOLINT
+    [[nodiscard]] constexpr auto try_new(ARGS&&... args) noexcept -> Result<T*> {
         static_assert(std::is_constructible_v<T, ARGS...>, "Type is not constructible with provided arguments");
 
         return try_to([&args...] {
@@ -46,7 +46,7 @@ namespace kstd {
     }
 
     template<typename T, typename... ARGS>
-    [[nodiscard]] constexpr auto try_make_unique(ARGS&&... args) noexcept -> Result<std::unique_ptr<T>> {// NOLINT
+    [[nodiscard]] constexpr auto try_make_unique(ARGS&&... args) noexcept -> Result<std::unique_ptr<T>> {
         static_assert(std::is_constructible_v<T, ARGS...>, "Type is not constructible with provided arguments");
 
         return try_to([&args...] {
@@ -55,7 +55,7 @@ namespace kstd {
     }
 
     template<typename T, typename... ARGS>
-    [[nodiscard]] constexpr auto try_make_shared(ARGS&&... args) noexcept -> Result<std::shared_ptr<T>> {// NOLINT
+    [[nodiscard]] constexpr auto try_make_shared(ARGS&&... args) noexcept -> Result<std::shared_ptr<T>> {
         static_assert(std::is_constructible_v<T, ARGS...>, "Type is not constructible with provided arguments");
 
         return try_to([&args...] {

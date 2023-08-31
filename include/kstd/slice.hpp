@@ -91,7 +91,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto end() noexcept -> Iterator {
-            return _data + (_size / sizeof(ValueType));// NOLINT
+            return _data + (_size / sizeof(ValueType));
         }
 
         [[nodiscard]] constexpr auto rbegin() noexcept -> ReverseIterator {
@@ -107,7 +107,7 @@ namespace kstd {
         }
 
         [[nodiscard]] constexpr auto cend() const noexcept -> ConstIterator {
-            return _data + (_size / sizeof(ValueType));// NOLINT
+            return _data + (_size / sizeof(ValueType));
         }
 
         [[nodiscard]] constexpr auto crbegin() noexcept -> ConstReverseIterator {

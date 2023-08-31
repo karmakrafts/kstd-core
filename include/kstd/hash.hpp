@@ -25,7 +25,6 @@
 
 #include <type_traits>
 
-// NOLINTBEGIN
 #define KSTD_HASH_T(T, t, x)                                                                                           \
     T struct std::hash<KSTD_UNPAREN(t)> {                                                                              \
         inline auto operator()([[maybe_unused]] const KSTD_UNPAREN(t) & value) const -> size_t {                       \
@@ -36,7 +35,6 @@
 #define KSTD_HASH(t, x) KSTD_HASH_T(template<>, t, x)
 #define KSTD_DEFAULT_HASH_T(T, t, ...) KSTD_HASH_T(T, t, kstd::hash(__VA_ARGS__))
 #define KSTD_DEFAULT_HASH(t, ...) KSTD_HASH(t, kstd::hash(__VA_ARGS__))
-// NOLINTEND
 
 namespace kstd {
     constexpr auto combined_hash_into(usize& first, usize second) noexcept -> void {
