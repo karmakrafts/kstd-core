@@ -46,5 +46,5 @@ cmake -S . -B cmake-build-debug -DCMAKE_BUILD_TYPE=Debug -DKSTD_CORE_BUILD_TESTS
 cmake --build cmake-build-debug
 ```
 
-This will produce an executable `kstd-core-tests(.exe)` inside of the `cmake-build-debug` directory.  
+This will produce an executable `kstd-core-tests(.exe)` inside of the `cmake-build-debug` directory.
 You can directly run this to invoke the Google Test suite.
