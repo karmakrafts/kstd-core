@@ -14,7 +14,7 @@ This library provides the following things:
 * `kstd::SourceLocation` as a pre-C++20 replacement for `std::source_location`
 * `kstd::Tuple` as a replacement for `std::tuple` with support for references and easy concatination
 * `kstd::Void` type for denoting empty states in `std::variant` and as a dummy type
-* **[NEW]** `kstd::StaticVector` as an option for a lightweight small vector implementation.
+* `kstd::StaticVector` as an option for a lightweight small vector implementation.
 * `kstd::transmute` function as a replacement for `std::bitcast`
 * Cross-platform unicode conversion API with support for UTF-8/16/32
 * Safe allocation API which wraps around `new`/`make_unique`/`make_shared` and provides results
