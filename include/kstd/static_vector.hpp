@@ -132,6 +132,24 @@ namespace kstd {
 
         constexpr auto insert(const usize index, ValueType value) noexcept -> void {
             assert_true(_index < size);
+            std::copy(_data.cbegin() + index, _data.cbegin() + _index, _data.begin() + index + 1);
+            _data[index] = std::move(value);
+            ++_index;
+        }
+
+        [[nodiscard]] constexpr auto replace(const usize index, ValueType value) noexcept -> ValueType {
+            assert_true(_index < size);
+            auto result = std::move(_data[index]);
+            _data[index] = std::move(value);
+            return result;
+        }
+
+        [[nodiscard]] constexpr auto find(const ValueType& value) noexcept -> Iterator {
+            return std::find(begin(), end(), value);
+        }
+
+        [[nodiscard]] constexpr auto cfind(const ValueType& value) const noexcept -> ConstIterator {
+            return std::find(cbegin(), cend(), value);
         }
 
         [[nodiscard]] constexpr auto get_capacity() const noexcept -> usize {

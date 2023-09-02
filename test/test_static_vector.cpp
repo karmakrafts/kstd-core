@@ -105,3 +105,25 @@ TEST(kstd_StaticVector, test_pop_front) {
         ASSERT_EQ(values.pop_front(), 11 * (index + 1));
     }
 }
+
+TEST(kstd_StaticVector, test_insert) {
+    StaticVector<u32, 10> values {11U, 22U, 44U, 55U};
+    ASSERT_EQ(values.get_capacity(), 10);
+    ASSERT_EQ(values.get_size(), 4);
+
+    values.insert(2, 33U);
+    ASSERT_EQ(values.get_size(), 5);
+
+    for(usize index = 0; index < 5; ++index) {
+        ASSERT_EQ(values.pop_front(), 11 * (index + 1));
+    }
+}
+
+TEST(kstd_StaticVector, test_replace) {
+    StaticVector<u32, 10> values {11U, 22U, 22U, 44U, 55U};
+    ASSERT_EQ(values.get_capacity(), 10);
+    ASSERT_EQ(values.get_size(), 5);
+
+    ASSERT_EQ(values.replace(2, 33U), 22U);
+    ASSERT_EQ(values[2], 33U);
+}
