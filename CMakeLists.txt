@@ -5,8 +5,8 @@ option(KSTD_CORE_BUILD_TESTS "Build unit tests for kstd-core" OFF)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;")
 include(cmx-bootstrap)
-cmx_include_scripts()
 
+cmx_include_scripts()
 cmx_add_library(kstd-core INTERFACE)
 target_include_directories(kstd-core INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 cmx_include_fmt(kstd-core INTERFACE)
