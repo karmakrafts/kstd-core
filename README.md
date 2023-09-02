@@ -1,4 +1,5 @@
 # kstd-core
+
 A collection of common types to plug holes in pre-C++20 versions.  
 This library provides the following things:
 
@@ -27,6 +28,7 @@ This library provides the following things:
 * Bitflag types (enum classes with bitwise operators using macros)
 
 ### STL interoperability
+
 kstd-core provides tight integration with C++'s builtin STL to turn kstd-core's specialized types
 into drop-in replacements for their std-counterparts.
 
@@ -36,10 +38,13 @@ into drop-in replacements for their std-counterparts.
 * `kstd::Tuple` supports bidirectional conversion from/to `std::tuple`
 
 ### Testing
+
 In order to build kstd-core with unit tests, you can simply use CMake as follows after cloning the repository:
+
 ```shell
 cmake -S . -B cmake-build-debug -DCMAKE_BUILD_TYPE=Debug -DKSTD_CORE_BUILD_TESTS=ON
 cmake --build cmake-build-debug
 ```
+
 This will produce an executable `kstd-core-tests(.exe)` inside of the `cmake-build-debug` directory.  
 You can directly run this to invoke the Google Test suite.
