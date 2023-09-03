@@ -41,7 +41,7 @@ into drop-in replacements for their std-counterparts.
 
 In order to build kstd-core with unit tests, you can simply use CMake as follows after cloning the repository:
 
-```shell
+```sh
 cmake -S . -B cmake-build-debug -DCMAKE_BUILD_TYPE=Debug -DKSTD_CORE_BUILD_TESTS=ON
 cmake --build cmake-build-debug
 ```
