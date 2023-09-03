@@ -1,6 +1,6 @@
 # kstd-core
 
-A collection of common types to plug holes in pre-C++20 versions.  
+A collection of common types to plug holes in pre-C++20 versions.
 This library provides the following things:
 
 * `kstd::Box` for encapsulating references as pointers
